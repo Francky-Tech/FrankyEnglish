@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — FrankyEnglish</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- ============================================================
+    FIREBASE — CDN (misma forma que usaste en tu login)
+    Reemplaza los valores de firebaseConfig con los tuyos.
+    Los encuentras en: Firebase Console → tu proyecto →
+    Configuración (ícono engranaje) → Tus apps → Config
+  ============================================================ -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    /* ----------------------------------------------------------
+       1. CONFIGURACIÓN DE FIREBASE
+       Reemplaza CADA valor con el tuyo (del Firebase Console)
+    ---------------------------------------------------------- */
+    const firebaseConfig = {
+  apiKey: "AIzaSyBYnI8vDNGkzCxEwAX93HbbxeC7Nq0UkW0",
+  authDomain: "portal-de-ingles.firebaseapp.com",
+  projectId: "portal-de-ingles",
+  storageBucket: "portal-de-ingles.firebasestorage.app",
+  messagingSenderId: "555874735361",
+  appId: "1:555874735361:web:2dc6e4b51a9b5c5548f700",
+  measurementId: "G-488275BW4C"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* ----------------------------------------------------------
+       2. VIGILAR SI HAY UN USUARIO ACTIVO
+       onAuthStateChanged se ejecuta automáticamente cada vez
+       que alguien inicia o cierra sesión.
+       - Si hay sesión activa → carga sus datos y muestra el dashboard
+       - Si NO hay sesión    → redirige al login
+    ---------------------------------------------------------- */
+    onAuthStateChanged(auth, async (usuario) => {
+      if (!usuario) {
+        // No hay sesión → manda al login
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Hay sesión: buscar el perfil en Firestore
+      const perfil = await cargarPerfil(usuario);
+
+      // Mostrar el dashboard con los datos reales
+      mostrarDashboard(perfil);
+    });
+
+    /* ----------------------------------------------------------
+       3. CARGAR O CREAR EL PERFIL EN FIRESTORE
+       Si el estudiante nunca ha tenido perfil (nuevo registro),
+       lo creamos con valores por defecto.
+       Si ya existe, simplemente lo leemos.
+    ---------------------------------------------------------- */
+    async function cargarPerfil(usuario) {
+      // Referencia al documento del estudiante en Firestore
+      // Ruta: colección "estudiantes" → documento con el UID del usuario
+      const ref = doc(db, "estudiantes", usuario.uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        // El perfil ya existe → devolvemos sus datos
+        return snap.data();
+      } else {
+        // Primera vez que entra → creamos un perfil con valores iniciales
+        const perfilNuevo = {
+          nombre:              usuario.displayName || usuario.email.split("@")[0],
+          email:               usuario.email,
+          nivel:               "A1",
+          nivelNombre:         "Principiante",
+          nivelSiguiente:      "A2",
+          progreso:            0,
+          unidadesCompletadas: 0,
+          unidadesTotal:       10,
+          horasEstudio:        0,
+          racha:               0,
+          tareasCompletadas:   0,
+          tareasPendientes:    0,
+          creadoEn:            serverTimestamp()
+        };
+
+        // Guardamos en Firestore
+        await setDoc(ref, perfilNuevo);
+        return perfilNuevo;
+      }
+    }
+
+    /* ----------------------------------------------------------
+       4. INYECTAR LOS DATOS EN EL HTML
+       Cada elemento del dashboard tiene un id="..."
+       Aquí buscamos ese elemento y ponemos el valor real.
+    ---------------------------------------------------------- */
+    function mostrarDashboard(p) {
+      // Ocultar pantalla de carga, mostrar contenido
+      document.getElementById("pantalla-carga").style.display = "none";
+      document.getElementById("contenido-principal").style.display = "flex";
+
+      // Saludo
+      const nombre = p.nombre || "Estudiante";
+      document.getElementById("saludo-nombre").textContent = nombre;
+      document.getElementById("usuario-nombre").textContent = nombre;
+      document.getElementById("usuario-iniciales").textContent =
+        nombre.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+
+      // Nivel y progreso
+      document.getElementById("nivel-nombre").textContent     = p.nivel     || "A1";
+      document.getElementById("nivel-siguiente").textContent  = p.nivelSiguiente || "A2";
+      document.getElementById("progreso-titulo").textContent  =
+        `${p.nivel || "A1"} — ${p.nivelNombre || "Principiante"}`;
+      document.getElementById("barra-fill").style.width       = (p.progreso || 0) + "%";
+      document.getElementById("progreso-pct").textContent     = (p.progreso || 0) + "%";
+      document.getElementById("unidades-texto").textContent   =
+        `${p.unidadesCompletadas || 0} de ${p.unidadesTotal || 10} unidades`;
+
+      // Métricas
+      document.getElementById("clases-completadas").textContent =
+        p.unidadesCompletadas || 0;
+      document.getElementById("horas-estudio").textContent =
+        (p.horasEstudio || 0) + "h";
+      document.getElementById("tareas-pendientes").textContent =
+        p.tareasPendientes || 0;
+
+      // Racha
+      document.getElementById("racha-texto").textContent =
+        (p.racha || 0) + " días seguidos";
+
+      // Plan del sidebar
+      document.getElementById("usuario-plan").textContent =
+        "Nivel " + (p.nivel || "A1");
+    }
+
+    /* ----------------------------------------------------------
+       5. CERRAR SESIÓN
+       El botón de logout llama a esta función
+    ---------------------------------------------------------- */
+    window.cerrarSesion = async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    };
+
+  </script>
+
+  <style>
+    :root {
+      --azul-oscuro: #042C53;
+      --azul-medio:  #185FA5;
+      --azul-claro:  #378ADD;
+      --azul-suave:  #E6F1FB;
+      --teal-suave:  #E1F5EE;
+      --amber-suave: #FAEEDA;
+      --coral:       #D85A30;
+      --coral-suave: #FAECE7;
+      --verde-suave: #EAF3DE;
+      --gris-texto:  #444441;
+      --gris-suave:  #888780;
+      --gris-fondo:  #F1EFE8;
+      --blanco:      #ffffff;
+      --borde:       rgba(0,0,0,0.09);
+      --radio-md:    8px;
+      --radio-lg:    12px;
+      --radio-xl:    16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gris-fondo);
+      color: var(--gris-texto);
+    }
+
+    /* PANTALLA DE CARGA */
+    #pantalla-carga {
+      position: fixed; inset: 0;
+      background: var(--azul-oscuro);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 999;
+    }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.15);
+      border-top-color: var(--azul-claro);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #pantalla-carga p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* LAYOUT PORTAL */
+    #contenido-principal {
+      display: none; /* se muestra cuando carga Firebase */
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 230px;
+      min-width: 230px;
+      background: var(--azul-oscuro);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      top: 0; left: 0;
+      z-index: 50;
+    }
+
+    .sidebar-logo {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icono {
+      width: 34px; height: 34px;
+      background: var(--azul-claro);
+      border-radius: var(--radio-md);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .logo-nombre { font-size: 15px; font-weight: 500; color: #fff; }
+    .logo-sub    { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+
+    .nav-seccion { flex: 1; padding: 18px 0 0; overflow-y: auto; }
+
+    .nav-grupo-label {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      padding: 0 20px; margin-bottom: 6px; margin-top: 10px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      border-left: 2px solid transparent;
+      cursor: pointer; transition: all 0.15s;
+    }
+
+    .nav-item.activo {
+      color: #fff;
+      background: rgba(55,138,221,0.18);
+      border-left-color: var(--azul-claro);
+    }
+
+    .nav-item:hover:not(.activo) {
+      color: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .nav-badge {
+      margin-left: auto; background: var(--coral);
+      color: #fff; font-size: 10px; font-weight: 500;
+      border-radius: 99px; padding: 1px 6px;
+    }
+
+    .sidebar-usuario {
+      padding: 14px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .usuario-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--azul-medio);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 500; color: #B5D4F4; flex-shrink: 0;
+    }
+
+    .usuario-nombre { font-size: 13px; color: #fff; font-weight: 500; }
+    .usuario-plan   { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+    .btn-logout {
+      margin-left: auto; background: none; border: none;
+      color: rgba(255,255,255,0.3); cursor: pointer;
+      padding: 4px; border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .btn-logout:hover { color: rgba(255,255,255,0.7); }
+
+    /* MAIN */
+    .main {
+      margin-left: 230px; flex: 1;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--blanco);
+      border-bottom: 1px solid var(--borde);
+      padding: 0 32px; height: 58px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 40;
+    }
+
+    .topbar-saludo { font-size: 14px; color: var(--gris-suave); }
+    .topbar-saludo strong { color: var(--gris-texto); font-weight: 500; }
+
+    .topbar-derecha { display: flex; align-items: center; gap: 10px; }
+
+    .racha-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--amber-suave); border: 1px solid #FAC775;
+      border-radius: var(--radio-md); padding: 5px 12px;
+      font-size: 12px; color: #633806; font-weight: 500;
+    }
+
+    .notif-btn {
+      width: 34px; height: 34px; border-radius: var(--radio-md);
+      border: 1px solid var(--borde); background: var(--gris-fondo);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+    }
+
+    .notif-punto {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--coral); position: absolute;
+      top: 7px; right: 7px; border: 1.5px solid var(--blanco);
+    }
+
+    /* CONTENIDO */
+    .contenido { padding: 28px 32px; flex: 1; }
+
+    /* Progreso */
+    .progreso-banner {
+      background: var(--blanco); border: 1px solid var(--borde);
+      border-radius: var(--radio-xl); padding: 20px 24px;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 24px;
+    }
+
+    .progreso-info { flex: 1; }
+
+    .progreso-etiqueta {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--gris-suave); margin-bottom: 4px;
+    }
+
+    .progreso-titulo {
+      font-size: 16px; font-weight: 500;
+      color: var(--azul-oscuro); margin-bottom: 12px;
+    }
+
+    .barra-wrap {
+      height: 7px; background: var(--gris-fondo);
+      border-radius: 99px; overflow: hidden; margin-bottom: 6px;
+    }
+
+    .barra-fill {
+      height: 100%; width: 0%; /* se actualiza con JS */
+      background: var(--azul-claro); border-radius: 99px;
+      transition: width 1s ease;
+    }
+
+    .progreso-meta { font-size: 13px; color: var(--gris-suave); }
+    .progreso-meta strong { color: var(--azul-medio); font-weight: 500; }
+
+    .nivel-badge {
+      text-align: center; background: var(--azul-suave);
+      border: 1px solid #B5D4F4; border-radius: var(--radio-xl);
+      padding: 16px 22px; min-width: 120px; flex-shrink: 0;
+    }
+
+    .nivel-label {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.07em; text-transform: uppercase; color: var(--azul-medio);
+    }
+
+    .nivel-nombre { font-size: 22px; font-weight: 500; color: var(--azul-oscuro); margin-top: 2px; }
+    .nivel-sub    { font-size: 12px; color: var(--azul-claro); margin-top: 4px; }
+
+    /* Métricas */
+    .metricas-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 14px; margin-bottom: 28px;
+    }
+
+    .metrica-tarjeta {
+      background: var(--blanco); border: 1px solid var(--borde);
+      border-radius: var(--radio-xl); padding: 18px 20px;
+    }
+
+    .metrica-label { font-size: 12px; color: var(--gris-suave); margin-bottom: 6px; }
+    .metrica-valor { font-size: 26px; font-weight: 500; color: var(--azul-oscuro); line-height: 1; margin-bottom: 4px; }
+    .metrica-sub   { font-size: 12px; color: var(--gris-suave); }
+
+    /* Bienvenida nueva cuenta */
+    .bienvenida-card {
+      background: var(--azul-suave); border: 1px solid #B5D4F4;
+      border-radius: var(--radio-xl); padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+
+    .bienvenida-card h3 { font-size: 16px; font-weight: 500; color: var(--azul-oscuro); margin-bottom: 6px; }
+    .bienvenida-card p  { font-size: 14px; color: var(--azul-medio); line-height: 1.6; }
+
+    /* Sección headers */
+    .sec-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .sec-titulo { font-size: 15px; font-weight: 500; color: var(--azul-oscuro); }
+    .ver-todo   { font-size: 13px; color: var(--azul-claro); cursor: pointer; }
+
+    /* Clases */
+    .clases-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 14px; margin-bottom: 28px;
+    }
+
+    .clase-tarjeta {
+      background: var(--blanco); border: 1px solid var(--borde);
+      border-radius: var(--radio-xl); overflow: hidden; cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .clase-tarjeta:hover { transform: translateY(-2px); border-color: var(--azul-claro); }
+
+    .clase-thumb {
+      height: 80px; display: flex; align-items: center;
+      justify-content: center; position: relative;
+    }
+
+    .thumb-azul  { background: var(--azul-suave); }
+    .thumb-teal  { background: var(--teal-suave); }
+    .thumb-amber { background: var(--amber-suave); }
+    .thumb-coral { background: var(--coral-suave); }
+
+    .play-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .duracion-tag {
+      position: absolute; bottom: 6px; right: 8px;
+      font-size: 10px; background: rgba(0,0,0,0.3);
+      color: #fff; border-radius: 4px; padding: 2px 6px;
+    }
+
+    .clase-body { padding: 12px 14px; }
+    .clase-unidad { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gris-suave); }
+    .clase-nombre { font-size: 13px; font-weight: 500; color: var(--azul-oscuro); margin: 3px 0 8px; }
+
+    .estado-chip  { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 99px; }
+    .estado-hecho     { background: var(--verde-suave); color: #27500A; }
+    .estado-nuevo     { background: var(--azul-suave);  color: #0C447C; }
+    .estado-pendiente { background: var(--amber-suave); color: #633806; }
+    .estado-bloqueado { background: var(--gris-fondo);  color: var(--gris-suave); }
+
+  </style>
+</head>
+<body>
+
+  <!-- PANTALLA DE CARGA (mientras Firebase comprueba la sesión) -->
+  <div id="pantalla-carga">
+    <div class="spinner"></div>
+    <p>Cargando tu portal...</p>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL (oculto hasta que Firebase responda) -->
+  <div id="contenido-principal">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icono">
+           <svg viewBox="0 0 24 24" fill="none">
+  <!-- Fondo -->
+  <rect x="3" y="5" width="18" height="14" rx="2" fill="#B22234"/>
+  
+  <!-- Franjas blancas -->
+  <path d="M3 7h18M3 9h18M3 11h18M3 13h18M3 15h18M3 17h18" 
+        stroke="white" stroke-width="1"/>
+  
+  <!-- Cuadro azul -->
+  <rect x="3" y="5" width="8" height="6" fill="#3C3B6E"/>
+</svg>
+        </div>
+        <div>
+          <div class="logo-nombre">FrankyEnglish</div>
+          <div class="logo-sub">Learning Portal</div>
+        </div>
+      </div>
+
+      <div class="nav-seccion">
+        <div class="nav-grupo-label">Principal</div>
+        <div class="nav-item activo">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="1" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
+            <rect x="9" y="1" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
+            <rect x="1" y="9" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
+            <rect x="9" y="9" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
+          </svg>
+          Dashboard
+        </div>
+        <div class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 4h12M2 8h8M2 12h10" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Mis clases
+        </div>
+        <div class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M5 1.5v3M11 1.5v3M2 7h12" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Calendario
+        </div>
+        <div class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M5 5.5h6M5 8.5h4" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Materiales
+        </div>
+
+        <div class="nav-grupo-label" style="margin-top:16px;">Mi cuenta</div>
+        <div class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="5.5" r="2.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M2.5 14c0-3.038 2.462-4.5 5.5-4.5s5.5 1.462 5.5 4.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Mi perfil
+        </div>
+        <div class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="2" width="14" height="12" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M2.5 5.5h11M5.5 8.5h5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Tareas
+          <span class="nav-badge" id="tareas-badge">0</span>
+        </div>
+      </div>
+
+      <div class="sidebar-usuario">
+        <div class="usuario-avatar" id="usuario-iniciales">--</div>
+        <div>
+          <div class="usuario-nombre" id="usuario-nombre">Cargando...</div>
+          <div class="usuario-plan" id="usuario-plan">Nivel A1</div>
+        </div>
+        <!-- Botón cerrar sesión -->
+        <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar sesión">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 2H2a1 1 0 00-1 1v8a1 1 0 001 1h3M9 10l3-3-3-3M13 7H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <div class="topbar">
+        <div class="topbar-saludo">
+          Bienvenida de nuevo, <strong id="saludo-nombre">...</strong>
+        </div>
+        <div class="topbar-derecha">
+          <div class="racha-badge">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M7.5 1C6 3 6.5 5.5 5 7C3.5 8.5 1.5 7.5 1.5 7.5C1.5 7.5 1 11.5 6.5 11.5C10.5 11.5 12 9 12 7C12 5 10 3.5 9.5 3C9 2.5 9 4 8 4.5C8.5 3 7.5 1 7.5 1Z" fill="#BA7517"/>
+            </svg>
+            <span id="racha-texto">0 días seguidos</span>
+          </div>
+          <div class="notif-btn">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M7.5 1.5C5 1.5 3 3.5 3 6V10L2 11.5H13L12 10V6C12 3.5 10 1.5 7.5 1.5Z" stroke="#888" stroke-width="1.3"/>
+              <path d="M5.5 11.5C5.5 12.328 6.172 13 7 13s1.5-.672 1.5-1.5" stroke="#888" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            <div class="notif-punto"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contenido">
+
+        <!-- Tarjeta de bienvenida (solo para nuevos estudiantes con 0% progreso) -->
+        <div class="bienvenida-card">
+          <h3>¡Tu portal está listo!</h3>
+          <p>Aquí verás tu progreso, clases y materiales. Tu profe actualizará tu nivel y avance a medida que vayas completando las clases.</p>
+        </div>
+
+        <!-- Progreso del nivel -->
+        <div class="progreso-banner">
+          <div class="progreso-info">
+            <div class="progreso-etiqueta">Tu nivel actual</div>
+            <div class="progreso-titulo" id="progreso-titulo">A1 — Principiante</div>
+            <div class="barra-wrap">
+              <div class="barra-fill" id="barra-fill"></div>
+            </div>
+            <div class="progreso-meta">
+              Completado: <strong id="progreso-pct">0%</strong>
+              &nbsp;·&nbsp; <span id="unidades-texto">0 de 10 unidades</span>
+            </div>
+          </div>
+          <div class="nivel-badge">
+            <div class="nivel-label">Próximo nivel</div>
+            <div class="nivel-nombre" id="nivel-nombre">A1</div>
+            <div class="nivel-sub" id="nivel-siguiente">→ A2</div>
+          </div>
+        </div>
+
+        <!-- Métricas -->
+        <div class="metricas-grid">
+          <div class="metrica-tarjeta">
+            <div class="metrica-label">Clases completadas</div>
+            <div class="metrica-valor" id="clases-completadas">0</div>
+            <div class="metrica-sub">de tu plan actual</div>
+          </div>
+          <div class="metrica-tarjeta">
+            <div class="metrica-label">Horas de estudio</div>
+            <div class="metrica-valor" id="horas-estudio">0h</div>
+            <div class="metrica-sub">en total</div>
+          </div>
+          <div class="metrica-tarjeta">
+            <div class="metrica-label">Tareas pendientes</div>
+            <div class="metrica-valor" id="tareas-pendientes" style="color: var(--coral);">0</div>
+            <div class="metrica-sub">para esta semana</div>
+          </div>
+        </div>
+
+        <!-- Clases disponibles (estas se personalizarán más adelante) -->
+        <div class="sec-header">
+          <div class="sec-titulo">Primeras clases disponibles</div>
+          <span class="ver-todo">Ver todas →</span>
+        </div>
+
+        <div class="clases-grid">
+          <div class="clase-tarjeta">
+            <div class="clase-thumb thumb-teal">
+              <div class="play-btn">
+                <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+                  <path d="M1 1L9 6L1 11V1Z" fill="#1D9E75"/>
+                </svg>
+              </div>
+              <div class="duracion-tag">12 min</div>
+            </div>
+            <div class="clase-body">
+              <div class="clase-unidad">Unidad 1</div>
+              <div class="clase-nombre">Greetings & Introductions</div>
+              <span class="estado-chip estado-nuevo">Nuevo</span>
+            </div>
+          </div>
+          <div class="clase-tarjeta">
+            <div class="clase-thumb thumb-azul">
+              <div class="play-btn">
+                <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+                  <path d="M1 1L9 6L1 11V1Z" fill="#378ADD"/>
+                </svg>
+              </div>
+              <div class="duracion-tag">15 min</div>
+            </div>
+            <div class="clase-body">
+              <div class="clase-unidad">Unidad 1</div>
+              <div class="clase-nombre">Numbers & Alphabet</div>
+              <span class="estado-chip estado-bloqueado">Bloqueada</span>
+            </div>
+          </div>
+          <div class="clase-tarjeta">
+            <div class="clase-thumb thumb-amber">
+              <div class="play-btn">
+                <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+                  <path d="M1 1L9 6L1 11V1Z" fill="#EF9F27"/>
+                </svg>
+              </div>
+              <div class="duracion-tag">18 min</div>
+            </div>
+            <div class="clase-body">
+              <div class="clase-unidad">Unidad 2</div>
+              <div class="clase-nombre">Colors & Objects</div>
+              <span class="estado-chip estado-bloqueado">Bloqueada</span>
+            </div>
+          </div>
+          <div class="clase-tarjeta">
+            <div class="clase-thumb thumb-coral">
+              <div class="play-btn">
+                <svg width="10" height="12" viewBox="0 0 10 12" fill="none">
+                  <path d="M1 1L9 6L1 11V1Z" fill="#D85A30"/>
+                </svg>
+              </div>
+              <div class="duracion-tag">20 min</div>
+            </div>
+            <div class="clase-body">
+              <div class="clase-unidad">Unidad 2</div>
+              <div class="clase-nombre">Daily Routines</div>
+              <span class="estado-chip estado-bloqueado">Bloqueada</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div><!-- fin #contenido-principal -->
+
+</body>
+</html>
