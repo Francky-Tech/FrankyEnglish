@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin — FrankyEnglish</title>
-
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
@@ -15,17 +17,16 @@
       --azul-medio:  #1E3A8A;
       --azul-claro:  #3B82F6;
       --azul-suave:  #EFF6FF;
-      --verde:       #16A34A;
-      --verde-suave: #F0FDF4;
-      --coral:       #DC2626;
-      --coral-suave: #FEF2F2;
-      --amber:       #D97706;
-      --amber-suave: #FFFBEB;
+      --teal-suave:  #E1F5EE;
+      --amber-suave: #FAEEDA;
+      --coral:       #D85A30;
+      --coral-suave: #FAECE7;
+      --verde-suave: #EAF3DE;
       --gris-texto:  #0F172A;
       --gris-suave:  #64748B;
       --gris-fondo:  #F8FAFC;
       --blanco:      #ffffff;
-      --borde:       #E2E8F0;
+      --borde:       #E5E7EB;
       --radio-md:    8px;
       --radio-lg:    12px;
       --radio-xl:    16px;
@@ -33,1156 +34,806 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'DM Sans', system-ui, sans-serif;
-      background: var(--gris-fondo);
-      color: var(--gris-texto);
-    }
+    body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--gris-fondo); color: var(--gris-texto); }
 
-    /* PANTALLA DE CARGA */
+    /* ── CARGA ── */
     #pantalla-carga {
       position: fixed; inset: 0;
       background: linear-gradient(135deg, #1E3A8A, #0F172A);
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 12px;
-      z-index: 999;
+      align-items: center; justify-content: center; gap: 16px; z-index: 999;
     }
-    .spinner {
-      width: 32px; height: 32px;
-      border: 3px solid rgba(255,255,255,0.15);
-      border-top-color: #3B82F6;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.15); border-top-color: #3B82F6; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #pantalla-carga p { font-size: 13px; color: rgba(255,255,255,0.45); }
+    #pantalla-carga p { font-size: 14px; color: rgba(255,255,255,0.5); }
 
-    /* LAYOUT */
-    #contenido { display: none; }
+    /* ── LAYOUT ── */
+    #contenido-principal { display: none; min-height: 100vh; }
 
-    .shell { display: flex; min-height: 100vh; }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 49; }
+    .sidebar-overlay.visible { display: block; }
 
-    /* SIDEBAR */
+    /* ── SIDEBAR ── */
     .sidebar {
-      width: 220px; min-width: 220px;
+      width: 230px; min-width: 230px;
       background: linear-gradient(180deg, #1E3A8A, #0F172A);
-      position: fixed; height: 100vh; top: 0; left: 0;
-      display: flex; flex-direction: column; z-index: 50;
+      display: flex; flex-direction: column;
+      position: fixed; height: 100vh; top: 0; left: 0; z-index: 50;
+      transition: transform 0.3s ease;
     }
 
     .sidebar-logo {
-      padding: 20px 18px 16px;
+      padding: 22px 20px 18px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 10px;
     }
 
+    .logo-icono { width: 34px; height: 34px; background: var(--azul-claro); border-radius: var(--radio-md); display: flex; align-items: center; justify-content: center; }
     .logo-nombre { font-size: 15px; font-weight: 500; color: #fff; }
-    .logo-sub    { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+    .logo-sub    { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; }
 
-    .admin-badge {
-      display: inline-block; margin-top: 6px;
-      background: rgba(220,38,38,0.25); border: 1px solid rgba(220,38,38,0.4);
-      color: #FCA5A5; font-size: 10px; font-weight: 500;
-      border-radius: 99px; padding: 2px 8px;
+    .sidebar-close { display: none; margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; padding: 4px; border-radius: 4px; }
+    .sidebar-close:hover { color: rgba(255,255,255,0.8); }
+
+    .nav-seccion { flex: 1; padding: 18px 0 0; overflow-y: auto; }
+
+    .nav-grupo-label {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); padding: 0 20px; margin-bottom: 6px; margin-top: 10px;
     }
 
-    .nav { flex: 1; padding: 16px 0; }
-
-    .nav-label {
-      font-size: 10px; font-weight: 500; letter-spacing: 0.08em;
-      text-transform: uppercase; color: rgba(255,255,255,0.3);
-      padding: 0 18px; margin-bottom: 4px; margin-top: 12px;
-    }
-
-    .nav-btn {
-      display: flex; align-items: center; gap: 9px;
-      width: 100%; padding: 9px 18px;
-      font-size: 13px; color: rgba(255,255,255,0.6);
-      background: none; border: none; border-left: 2px solid transparent;
-      cursor: pointer; text-align: left; transition: all 0.15s;
+    /* ── NAV ITEMS — ahora son botones reales ── */
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 20px; font-size: 13px;
+      color: rgba(255,255,255,0.6); border-left: 2px solid transparent;
+      background: none; border-top: none; border-right: none; border-bottom: none;
+      cursor: pointer; transition: all 0.15s;
       font-family: 'DM Sans', system-ui, sans-serif;
+      text-align: left;
     }
+    .nav-item.activo { color: #fff; background: rgba(59,130,246,0.2); border-left-color: var(--azul-claro); }
+    .nav-item:hover:not(.activo) { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
 
-    .nav-btn:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
-    .nav-btn.activo { color: #fff; background: rgba(59,130,246,0.2); border-left-color: #3B82F6; }
+    .nav-badge { margin-left: auto; background: var(--coral); color: #fff; font-size: 10px; font-weight: 500; border-radius: 99px; padding: 1px 6px; }
 
-    .sidebar-footer {
-      padding: 14px 18px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      font-size: 12px; color: rgba(255,255,255,0.4);
-    }
+    .sidebar-usuario { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+    .usuario-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(59,130,246,0.3); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #93C5FD; flex-shrink: 0; }
+    .usuario-nombre { font-size: 13px; color: #fff; font-weight: 500; }
+    .usuario-plan   { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .btn-logout { margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; padding: 4px; border-radius: 4px; transition: color 0.15s; }
+    .btn-logout:hover { color: rgba(255,255,255,0.7); }
 
-    /* MAIN */
-    .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
+    /* ── MAIN ── */
+    .main { margin-left: 230px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
     .topbar {
       background: var(--blanco); border-bottom: 1px solid var(--borde);
-      padding: 0 28px; height: 56px;
+      padding: 0 32px; height: 58px;
       display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 40;
     }
 
-    .topbar-titulo { font-size: 15px; font-weight: 500; color: var(--azul-oscuro); }
-    .topbar-sub    { font-size: 12px; color: var(--gris-suave); margin-top: 1px; }
+    .topbar-izq { display: flex; align-items: center; gap: 10px; }
 
-    /* SECCIONES (tabs) */
-    .seccion { display: none; padding: 24px 28px; }
+    .topbar-hamburguesa { display: none; background: none; border: none; cursor: pointer; padding: 6px; border-radius: var(--radio-md); flex-direction: column; gap: 4px; }
+    .topbar-hamburguesa span { display: block; width: 18px; height: 2px; background: var(--gris-texto); border-radius: 1px; }
+
+    /* Título dinámico del topbar */
+    .topbar-titulo { font-size: 15px; font-weight: 500; color: var(--gris-texto); }
+
+    .topbar-derecha { display: flex; align-items: center; gap: 10px; }
+
+    .racha-badge { display: flex; align-items: center; gap: 6px; background: var(--amber-suave); border: 1px solid #FAC775; border-radius: var(--radio-md); padding: 5px 12px; font-size: 12px; color: #633806; font-weight: 500; }
+
+    .btn-admin { display: none; align-items: center; gap: 6px; height: 32px; padding: 0 12px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: var(--radio-md); font-size: 12px; font-weight: 500; color: #B91C1C; text-decoration: none; transition: background 0.15s; }
+    .btn-admin:hover { background: #FEE2E2; }
+
+    /* ── SECCIONES ── */
+    .contenido { padding: 28px 32px; flex: 1; }
+
+    .seccion { display: none; }
     .seccion.activa { display: block; }
 
-    /* TOAST */
-    #toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: var(--azul-oscuro); color: #fff;
-      font-size: 13px; padding: 10px 18px;
-      border-radius: var(--radio-lg);
-      opacity: 0; transform: translateY(8px);
-      transition: all 0.25s; z-index: 999;
-      pointer-events: none;
-    }
-    #toast.visible { opacity: 1; transform: translateY(0); }
-    #toast.ok   { background: #15803D; }
-    #toast.error { background: #DC2626; }
+    /* ── DASHBOARD ── */
+    .bienvenida-card { background: var(--azul-suave); border: 1px solid #BFDBFE; border-radius: var(--radio-xl); padding: 20px 24px; margin-bottom: 20px; }
+    .bienvenida-card h3 { font-size: 16px; font-weight: 500; color: var(--azul-medio); margin-bottom: 6px; }
+    .bienvenida-card p  { font-size: 14px; color: #1D4ED8; line-height: 1.6; }
 
-    /* CARDS */
-    .card {
-      background: var(--blanco); border: 1px solid var(--borde);
-      border-radius: var(--radio-xl); padding: 20px 24px;
-      margin-bottom: 16px;
-    }
+    .progreso-banner { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-xl); padding: 20px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 24px; }
+    .progreso-info { flex: 1; }
+    .progreso-etiqueta { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gris-suave); margin-bottom: 4px; }
+    .progreso-titulo { font-size: 16px; font-weight: 500; color: var(--azul-oscuro); margin-bottom: 12px; }
+    .barra-wrap { height: 7px; background: var(--gris-fondo); border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+    .barra-fill { height: 100%; width: 0%; background: var(--azul-claro); border-radius: 99px; transition: width 1s ease; }
+    .progreso-meta { font-size: 13px; color: var(--gris-suave); }
+    .progreso-meta strong { color: var(--azul-medio); font-weight: 500; }
 
-    .card-titulo {
-      font-size: 14px; font-weight: 500; color: var(--azul-oscuro);
-      margin-bottom: 16px; padding-bottom: 12px;
-      border-bottom: 1px solid var(--borde);
-      display: flex; align-items: center; gap: 8px;
-    }
+    .nivel-badge { text-align: center; background: var(--azul-suave); border: 1px solid #BFDBFE; border-radius: var(--radio-xl); padding: 16px 22px; min-width: 120px; flex-shrink: 0; }
+    .nivel-label { font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--azul-medio); }
+    .nivel-nombre { font-size: 22px; font-weight: 500; color: var(--azul-oscuro); margin-top: 2px; }
+    .nivel-sub    { font-size: 12px; color: var(--azul-claro); margin-top: 4px; }
 
-    /* FORMULARIOS */
-    .campo { margin-bottom: 14px; }
-    .campo label { display: block; font-size: 12px; font-weight: 500; color: var(--gris-suave); margin-bottom: 5px; }
+    .metricas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+    .metrica-tarjeta { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-xl); padding: 18px 20px; }
+    .metrica-label { font-size: 12px; color: var(--gris-suave); margin-bottom: 6px; }
+    .metrica-valor { font-size: 26px; font-weight: 500; color: var(--azul-oscuro); line-height: 1; margin-bottom: 4px; }
+    .metrica-sub   { font-size: 12px; color: var(--gris-suave); }
 
-    .campo input, .campo select, .campo textarea {
-      width: 100%; height: 38px;
-      border: 1px solid var(--borde); border-radius: var(--radio-md);
-      padding: 0 12px; font-size: 13px;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      color: var(--gris-texto); background: var(--blanco);
-      transition: border-color 0.15s;
-    }
+    /* ── ENCABEZADO DE SECCIÓN ── */
+    .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .sec-titulo { font-size: 16px; font-weight: 500; color: var(--azul-oscuro); }
 
-    .campo input:focus, .campo select:focus, .campo textarea:focus {
-      outline: none; border-color: var(--azul-claro);
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-    }
+    /* ── CLASES ── */
+    .clases-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 
-    .campo textarea { height: auto; padding: 10px 12px; resize: vertical; }
+    .clase-tarjeta { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-xl); overflow: hidden; cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+    .clase-tarjeta:hover { transform: translateY(-2px); border-color: var(--azul-claro); }
 
-    .fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .fila-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .clase-thumb { height: 80px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .thumb-azul  { background: #EFF6FF; }
+    .thumb-teal  { background: #E1F5EE; }
+    .thumb-amber { background: #FAEEDA; }
+    .thumb-coral { background: #FAECE7; }
 
-    /* BOTONES */
-    .btn {
-      height: 36px; padding: 0 18px;
-      border: none; border-radius: var(--radio-md);
-      font-size: 13px; font-weight: 500;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      cursor: pointer; transition: all 0.15s;
-    }
+    .play-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; }
+    .duracion-tag { position: absolute; bottom: 6px; right: 8px; font-size: 10px; background: rgba(0,0,0,0.3); color: #fff; border-radius: 4px; padding: 2px 6px; }
 
-    .btn-primario { background: var(--azul-claro); color: #fff; }
-    .btn-primario:hover { background: var(--azul-medio); }
+    .clase-body   { padding: 12px 14px; }
+    .clase-unidad { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gris-suave); }
+    .clase-nombre { font-size: 13px; font-weight: 500; color: var(--azul-oscuro); margin: 3px 0 8px; }
 
-    .btn-verde { background: var(--verde); color: #fff; }
-    .btn-verde:hover { background: #15803D; }
+    .estado-chip      { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 99px; }
+    .estado-nuevo     { background: #EFF6FF; color: #1E3A8A; }
+    .estado-bloqueado { background: #F1F5F9; color: #94A3B8; }
+    .estado-hecho     { background: var(--verde-suave); color: #166534; }
 
-    .btn-rojo { background: var(--coral); color: #fff; }
-    .btn-rojo:hover { background: #B91C1C; }
+    /* ── LISTA GENÉRICA (tareas, calendario, materiales) ── */
+    .lista-vacia { text-align: center; padding: 48px 20px; color: var(--gris-suave); font-size: 14px; }
 
-    .btn-ghost {
-      background: var(--gris-fondo); color: var(--gris-suave);
-      border: 1px solid var(--borde);
-    }
-    .btn-ghost:hover { background: var(--borde); }
+    .item-card { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: 14px 18px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; }
+    .item-icono { width: 38px; height: 38px; border-radius: var(--radio-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .item-info  { flex: 1; }
+    .item-titulo { font-size: 14px; font-weight: 500; color: var(--azul-oscuro); margin-bottom: 3px; }
+    .item-meta   { font-size: 12px; color: var(--gris-suave); }
+    .item-accion { flex-shrink: 0; }
 
-    .btn-sm { height: 28px; padding: 0 12px; font-size: 12px; }
+    .btn-ver { height: 30px; padding: 0 14px; background: var(--azul-suave); border: 1px solid #BFDBFE; border-radius: var(--radio-md); font-size: 12px; color: var(--azul-medio); font-weight: 500; cursor: pointer; text-decoration: none; display: flex; align-items: center; }
+    .btn-ver:hover { background: #DBEAFE; }
 
-    /* TABLA DE ESTUDIANTES */
-    .tabla-wrap { overflow-x: auto; }
+    /* Check de tareas */
+    .tarea-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--borde); flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all 0.15s; }
+    .tarea-check.hecho { background: #16A34A; border-color: #16A34A; }
 
-    table {
-      width: 100%; border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    thead th {
-      text-align: left; padding: 10px 14px;
-      font-size: 11px; font-weight: 500; color: var(--gris-suave);
-      letter-spacing: 0.04em; text-transform: uppercase;
-      border-bottom: 1px solid var(--borde);
-      background: var(--gris-fondo);
-    }
-
-    tbody tr { border-bottom: 1px solid var(--borde); transition: background 0.1s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--gris-fondo); }
-    tbody td { padding: 12px 14px; color: var(--gris-texto); vertical-align: middle; }
-
-    .nivel-chip {
-      display: inline-block; font-size: 11px; font-weight: 500;
-      padding: 3px 9px; border-radius: 99px;
-    }
-    .nivel-A1 { background: #EFF6FF; color: #1E40AF; }
-    .nivel-A2 { background: #F0FDF4; color: #15803D; }
-    .nivel-B1 { background: #FFFBEB; color: #B45309; }
-    .nivel-B2 { background: #FEF2F2; color: #B91C1C; }
-
-    .progreso-mini {
-      display: flex; align-items: center; gap: 8px;
-    }
-    .barra-mini-wrap {
-      flex: 1; height: 5px; background: var(--borde);
-      border-radius: 99px; overflow: hidden;
-    }
-    .barra-mini-fill { height: 100%; background: var(--azul-claro); border-radius: 99px; }
-    .progreso-num { font-size: 12px; color: var(--gris-suave); min-width: 28px; }
-
-    /* BUSCADOR */
-    .buscador-wrap {
-      display: flex; gap: 10px; margin-bottom: 16px; align-items: center;
-    }
-
-    .buscador {
-      flex: 1; height: 36px; border: 1px solid var(--borde);
-      border-radius: var(--radio-md); padding: 0 12px;
-      font-size: 13px; font-family: 'DM Sans', system-ui, sans-serif;
-    }
-
-    .buscador:focus { outline: none; border-color: var(--azul-claro); }
-
-    /* MODAL EDITAR ESTUDIANTE */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      display: none; align-items: center; justify-content: center;
-      z-index: 200;
-    }
-    .modal-overlay.abierto { display: flex; }
-
-    .modal {
-      background: var(--blanco); border-radius: var(--radio-xl);
-      padding: 24px; width: 480px; max-width: 95vw;
-      max-height: 90vh; overflow-y: auto;
-    }
-
-    .modal-titulo {
-      font-size: 16px; font-weight: 500; color: var(--azul-oscuro);
-      margin-bottom: 18px; padding-bottom: 12px;
-      border-bottom: 1px solid var(--borde);
-    }
-
-    .modal-acciones { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
-
-    /* LISTA DE CLASES / MATERIALES */
-    .item-lista {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 14px; border-bottom: 1px solid var(--borde);
-    }
-    .item-lista:last-child { border-bottom: none; }
-
-    .item-icono {
-      width: 34px; height: 34px; border-radius: var(--radio-md);
+    /* Perfil */
+    .perfil-avatar-grande {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #1E3A8A, #3B82F6);
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      font-size: 26px; font-weight: 500; color: #fff; margin-bottom: 16px;
     }
+    .perfil-card { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-xl); padding: 28px 24px; max-width: 500px; }
+    .perfil-fila { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--borde); }
+    .perfil-fila:last-child { border-bottom: none; }
+    .perfil-label { font-size: 12px; color: var(--gris-suave); }
+    .perfil-valor { font-size: 14px; font-weight: 500; color: var(--azul-oscuro); }
 
-    .item-nombre { font-size: 13px; font-weight: 500; color: var(--azul-oscuro); }
-    .item-meta   { font-size: 12px; color: var(--gris-suave); margin-top: 1px; }
-
-    .item-acciones { margin-left: auto; display: flex; gap: 6px; }
-
-    /* STATS */
-    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-
-    .stat-card {
-      background: var(--blanco); border: 1px solid var(--borde);
-      border-radius: var(--radio-xl); padding: 16px 18px;
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.drawer-abierto { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.3); }
+      .sidebar-close { display: flex; align-items: center; justify-content: center; }
+      .main { margin-left: 0; }
+      .topbar { padding: 0 16px; }
+      .topbar-hamburguesa { display: flex; }
+      .racha-badge { display: none; }
+      .contenido { padding: 16px; }
+      .progreso-banner { flex-direction: column; align-items: stretch; gap: 16px; padding: 16px; }
+      .nivel-badge { min-width: unset; padding: 12px 16px; }
+      .metricas-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+      .clases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .bienvenida-card { padding: 14px 16px; margin-bottom: 14px; }
     }
-    .stat-label { font-size: 11px; color: var(--gris-suave); margin-bottom: 6px; }
-    .stat-valor { font-size: 24px; font-weight: 500; color: var(--azul-oscuro); }
-    .stat-sub   { font-size: 11px; color: var(--gris-suave); margin-top: 2px; }
-
-    /* VACÍO */
-    .vacio {
-      text-align: center; padding: 40px 20px;
-      color: var(--gris-suave); font-size: 13px;
+    @media (max-width: 380px) {
+      .clases-grid   { grid-template-columns: 1fr; }
+      .metricas-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- CARGA -->
-<div id="pantalla-carga">
-  <div class="spinner"></div>
-  <p>Verificando acceso...</p>
-</div>
-
-<!-- TOAST -->
-<div id="toast"></div>
-
-<!-- MODAL EDITAR ESTUDIANTE -->
-<div class="modal-overlay" id="modal-estudiante">
-  <div class="modal">
-    <div class="modal-titulo" id="modal-nombre-titulo">Editar estudiante</div>
-    <input type="hidden" id="modal-uid" />
-
-    <div class="fila-2">
-      <div class="campo">
-        <label>Nombre</label>
-        <input type="text" id="modal-nombre" placeholder="Nombre completo" />
-      </div>
-      <div class="campo">
-        <label>Email</label>
-        <input type="text" id="modal-email" disabled style="background:var(--gris-fondo);" />
-      </div>
-    </div>
-
-    <div class="fila-3">
-      <div class="campo">
-        <label>Nivel actual</label>
-        <select id="modal-nivel">
-          <option value="A1">A1 — Principiante</option>
-          <option value="A2">A2 — Básico</option>
-          <option value="B1">B1 — Intermedio</option>
-          <option value="B2">B2 — Avanzado</option>
-        </select>
-      </div>
-      <div class="campo">
-        <label>Progreso (%)</label>
-        <input type="number" id="modal-progreso" min="0" max="100" placeholder="0" />
-      </div>
-      <div class="campo">
-        <label>Unidades completadas</label>
-        <input type="number" id="modal-unidades" min="0" placeholder="0" />
-      </div>
-    </div>
-
-    <div class="fila-2">
-      <div class="campo">
-        <label>Horas de estudio</label>
-        <input type="number" id="modal-horas" min="0" placeholder="0" />
-      </div>
-      <div class="campo">
-        <label>Racha (días)</label>
-        <input type="number" id="modal-racha" min="0" placeholder="0" />
-      </div>
-    </div>
-
-    <div class="campo">
-      <label>Tareas pendientes</label>
-      <input type="number" id="modal-tareas" min="0" placeholder="0" />
-    </div>
-
-    <div class="modal-acciones">
-      <button class="btn btn-ghost" onclick="cerrarModal()">Cancelar</button>
-      <button class="btn btn-primario" onclick="guardarEstudiante()">Guardar cambios</button>
-    </div>
+  <div id="pantalla-carga">
+    <div class="spinner"></div>
+    <p>Cargando tu portal...</p>
   </div>
-</div>
 
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-<!-- CONTENIDO PRINCIPAL -->
-<div id="contenido">
-<div class="shell">
+  <div id="contenido-principal">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-nombre">FrankyEnglish</div>
-      <div class="logo-sub">Panel de administración</div>
-      <span class="admin-badge">ADMIN</span>
-    </div>
-
-    <div class="nav">
-      <div class="nav-label">Gestión</div>
-      <button class="nav-btn activo" onclick="irA('estudiantes', this)">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M2 13c0-3.038 2.462-4 5.5-4s5.5.962 5.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-        Estudiantes
-      </button>
-      <button class="nav-btn" onclick="irA('clases', this)">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <rect x="1" y="2" width="13" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M6 5.5l4 2.5-4 2.5V5.5Z" fill="currentColor"/>
-        </svg>
-        Clases (videos)
-      </button>
-      <button class="nav-btn" onclick="irA('materiales', this)">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <path d="M3 1.5h9a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1v-10a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M5 5h5M5 7.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-        Materiales (PDFs)
-      </button>
-      <button class="nav-btn" onclick="irA('calendario', this)">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <rect x="1.5" y="2.5" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M5 1v3M10 1v3M1.5 6.5h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-        Clases en vivo
-      </button>
-      <button class="nav-btn" onclick="irA('tareas', this)">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <rect x="1" y="1.5" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M4 5.5h7M4 8h5M4 10.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-        Tareas
-      </button>
-    </div>
-
-    <div class="sidebar-footer" id="admin-email">—</div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-    <div class="topbar">
-      <div>
-        <div class="topbar-titulo" id="topbar-titulo">Estudiantes</div>
-        <div class="topbar-sub" id="topbar-sub">Gestiona el progreso de tus estudiantes</div>
-      </div>
-      <button class="btn btn-rojo btn-sm" onclick="cerrarSesion()">Cerrar sesión</button>
-    </div>
-
-    <!-- ═══════════════════════════════════
-         SECCIÓN: ESTUDIANTES
-    ═══════════════════════════════════ -->
-    <div class="seccion activa" id="sec-estudiantes">
-
-      <div class="stats-row" id="stats-row">
-        <div class="stat-card">
-          <div class="stat-label">Total estudiantes</div>
-          <div class="stat-valor" id="stat-total">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Nivel A1 / A2</div>
-          <div class="stat-valor" id="stat-basico">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Nivel B1 / B2</div>
-          <div class="stat-valor" id="stat-avanzado">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Promedio progreso</div>
-          <div class="stat-valor" id="stat-progreso">—</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="buscador-wrap">
-          <input class="buscador" id="buscador" placeholder="Buscar por nombre o email..." oninput="filtrarEstudiantes()" />
-          <select class="buscador" style="flex:0 0 140px;" id="filtro-nivel" onchange="filtrarEstudiantes()">
-            <option value="">Todos los niveles</option>
-            <option value="A1">A1</option>
-            <option value="A2">A2</option>
-            <option value="B1">B1</option>
-            <option value="B2">B2</option>
-          </select>
-        </div>
-
-        <div class="tabla-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Estudiante</th>
-                <th>Nivel</th>
-                <th>Progreso</th>
-                <th>Horas</th>
-                <th>Tareas</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-estudiantes">
-              <tr><td colspan="6" class="vacio">Cargando estudiantes...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════
-         SECCIÓN: CLASES (VIDEOS)
-    ═══════════════════════════════════ -->
-    <div class="seccion" id="sec-clases">
-      <div class="card">
-        <div class="card-titulo">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="2" width="14" height="12" rx="2" stroke="#3B82F6" stroke-width="1.3"/>
-            <path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="#3B82F6"/>
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icono">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="5" width="18" height="14" rx="2" fill="#B22234"/>
+            <path d="M3 7h18M3 9h18M3 11h18M3 13h18M3 15h18M3 17h18" stroke="white" stroke-width="1"/>
+            <rect x="3" y="5" width="8" height="6" fill="#3C3B6E"/>
           </svg>
-          Agregar nueva clase
         </div>
-
-        <div class="fila-2">
-          <div class="campo">
-            <label>Título de la clase</label>
-            <input type="text" id="clase-titulo" placeholder="ej: Business Emails" />
-          </div>
-          <div class="campo">
-            <label>Unidad</label>
-            <input type="text" id="clase-unidad" placeholder="ej: Unidad 7" />
-          </div>
+        <div>
+          <div class="logo-nombre">FrankyEnglish</div>
+          <div class="logo-sub">Learning Portal</div>
         </div>
-
-        <div class="fila-3">
-          <div class="campo">
-            <label>Nivel</label>
-            <select id="clase-nivel">
-              <option value="A1">A1 — Principiante</option>
-              <option value="A2">A2 — Básico</option>
-              <option value="B1">B1 — Intermedio</option>
-              <option value="B2">B2 — Avanzado</option>
-            </select>
-          </div>
-          <div class="campo">
-            <label>Duración (minutos)</label>
-            <input type="number" id="clase-duracion" placeholder="ej: 20" min="1" />
-          </div>
-          <div class="campo">
-            <label>Orden</label>
-            <input type="number" id="clase-orden" placeholder="ej: 1" min="1" />
-          </div>
-        </div>
-
-        <div class="campo">
-          <label>URL del video (YouTube)</label>
-          <input type="url" id="clase-url" placeholder="https://www.youtube.com/watch?v=..." />
-        </div>
-
-        <button class="btn btn-primario" onclick="agregarClase()">Guardar clase</button>
-      </div>
-
-      <div class="card">
-        <div class="card-titulo">
+        <button class="sidebar-close" id="sidebar-close">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M2 4h12M2 8h8M2 12h10" stroke="#3B82F6" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M4 4l8 8M12 4l-8 8" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
-          Clases guardadas
-        </div>
-        <div id="lista-clases"><div class="vacio">No hay clases aún.</div></div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════
-         SECCIÓN: MATERIALES (PDFs)
-    ═══════════════════════════════════ -->
-    <div class="seccion" id="sec-materiales">
-      <div class="card">
-        <div class="card-titulo">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M3 1.5h10a1 1 0 011 1v11a1 1 0 01-1 1H3a1 1 0 01-1-1v-11a1 1 0 011-1z" stroke="#DC2626" stroke-width="1.3"/>
-            <path d="M5 5h6M5 7.5h4" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-          Agregar material
-        </div>
-
-        <div class="fila-2">
-          <div class="campo">
-            <label>Nombre del material</label>
-            <input type="text" id="mat-titulo" placeholder="ej: Vocabulario Unidad 7" />
-          </div>
-          <div class="campo">
-            <label>Unidad / tema</label>
-            <input type="text" id="mat-unidad" placeholder="ej: Unidad 7" />
-          </div>
-        </div>
-
-        <div class="fila-2">
-          <div class="campo">
-            <label>Nivel</label>
-            <select id="mat-nivel">
-              <option value="A1">A1</option>
-              <option value="A2">A2</option>
-              <option value="B1">B1</option>
-              <option value="B2">B2</option>
-            </select>
-          </div>
-          <div class="campo">
-            <label>Tipo</label>
-            <select id="mat-tipo">
-              <option value="PDF">PDF</option>
-              <option value="Ejercicio">Ejercicio</option>
-              <option value="Vocabulario">Vocabulario</option>
-              <option value="Gramática">Gramática</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="campo">
-          <label>URL del archivo (Google Drive, Dropbox, etc.)</label>
-          <input type="url" id="mat-url" placeholder="https://drive.google.com/..." />
-        </div>
-
-        <button class="btn btn-rojo" onclick="agregarMaterial()">Guardar material</button>
-      </div>
-
-      <div class="card">
-        <div class="card-titulo">Materiales guardados</div>
-        <div id="lista-materiales"><div class="vacio">No hay materiales aún.</div></div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════
-         SECCIÓN: CLASES EN VIVO
-    ═══════════════════════════════════ -->
-    <div class="seccion" id="sec-calendario">
-      <div class="card">
-        <div class="card-titulo">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="#16A34A" stroke-width="1.3"/>
-            <path d="M5 1.5v3M11 1.5v3M1.5 6.5h13" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-          Agregar clase en vivo
-        </div>
-
-        <div class="fila-2">
-          <div class="campo">
-            <label>Título de la clase</label>
-            <input type="text" id="vivo-titulo" placeholder="ej: Speaking Practice B1" />
-          </div>
-          <div class="campo">
-            <label>Nivel</label>
-            <select id="vivo-nivel">
-              <option value="Todos">Todos los niveles</option>
-              <option value="A1">A1</option>
-              <option value="A2">A2</option>
-              <option value="B1">B1</option>
-              <option value="B2">B2</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="fila-3">
-          <div class="campo">
-            <label>Fecha</label>
-            <input type="date" id="vivo-fecha" />
-          </div>
-          <div class="campo">
-            <label>Hora</label>
-            <input type="time" id="vivo-hora" />
-          </div>
-          <div class="campo">
-            <label>Duración (minutos)</label>
-            <input type="number" id="vivo-duracion" placeholder="60" min="15" />
-          </div>
-        </div>
-
-        <div class="campo">
-          <label>Link de Google Meet</label>
-          <input type="url" id="vivo-url" placeholder="https://meet.google.com/..." />
-        </div>
-
-        <button class="btn btn-verde" onclick="agregarClaseVivo()">Guardar clase en vivo</button>
-      </div>
-
-      <div class="card">
-        <div class="card-titulo">Próximas clases en vivo</div>
-        <div id="lista-vivo"><div class="vacio">No hay clases programadas.</div></div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════
-         SECCIÓN: TAREAS
-    ═══════════════════════════════════ -->
-    <div class="seccion" id="sec-tareas">
-      <div class="card">
-        <div class="card-titulo">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="1.5" width="14" height="13" rx="2" stroke="#D97706" stroke-width="1.3"/>
-            <path d="M4 6h8M4 8.5h5M4 11h7" stroke="#D97706" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-          Enviar tarea a estudiantes
-        </div>
-
-        <div class="fila-2">
-          <div class="campo">
-            <label>Título de la tarea</label>
-            <input type="text" id="tarea-titulo" placeholder="ej: Ejercicio gramática Unidad 8" />
-          </div>
-          <div class="campo">
-            <label>Fecha límite</label>
-            <input type="date" id="tarea-fecha" />
-          </div>
-        </div>
-
-        <div class="campo">
-          <label>Descripción / instrucciones</label>
-          <textarea id="tarea-desc" rows="3" placeholder="Describe qué deben hacer los estudiantes..."></textarea>
-        </div>
-
-        <div class="fila-2">
-          <div class="campo">
-            <label>Enviar a nivel</label>
-            <select id="tarea-nivel">
-              <option value="todos">Todos los niveles</option>
-              <option value="A1">A1 — Principiante</option>
-              <option value="A2">A2 — Básico</option>
-              <option value="B1">B1 — Intermedio</option>
-              <option value="B2">B2 — Avanzado</option>
-            </select>
-          </div>
-          <div class="campo">
-            <label>URL de referencia (opcional)</label>
-            <input type="url" id="tarea-url" placeholder="https://..." />
-          </div>
-        </div>
-
-        <button class="btn btn-ghost" style="background:var(--amber-suave);color:var(--amber);border-color:#FCD34D;" onclick="enviarTarea()">
-          Enviar tarea a estudiantes seleccionados
         </button>
       </div>
-    </div>
 
-  </main>
-</div>
-</div><!-- fin #contenido -->
+      <div class="nav-seccion">
+        <div class="nav-grupo-label">Principal</div>
 
+        <button class="nav-item activo" id="nav-dashboard" onclick="navegarA('dashboard', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="1" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
+            <rect x="9" y="1" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
+            <rect x="1" y="9" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
+            <rect x="9" y="9" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
+          </svg>
+          Dashboard
+        </button>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+        <button class="nav-item" id="nav-clases" onclick="navegarA('clases', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="2" width="14" height="12" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="rgba(255,255,255,0.5)"/>
+          </svg>
+          Mis clases
+        </button>
 
-<script>
-  /* ── CONFIG — mismos valores que login.html ─── */
-  const firebaseConfig = {
-    apiKey:            "AIzaSyBYnI8vDNGkzCxEwAX93HbbxeC7Nq0UkW0",
-    authDomain:        "portal-de-ingles.firebaseapp.com",
-    projectId:         "portal-de-ingles",
-    storageBucket:     "portal-de-ingles.appspot.com",
-    messagingSenderId: "555874735361",
-    appId: "1:555874735361:web:2dc6e4b51a9b5c5548f700",
-    measurementId: "G-488275BW4C"
-  };
+        <button class="nav-item" id="nav-calendario" onclick="navegarA('calendario', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M5 1.5v3M11 1.5v3M2 7h12" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Calendario
+        </button>
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db   = firebase.firestore();
-  const ADMIN_EMAIL = "francovich2808@gmail.com";
+        <button class="nav-item" id="nav-materiales" onclick="navegarA('materiales', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M5 5.5h6M5 8.5h4" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Materiales
+        </button>
 
-  /* ── SESIÓN ─────────────────────────────────── */
-  auth.onAuthStateChanged(function(usuario) {
-    if (!usuario) {
-      window.location.href = "login.html";
-      return;
-    }
-    if (usuario.email !== ADMIN_EMAIL) {
-      alert("No tienes acceso al panel de administración.");
-      auth.signOut();
-      window.location.href = "login.html";
-      return;
-    }
-    document.getElementById("admin-email").textContent = usuario.email;
-    document.getElementById("pantalla-carga").style.display = "none";
-    document.getElementById("contenido").style.display = "block";
-    cargarEstudiantes();
-    cargarClases();
-    cargarMateriales();
-    cargarClasesVivo();
-  });
+        <div class="nav-grupo-label" style="margin-top:16px;">Mi cuenta</div>
 
-  /* ── NAVEGACIÓN ─────────────────────────────── */
-  var seccionActual = "estudiantes";
+        <button class="nav-item" id="nav-perfil" onclick="navegarA('perfil', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="5.5" r="2.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M2.5 14c0-3.038 2.462-4.5 5.5-4.5s5.5 1.462 5.5 4.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Mi perfil
+        </button>
 
-  function irA(seccion, btn) {
-    document.querySelectorAll(".seccion").forEach(function(s) { s.classList.remove("activa"); });
-    document.querySelectorAll(".nav-btn").forEach(function(b) { b.classList.remove("activo"); });
-    document.getElementById("sec-" + seccion).classList.add("activa");
-    btn.classList.add("activo");
-    seccionActual = seccion;
+        <button class="nav-item" id="nav-tareas" onclick="navegarA('tareas', this)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="2" width="14" height="12" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M2.5 5.5h11M5.5 8.5h5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Tareas
+          <span class="nav-badge" id="tareas-badge">0</span>
+        </button>
+      </div>
+
+      <div class="sidebar-usuario">
+        <div class="usuario-avatar" id="usuario-iniciales">--</div>
+        <div>
+          <div class="usuario-nombre" id="usuario-nombre">Cargando...</div>
+          <div class="usuario-plan"   id="usuario-plan">Nivel A1</div>
+        </div>
+        <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar sesión">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 2H2a1 1 0 00-1 1v8a1 1 0 001 1h3M9 10l3-3-3-3M13 7H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── MAIN ── -->
+    <main class="main">
+
+      <div class="topbar">
+        <div class="topbar-izq">
+          <button class="topbar-hamburguesa" id="topbar-hamburguesa">
+            <span></span><span></span><span></span>
+          </button>
+          <span class="topbar-titulo" id="topbar-titulo">Dashboard</span>
+        </div>
+        <div class="topbar-derecha">
+          <a id="btn-admin" class="btn-admin" href="admin.html">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <circle cx="6.5" cy="4.5" r="2" stroke="#B91C1C" stroke-width="1.2"/>
+              <path d="M2 11c0-2.5 2-3.5 4.5-3.5S11 8.5 11 11" stroke="#B91C1C" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            Panel admin
+          </a>
+          <div class="racha-badge">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M7.5 1C6 3 6.5 5.5 5 7C3.5 8.5 1.5 7.5 1.5 7.5C1.5 7.5 1 11.5 6.5 11.5C10.5 11.5 12 9 12 7C12 5 10 3.5 9.5 3C9 2.5 9 4 8 4.5C8.5 3 7.5 1 7.5 1Z" fill="#BA7517"/>
+            </svg>
+            <span id="racha-texto">0 días seguidos</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="contenido">
+
+        <!-- ══════ SECCIÓN: DASHBOARD ══════ -->
+        <div class="seccion activa" id="sec-dashboard">
+
+          <div class="bienvenida-card">
+            <h3>¡Bienvenido a tu portal!</h3>
+            <p>Usa el menú de la izquierda para ver tus clases, materiales, calendario y tareas.</p>
+          </div>
+
+          <div class="progreso-banner">
+            <div class="progreso-info">
+              <div class="progreso-etiqueta">Tu nivel actual</div>
+              <div class="progreso-titulo" id="progreso-titulo">A1 — Principiante</div>
+              <div class="barra-wrap"><div class="barra-fill" id="barra-fill"></div></div>
+              <div class="progreso-meta">
+                Completado: <strong id="progreso-pct">0%</strong>
+                &nbsp;·&nbsp; <span id="unidades-texto">0 de 10 unidades</span>
+              </div>
+            </div>
+            <div class="nivel-badge">
+              <div class="nivel-label">Próximo nivel</div>
+              <div class="nivel-nombre" id="nivel-nombre">A2</div>
+              <div class="nivel-sub"    id="nivel-siguiente">→ A2</div>
+            </div>
+          </div>
+
+          <div class="metricas-grid">
+            <div class="metrica-tarjeta">
+              <div class="metrica-label">Clases completadas</div>
+              <div class="metrica-valor" id="clases-completadas">0</div>
+              <div class="metrica-sub">de tu plan actual</div>
+            </div>
+            <div class="metrica-tarjeta">
+              <div class="metrica-label">Horas de estudio</div>
+              <div class="metrica-valor" id="horas-estudio">0h</div>
+              <div class="metrica-sub">en total</div>
+            </div>
+            <div class="metrica-tarjeta">
+              <div class="metrica-label">Tareas pendientes</div>
+              <div class="metrica-valor" id="tareas-pendientes" style="color:var(--coral);">0</div>
+              <div class="metrica-sub">para esta semana</div>
+            </div>
+          </div>
+
+          <div class="sec-header">
+            <div class="sec-titulo">Últimas clases</div>
+            <button onclick="navegarA('clases', document.getElementById('nav-clases'))" style="background:none;border:none;font-size:13px;color:var(--azul-claro);cursor:pointer;">Ver todas →</button>
+          </div>
+          <div class="clases-grid" id="dashboard-clases">
+            <div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gris-suave);font-size:13px;">Cargando clases...</div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: MIS CLASES ══════ -->
+        <div class="seccion" id="sec-clases">
+          <div class="sec-header">
+            <div class="sec-titulo">Mis clases</div>
+          </div>
+          <div id="lista-clases">
+            <div class="lista-vacia">Cargando clases...</div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: CALENDARIO ══════ -->
+        <div class="seccion" id="sec-calendario">
+          <div class="sec-header">
+            <div class="sec-titulo">Clases en vivo</div>
+          </div>
+          <div id="lista-calendario">
+            <div class="lista-vacia">Cargando clases en vivo...</div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: MATERIALES ══════ -->
+        <div class="seccion" id="sec-materiales">
+          <div class="sec-header">
+            <div class="sec-titulo">Materiales</div>
+          </div>
+          <div id="lista-materiales">
+            <div class="lista-vacia">Cargando materiales...</div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: MI PERFIL ══════ -->
+        <div class="seccion" id="sec-perfil">
+          <div class="perfil-avatar-grande" id="perfil-iniciales">--</div>
+          <div class="perfil-card">
+            <div class="perfil-fila">
+              <span class="perfil-label">Nombre</span>
+              <span class="perfil-valor" id="perfil-nombre">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Correo</span>
+              <span class="perfil-valor" id="perfil-email">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Nivel actual</span>
+              <span class="perfil-valor" id="perfil-nivel">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Progreso</span>
+              <span class="perfil-valor" id="perfil-progreso">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Horas de estudio</span>
+              <span class="perfil-valor" id="perfil-horas">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Racha actual</span>
+              <span class="perfil-valor" id="perfil-racha">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: TAREAS ══════ -->
+        <div class="seccion" id="sec-tareas">
+          <div class="sec-header">
+            <div class="sec-titulo">Mis tareas</div>
+          </div>
+          <div id="lista-tareas">
+            <div class="lista-vacia">Cargando tareas...</div>
+          </div>
+        </div>
+
+      </div><!-- fin .contenido -->
+    </main>
+
+  </div><!-- fin #contenido-principal -->
+
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    /* ── CONFIG ── */
+    const firebaseConfig = {
+      apiKey:            "AIzaSyBYnI8vDNGkzCxEwAX93HbbxeC7Nq0UkW0",
+      authDomain:        "portal-de-ingles.firebaseapp.com",
+      projectId:         "portal-de-ingles",
+      storageBucket:     "portal-de-ingles.firebasestorage.app",
+      messagingSenderId: "555874735361",
+      appId:             "1:555874735361:web:2dc6e4b51a9b5c5548f700",
+      measurementId:     "G-488275BW4C"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db   = firebase.firestore();
+    var perfilGlobal = null;
+
+    /* ══════════════════════════════════════════
+       NAVEGACIÓN ENTRE SECCIONES
+    ══════════════════════════════════════════ */
     var titulos = {
-      estudiantes: ["Estudiantes", "Gestiona el progreso de tus estudiantes"],
-      clases:      ["Clases (videos)", "Agrega y organiza tus clases grabadas"],
-      materiales:  ["Materiales", "PDFs y recursos descargables"],
-      calendario:  ["Clases en vivo", "Programa tus clases por Google Meet"],
-      tareas:      ["Tareas", "Envía tareas a tus estudiantes"]
-    };
-    document.getElementById("topbar-titulo").textContent = titulos[seccion][0];
-    document.getElementById("topbar-sub").textContent    = titulos[seccion][1];
-  }
-
-  /* ── TOAST ──────────────────────────────────── */
-  function toast(msg, tipo) {
-    var t = document.getElementById("toast");
-    t.textContent = msg;
-    t.className = "visible " + (tipo || "ok");
-    setTimeout(function() { t.className = ""; }, 3000);
-  }
-
-  /* ════════════════════════════════════════════
-     ESTUDIANTES
-  ════════════════════════════════════════════ */
-  var todosEstudiantes = [];
-
-  function cargarEstudiantes() {
-    db.collection("estudiantes").get().then(function(snap) {
-      todosEstudiantes = [];
-      snap.forEach(function(doc) {
-        todosEstudiantes.push(Object.assign({ uid: doc.id }, doc.data()));
-      });
-      actualizarStats();
-      renderizarTabla(todosEstudiantes);
-    });
-  }
-
-  function actualizarStats() {
-    var total    = todosEstudiantes.length;
-    var basico   = todosEstudiantes.filter(function(e) { return e.nivel === "A1" || e.nivel === "A2"; }).length;
-    var avanzado = todosEstudiantes.filter(function(e) { return e.nivel === "B1" || e.nivel === "B2"; }).length;
-    var prom     = total > 0
-      ? Math.round(todosEstudiantes.reduce(function(s, e) { return s + (e.progreso || 0); }, 0) / total)
-      : 0;
-
-    document.getElementById("stat-total").textContent    = total;
-    document.getElementById("stat-basico").textContent   = basico;
-    document.getElementById("stat-avanzado").textContent = avanzado;
-    document.getElementById("stat-progreso").textContent = prom + "%";
-  }
-
-  function filtrarEstudiantes() {
-    var q  = document.getElementById("buscador").value.toLowerCase();
-    var nv = document.getElementById("filtro-nivel").value;
-    var filtrados = todosEstudiantes.filter(function(e) {
-      var coincideTexto = !q ||
-        (e.nombre || "").toLowerCase().includes(q) ||
-        (e.email  || "").toLowerCase().includes(q);
-      var coincideNivel = !nv || e.nivel === nv;
-      return coincideTexto && coincideNivel;
-    });
-    renderizarTabla(filtrados);
-  }
-
-  function renderizarTabla(lista) {
-    var tbody = document.getElementById("tabla-estudiantes");
-    if (!lista.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="vacio">No se encontraron estudiantes.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = lista.map(function(e) {
-      var progreso = e.progreso || 0;
-      return '<tr>' +
-        '<td><strong style="font-size:13px;">' + (e.nombre || "Sin nombre") + '</strong><br>' +
-        '<span style="font-size:11px;color:var(--gris-suave);">' + (e.email || "") + '</span></td>' +
-        '<td><span class="nivel-chip nivel-' + (e.nivel || "A1") + '">' + (e.nivel || "A1") + '</span></td>' +
-        '<td><div class="progreso-mini">' +
-          '<div class="barra-mini-wrap"><div class="barra-mini-fill" style="width:' + progreso + '%"></div></div>' +
-          '<span class="progreso-num">' + progreso + '%</span>' +
-        '</div></td>' +
-        '<td>' + (e.horasEstudio || 0) + 'h</td>' +
-        '<td>' + (e.tareasPendientes || 0) + '</td>' +
-        '<td><button class="btn btn-ghost btn-sm" onclick="abrirModal(\'' + e.uid + '\')">Editar</button></td>' +
-      '</tr>';
-    }).join("");
-  }
-
-  /* ── MODAL EDITAR ─── */
-  function abrirModal(uid) {
-    var e = todosEstudiantes.find(function(x) { return x.uid === uid; });
-    if (!e) return;
-    document.getElementById("modal-uid").value          = uid;
-    document.getElementById("modal-nombre-titulo").textContent = "Editar: " + (e.nombre || e.email);
-    document.getElementById("modal-nombre").value       = e.nombre || "";
-    document.getElementById("modal-email").value        = e.email  || "";
-    document.getElementById("modal-nivel").value        = e.nivel  || "A1";
-    document.getElementById("modal-progreso").value     = e.progreso || 0;
-    document.getElementById("modal-unidades").value     = e.unidadesCompletadas || 0;
-    document.getElementById("modal-horas").value        = e.horasEstudio || 0;
-    document.getElementById("modal-racha").value        = e.racha || 0;
-    document.getElementById("modal-tareas").value       = e.tareasPendientes || 0;
-    document.getElementById("modal-estudiante").classList.add("abierto");
-  }
-
-  function cerrarModal() {
-    document.getElementById("modal-estudiante").classList.remove("abierto");
-  }
-
-  function guardarEstudiante() {
-    var uid   = document.getElementById("modal-uid").value;
-    var nivel = document.getElementById("modal-nivel").value;
-    var siguientes = { A1:"A2", A2:"B1", B1:"B2", B2:"C1" };
-    var nombres    = { A1:"Principiante", A2:"Básico", B1:"Intermedio", B2:"Avanzado" };
-
-    var datos = {
-      nombre:              document.getElementById("modal-nombre").value.trim(),
-      nivel:               nivel,
-      nivelNombre:         nombres[nivel],
-      nivelSiguiente:      siguientes[nivel],
-      progreso:            parseInt(document.getElementById("modal-progreso").value) || 0,
-      unidadesCompletadas: parseInt(document.getElementById("modal-unidades").value) || 0,
-      horasEstudio:        parseInt(document.getElementById("modal-horas").value) || 0,
-      racha:               parseInt(document.getElementById("modal-racha").value) || 0,
-      tareasPendientes:    parseInt(document.getElementById("modal-tareas").value) || 0
+      dashboard:  'Dashboard',
+      clases:     'Mis clases',
+      calendario: 'Calendario',
+      materiales: 'Materiales',
+      perfil:     'Mi perfil',
+      tareas:     'Tareas'
     };
 
-    db.collection("estudiantes").doc(uid).update(datos)
-      .then(function() {
-        cerrarModal();
-        toast("Estudiante actualizado correctamente", "ok");
-        cargarEstudiantes();
-      })
-      .catch(function(err) { toast("Error: " + err.message, "error"); });
-  }
+    function navegarA(seccion, btnEl) {
+      // Ocultar todas las secciones
+      document.querySelectorAll('.seccion').forEach(function(s) { s.classList.remove('activa'); });
+      // Desactivar todos los nav items
+      document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('activo'); });
 
-  /* ════════════════════════════════════════════
-     CLASES (VIDEOS)
-  ════════════════════════════════════════════ */
-  function agregarClase() {
-    var datos = {
-      titulo:   document.getElementById("clase-titulo").value.trim(),
-      unidad:   document.getElementById("clase-unidad").value.trim(),
-      nivel:    document.getElementById("clase-nivel").value,
-      duracion: parseInt(document.getElementById("clase-duracion").value) || 0,
-      orden:    parseInt(document.getElementById("clase-orden").value) || 1,
-      videoUrl: document.getElementById("clase-url").value.trim(),
-      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-    };
+      // Mostrar sección elegida
+      document.getElementById('sec-' + seccion).classList.add('activa');
 
-    if (!datos.titulo || !datos.videoUrl) {
-      toast("Completa el título y la URL del video", "error"); return;
+      // Marcar botón activo
+      if (btnEl) btnEl.classList.add('activo');
+
+      // Actualizar título del topbar
+      document.getElementById('topbar-titulo').textContent = titulos[seccion] || seccion;
+
+      // Cerrar drawer en móvil
+      cerrarDrawer();
+
+      // Cargar contenido de la sección si aplica
+      if (seccion === 'clases')     cargarClases();
+      if (seccion === 'calendario') cargarCalendario();
+      if (seccion === 'materiales') cargarMateriales();
+      if (seccion === 'tareas')     cargarTareas();
+      if (seccion === 'perfil')     mostrarPerfil();
     }
 
-    db.collection("clases").add(datos)
-      .then(function() {
-        toast("Clase guardada", "ok");
-        ["clase-titulo","clase-unidad","clase-duracion","clase-orden","clase-url"]
-          .forEach(function(id) { document.getElementById(id).value = ""; });
-        cargarClases();
-      })
-      .catch(function(err) { toast("Error: " + err.message, "error"); });
-  }
+    /* ══════════════════════════════════════════
+       DRAWER MÓVIL
+    ══════════════════════════════════════════ */
+    var sidebar   = document.getElementById('sidebar');
+    var overlay   = document.getElementById('sidebar-overlay');
+    var hamburger = document.getElementById('topbar-hamburguesa');
+    var closeBtn  = document.getElementById('sidebar-close');
 
-  function cargarClases() {
-    db.collection("clases").orderBy("orden").get().then(function(snap) {
-      var lista = document.getElementById("lista-clases");
-      if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay clases aún.</div>'; return; }
-      lista.innerHTML = "";
-      snap.forEach(function(doc) {
-        var d = doc.data();
-        var div = document.createElement("div");
-        div.className = "item-lista";
-        div.innerHTML =
-          '<div class="item-icono" style="background:#EFF6FF;">' +
-            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
-              '<rect x="1" y="2" width="14" height="12" rx="2" stroke="#3B82F6" stroke-width="1.3"/>' +
-              '<path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="#3B82F6"/>' +
-            '</svg></div>' +
-          '<div>' +
-            '<div class="item-nombre">' + d.titulo + '</div>' +
-            '<div class="item-meta">' + d.unidad + ' · Nivel ' + d.nivel + ' · ' + d.duracion + ' min</div>' +
-          '</div>' +
-          '<div class="item-acciones">' +
-            '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'clases\',\'' + doc.id + '\',this)">Eliminar</button>' +
-          '</div>';
-        lista.appendChild(div);
-      });
-    });
-  }
-
-  /* ════════════════════════════════════════════
-     MATERIALES
-  ════════════════════════════════════════════ */
-  function agregarMaterial() {
-    var datos = {
-      titulo:   document.getElementById("mat-titulo").value.trim(),
-      unidad:   document.getElementById("mat-unidad").value.trim(),
-      nivel:    document.getElementById("mat-nivel").value,
-      tipo:     document.getElementById("mat-tipo").value,
-      url:      document.getElementById("mat-url").value.trim(),
-      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    if (!datos.titulo || !datos.url) {
-      toast("Completa el nombre y la URL", "error"); return;
+    function abrirDrawer() {
+      sidebar.classList.add('drawer-abierto');
+      overlay.classList.add('visible');
+      document.body.style.overflow = 'hidden';
     }
 
-    db.collection("materiales").add(datos)
-      .then(function() {
-        toast("Material guardado", "ok");
-        ["mat-titulo","mat-unidad","mat-url"].forEach(function(id) { document.getElementById(id).value = ""; });
-        cargarMateriales();
-      })
-      .catch(function(err) { toast("Error: " + err.message, "error"); });
-  }
-
-  function cargarMateriales() {
-    db.collection("materiales").get().then(function(snap) {
-      var lista = document.getElementById("lista-materiales");
-      if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay materiales aún.</div>'; return; }
-      lista.innerHTML = "";
-      snap.forEach(function(doc) {
-        var d = doc.data();
-        var div = document.createElement("div");
-        div.className = "item-lista";
-        div.innerHTML =
-          '<div class="item-icono" style="background:#FEF2F2;">' +
-            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
-              '<path d="M3 1.5h10a1 1 0 011 1v11a1 1 0 01-1 1H3a1 1 0 01-1-1v-11a1 1 0 011-1z" stroke="#DC2626" stroke-width="1.3"/>' +
-              '<path d="M5 5h6M5 7.5h4" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/>' +
-            '</svg></div>' +
-          '<div>' +
-            '<div class="item-nombre">' + d.titulo + '</div>' +
-            '<div class="item-meta">' + d.tipo + ' · ' + d.unidad + ' · Nivel ' + d.nivel + '</div>' +
-          '</div>' +
-          '<div class="item-acciones">' +
-            '<a href="' + d.url + '" target="_blank" class="btn btn-ghost btn-sm">Ver</a>' +
-            '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'materiales\',\'' + doc.id + '\',this)">Eliminar</button>' +
-          '</div>';
-        lista.appendChild(div);
-      });
-    });
-  }
-
-  /* ════════════════════════════════════════════
-     CLASES EN VIVO
-  ════════════════════════════════════════════ */
-  function agregarClaseVivo() {
-    var datos = {
-      titulo:   document.getElementById("vivo-titulo").value.trim(),
-      nivel:    document.getElementById("vivo-nivel").value,
-      fecha:    document.getElementById("vivo-fecha").value,
-      hora:     document.getElementById("vivo-hora").value,
-      duracion: parseInt(document.getElementById("vivo-duracion").value) || 60,
-      meetUrl:  document.getElementById("vivo-url").value.trim(),
-      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    if (!datos.titulo || !datos.fecha || !datos.meetUrl) {
-      toast("Completa título, fecha y link de Meet", "error"); return;
+    function cerrarDrawer() {
+      sidebar.classList.remove('drawer-abierto');
+      overlay.classList.remove('visible');
+      document.body.style.overflow = '';
     }
 
-    db.collection("clases-vivo").add(datos)
-      .then(function() {
-        toast("Clase en vivo guardada", "ok");
-        ["vivo-titulo","vivo-fecha","vivo-hora","vivo-duracion","vivo-url"]
-          .forEach(function(id) { document.getElementById(id).value = ""; });
-        cargarClasesVivo();
-      })
-      .catch(function(err) { toast("Error: " + err.message, "error"); });
-  }
+    hamburger.addEventListener('click', abrirDrawer);
+    closeBtn.addEventListener('click',  cerrarDrawer);
+    overlay.addEventListener('click',   cerrarDrawer);
+    window.addEventListener('resize',   function() { if (window.innerWidth > 768) cerrarDrawer(); });
 
-  function cargarClasesVivo() {
-    db.collection("clases-vivo").orderBy("fecha").get().then(function(snap) {
-      var lista = document.getElementById("lista-vivo");
-      if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay clases programadas.</div>'; return; }
-      lista.innerHTML = "";
-      snap.forEach(function(doc) {
-        var d = doc.data();
-        var div = document.createElement("div");
-        div.className = "item-lista";
-        div.innerHTML =
-          '<div class="item-icono" style="background:#F0FDF4;">' +
-            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
-              '<rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="#16A34A" stroke-width="1.3"/>' +
-              '<path d="M5 1.5v3M11 1.5v3M1.5 6.5h13" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round"/>' +
-            '</svg></div>' +
-          '<div>' +
-            '<div class="item-nombre">' + d.titulo + '</div>' +
-            '<div class="item-meta">' + d.fecha + ' · ' + d.hora + ' · ' + d.duracion + ' min · Nivel ' + d.nivel + '</div>' +
-          '</div>' +
-          '<div class="item-acciones">' +
-            '<a href="' + d.meetUrl + '" target="_blank" class="btn btn-ghost btn-sm">Meet</a>' +
-            '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'clases-vivo\',\'' + doc.id + '\',this)">Eliminar</button>' +
-          '</div>';
-        lista.appendChild(div);
-      });
-    }).catch(function() {
-      cargarClasesVivoSinOrden();
+    /* ══════════════════════════════════════════
+       AUTENTICACIÓN Y PERFIL
+    ══════════════════════════════════════════ */
+    auth.onAuthStateChanged(async function(usuario) {
+      if (!usuario) { window.location.href = 'login.html'; return; }
+      var perfil = await cargarPerfil(usuario);
+      perfilGlobal = perfil;
+      mostrarDashboard(perfil, usuario);
     });
-  }
 
-  function cargarClasesVivoSinOrden() {
-    db.collection("clases-vivo").get().then(function(snap) {
-      var lista = document.getElementById("lista-vivo");
-      if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay clases programadas.</div>'; return; }
-      lista.innerHTML = "";
-      snap.forEach(function(doc) {
-        var d = doc.data();
-        var div = document.createElement("div");
-        div.className = "item-lista";
-        div.innerHTML =
-          '<div class="item-nombre">' + d.titulo + '</div>' +
-          '<div class="item-meta">' + d.fecha + ' · ' + d.hora + '</div>' +
-          '<div class="item-acciones">' +
-            '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'clases-vivo\',\'' + doc.id + '\',this)">Eliminar</button>' +
-          '</div>';
-        lista.appendChild(div);
-      });
-    });
-  }
+    async function cargarPerfil(usuario) {
+      var ref  = db.collection('estudiantes').doc(usuario.uid);
+      var snap = await ref.get();
+      if (snap.exists) return snap.data();
 
-  /* ════════════════════════════════════════════
-     TAREAS
-  ════════════════════════════════════════════ */
-  function enviarTarea() {
-    var titulo = document.getElementById("tarea-titulo").value.trim();
-    var fecha  = document.getElementById("tarea-fecha").value;
-    var desc   = document.getElementById("tarea-desc").value.trim();
-    var nivel  = document.getElementById("tarea-nivel").value;
-    var url    = document.getElementById("tarea-url").value.trim();
-
-    if (!titulo || !fecha) { toast("Completa el título y la fecha límite", "error"); return; }
-
-    var destinatarios = nivel === "todos"
-      ? todosEstudiantes
-      : todosEstudiantes.filter(function(e) { return e.nivel === nivel; });
-
-    if (!destinatarios.length) {
-      toast("No hay estudiantes en ese nivel aún", "error"); return;
-    }
-
-    var batch = db.batch();
-
-    destinatarios.forEach(function(e) {
-      var ref = db.collection("estudiantes").doc(e.uid).collection("tareas").doc();
-      batch.set(ref, {
-        titulo: titulo,
-        descripcion: desc,
-        fechaLimite: fecha,
-        url: url,
-        completada: false,
+      var perfilNuevo = {
+        nombre: usuario.displayName || usuario.email.split('@')[0],
+        email:  usuario.email,
+        nivel: 'A1', nivelNombre: 'Principiante', nivelSiguiente: 'A2',
+        progreso: 0, unidadesCompletadas: 0, unidadesTotal: 10,
+        horasEstudio: 0, racha: 0, tareasPendientes: 0,
         creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      var estudRef = db.collection("estudiantes").doc(e.uid);
-      batch.update(estudRef, {
-        tareasPendientes: firebase.firestore.FieldValue.increment(1)
-      });
-    });
+      };
+      await ref.set(perfilNuevo);
+      return perfilNuevo;
+    }
 
-    batch.commit()
-      .then(function() {
-        toast("Tarea enviada a " + destinatarios.length + " estudiante(s)", "ok");
-        ["tarea-titulo","tarea-fecha","tarea-desc","tarea-url"]
-          .forEach(function(id) { document.getElementById(id).value = ""; });
-        cargarEstudiantes();
-      })
-      .catch(function(err) { toast("Error: " + err.message, "error"); });
-  }
+    function mostrarDashboard(p, usuario) {
+      document.getElementById('pantalla-carga').style.display      = 'none';
+      document.getElementById('contenido-principal').style.display = 'flex';
 
-  /* ── ELIMINAR DOCUMENTO ─── */
-  function eliminarDoc(coleccion, id, btn) {
-    if (!confirm("¿Eliminar este elemento?")) return;
-    db.collection(coleccion).doc(id).delete()
-      .then(function() {
-        btn.closest(".item-lista").remove();
-        toast("Eliminado correctamente", "ok");
-      })
-      .catch(function(err) { toast("Error: " + err.message, "error"); });
-  }
+      var nombre = p.nombre || 'Estudiante';
+      var iniciales = nombre.split(' ').map(function(n){ return n[0]; }).join('').slice(0,2).toUpperCase();
 
-  /* ── CERRAR SESIÓN ─── */
-  function cerrarSesion() {
-    auth.signOut().then(function() { window.location.href = "login.html"; });
-  }
-</script>
+      document.getElementById('saludo-nombre').textContent     = nombre;
+      document.getElementById('usuario-nombre').textContent    = nombre;
+      document.getElementById('usuario-iniciales').textContent = iniciales;
+      document.getElementById('usuario-plan').textContent      = 'Nivel ' + (p.nivel || 'A1');
+
+      document.getElementById('progreso-titulo').textContent = (p.nivel || 'A1') + ' — ' + (p.nivelNombre || 'Principiante');
+      document.getElementById('barra-fill').style.width      = (p.progreso || 0) + '%';
+      document.getElementById('progreso-pct').textContent    = (p.progreso || 0) + '%';
+      document.getElementById('unidades-texto').textContent  = (p.unidadesCompletadas || 0) + ' de ' + (p.unidadesTotal || 10) + ' unidades';
+      document.getElementById('nivel-nombre').textContent    = p.nivelSiguiente || 'A2';
+      document.getElementById('nivel-siguiente').textContent = '→ ' + (p.nivelSiguiente || 'A2');
+
+      document.getElementById('clases-completadas').textContent = p.unidadesCompletadas || 0;
+      document.getElementById('horas-estudio').textContent      = (p.horasEstudio || 0) + 'h';
+      document.getElementById('tareas-pendientes').textContent  = p.tareasPendientes || 0;
+      document.getElementById('tareas-badge').textContent       = p.tareasPendientes || 0;
+      document.getElementById('racha-texto').textContent        = (p.racha || 0) + ' días seguidos';
+
+      // Botón admin
+      var ADMIN_EMAIL = 'francovich2808@gmail.com';
+      if (usuario.email === ADMIN_EMAIL) {
+        document.getElementById('btn-admin').style.display = 'flex';
+      }
+
+      // Cargar clases en el dashboard
+      cargarClasesDashboard();
+    }
+
+    /* ══════════════════════════════════════════
+       COLORES PARA CARDS DE CLASES
+    ══════════════════════════════════════════ */
+    var thumbColores = ['thumb-teal', 'thumb-azul', 'thumb-amber', 'thumb-coral'];
+    var playColores  = ['#1D9E75', '#3B82F6', '#EF9F27', '#D85A30'];
+
+    function claseCardHTML(doc, idx) {
+      var d = doc.data ? doc.data() : doc;
+      var color = thumbColores[idx % 4];
+      var play  = playColores[idx % 4];
+      var estado = d.estado || 'nuevo';
+      var estadoClass = estado === 'completada' ? 'estado-hecho' : estado === 'bloqueado' ? 'estado-bloqueado' : 'estado-nuevo';
+      var estadoLabel = estado === 'completada' ? 'Completada' : estado === 'bloqueado' ? 'Bloqueada' : 'Disponible';
+      var url = d.videoUrl || d.url || '#';
+
+      return '<div class="clase-tarjeta" onclick="' + (url !== '#' ? 'window.open(\'' + url + '\',\'_blank\')' : '') + '">' +
+        '<div class="clase-thumb ' + color + '">' +
+          '<div class="play-btn"><svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M1 1L9 6L1 11V1Z" fill="' + play + '"/></svg></div>' +
+          (d.duracion ? '<div class="duracion-tag">' + d.duracion + ' min</div>' : '') +
+        '</div>' +
+        '<div class="clase-body">' +
+          '<div class="clase-unidad">' + (d.unidad || '') + '</div>' +
+          '<div class="clase-nombre">' + (d.titulo || 'Sin título') + '</div>' +
+          '<span class="estado-chip ' + estadoClass + '">' + estadoLabel + '</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /* ── CLASES EN DASHBOARD (últimas 4) ── */
+    function cargarClasesDashboard() {
+      db.collection('clases').orderBy('orden').limit(4).get()
+        .then(function(snap) {
+          var cont = document.getElementById('dashboard-clases');
+          if (snap.empty) {
+            cont.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gris-suave);font-size:13px;">Aún no hay clases publicadas.</div>';
+            return;
+          }
+          var html = '';
+          snap.docs.forEach(function(doc, i) { html += claseCardHTML(doc, i); });
+          cont.innerHTML = html;
+        })
+        .catch(function() {
+          document.getElementById('dashboard-clases').innerHTML =
+            '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gris-suave);font-size:13px;">No se pudieron cargar las clases.</div>';
+        });
+    }
+
+    /* ── MIS CLASES (todas) ── */
+    function cargarClases() {
+      var cont = document.getElementById('lista-clases');
+      cont.innerHTML = '<div class="lista-vacia">Cargando...</div>';
+
+      db.collection('clases').orderBy('orden').get()
+        .then(function(snap) {
+          if (snap.empty) { cont.innerHTML = '<div class="lista-vacia">Aún no hay clases publicadas.</div>'; return; }
+          var html = '<div class="clases-grid">';
+          snap.docs.forEach(function(doc, i) { html += claseCardHTML(doc, i); });
+          html += '</div>';
+          cont.innerHTML = html;
+        })
+        .catch(function() { cont.innerHTML = '<div class="lista-vacia">No se pudieron cargar las clases.</div>'; });
+    }
+
+    /* ── CALENDARIO (clases en vivo) ── */
+    function cargarCalendario() {
+      var cont = document.getElementById('lista-calendario');
+      cont.innerHTML = '<div class="lista-vacia">Cargando...</div>';
+
+      db.collection('clases-vivo').get()
+        .then(function(snap) {
+          if (snap.empty) { cont.innerHTML = '<div class="lista-vacia">No hay clases en vivo programadas aún.</div>'; return; }
+
+          var docs = snap.docs.sort(function(a, b) {
+            var fa = (a.data().fecha || '') + (a.data().hora || '');
+            var fb = (b.data().fecha || '') + (b.data().hora || '');
+            return fa > fb ? 1 : -1;
+          });
+
+          var html = '';
+          docs.forEach(function(doc) {
+            var d = doc.data();
+            html += '<div class="item-card">' +
+              '<div class="item-icono" style="background:#F0FDF4;">' +
+                '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1.5" y="2.5" width="15" height="13" rx="2" stroke="#16A34A" stroke-width="1.3"/><path d="M5 1.5v3M13 1.5v3M1.5 7.5h15" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round"/></svg>' +
+              '</div>' +
+              '<div class="item-info">' +
+                '<div class="item-titulo">' + (d.titulo || 'Clase en vivo') + '</div>' +
+                '<div class="item-meta">' + (d.fecha || '') + ' · ' + (d.hora || '') + ' · ' + (d.duracion || 60) + ' min · Nivel ' + (d.nivel || 'Todos') + '</div>' +
+              '</div>' +
+              (d.meetUrl ? '<div class="item-accion"><a class="btn-ver" href="' + d.meetUrl + '" target="_blank">Unirse</a></div>' : '') +
+            '</div>';
+          });
+          cont.innerHTML = html;
+        })
+        .catch(function() { cont.innerHTML = '<div class="lista-vacia">No se pudo cargar el calendario.</div>'; });
+    }
+
+    /* ── MATERIALES ── */
+    function cargarMateriales() {
+      var cont = document.getElementById('lista-materiales');
+      cont.innerHTML = '<div class="lista-vacia">Cargando...</div>';
+
+      db.collection('materiales').get()
+        .then(function(snap) {
+          if (snap.empty) { cont.innerHTML = '<div class="lista-vacia">Aún no hay materiales publicados.</div>'; return; }
+
+          var html = '';
+          snap.docs.forEach(function(doc) {
+            var d = doc.data();
+            html += '<div class="item-card">' +
+              '<div class="item-icono" style="background:#FEF2F2;">' +
+                '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 1.5h12a1 1 0 011 1v13a1 1 0 01-1 1H3a1 1 0 01-1-1v-13a1 1 0 011-1z" stroke="#DC2626" stroke-width="1.3"/><path d="M5 6h8M5 9h6M5 12h7" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/></svg>' +
+              '</div>' +
+              '<div class="item-info">' +
+                '<div class="item-titulo">' + (d.titulo || 'Material') + '</div>' +
+                '<div class="item-meta">' + (d.tipo || 'PDF') + ' · ' + (d.unidad || '') + (d.nivel ? ' · Nivel ' + d.nivel : '') + '</div>' +
+              '</div>' +
+              (d.url ? '<div class="item-accion"><a class="btn-ver" href="' + d.url + '" target="_blank">Descargar</a></div>' : '') +
+            '</div>';
+          });
+          cont.innerHTML = html;
+        })
+        .catch(function() { cont.innerHTML = '<div class="lista-vacia">No se pudieron cargar los materiales.</div>'; });
+    }
+
+    /* ── TAREAS ── */
+    function cargarTareas() {
+      var cont = document.getElementById('lista-tareas');
+      cont.innerHTML = '<div class="lista-vacia">Cargando...</div>';
+
+      var uid = auth.currentUser ? auth.currentUser.uid : null;
+      if (!uid) return;
+
+      db.collection('estudiantes').doc(uid).collection('tareas').get()
+        .then(function(snap) {
+          if (snap.empty) { cont.innerHTML = '<div class="lista-vacia">No tienes tareas asignadas aún.</div>'; return; }
+
+          var html = '';
+          snap.docs.forEach(function(doc) {
+            var d   = doc.data();
+            var ok  = d.completada ? 'hecho' : '';
+            html += '<div class="item-card">' +
+              '<div class="tarea-check ' + ok + '" onclick="toggleTarea(\'' + doc.id + '\', this)">' +
+                (d.completada ? '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') +
+              '</div>' +
+              '<div class="item-info">' +
+                '<div class="item-titulo" style="' + (d.completada ? 'text-decoration:line-through;color:var(--gris-suave);' : '') + '">' + (d.titulo || 'Tarea') + '</div>' +
+                '<div class="item-meta">' + (d.descripcion || '') + (d.fechaLimite ? ' · Vence: ' + d.fechaLimite : '') + '</div>' +
+              '</div>' +
+              (d.url ? '<div class="item-accion"><a class="btn-ver" href="' + d.url + '" target="_blank">Ver</a></div>' : '') +
+            '</div>';
+          });
+          cont.innerHTML = html;
+        })
+        .catch(function() { cont.innerHTML = '<div class="lista-vacia">No se pudieron cargar las tareas.</div>'; });
+    }
+
+    /* ── MARCAR TAREA COMO COMPLETADA ── */
+    function toggleTarea(tareaId, el) {
+      var uid  = auth.currentUser ? auth.currentUser.uid : null;
+      if (!uid) return;
+      var hecho = el.classList.contains('hecho');
+      var ref   = db.collection('estudiantes').doc(uid).collection('tareas').doc(tareaId);
+      ref.update({ completada: !hecho }).then(function() { cargarTareas(); });
+    }
+
+    /* ── MI PERFIL ── */
+    function mostrarPerfil() {
+      var p = perfilGlobal;
+      if (!p) return;
+      var nombre   = p.nombre || 'Estudiante';
+      var iniciales = nombre.split(' ').map(function(n){ return n[0]; }).join('').slice(0,2).toUpperCase();
+
+      document.getElementById('perfil-iniciales').textContent = iniciales;
+      document.getElementById('perfil-nombre').textContent    = nombre;
+      document.getElementById('perfil-email').textContent     = p.email || '—';
+      document.getElementById('perfil-nivel').textContent     = (p.nivel || 'A1') + ' — ' + (p.nivelNombre || 'Principiante');
+      document.getElementById('perfil-progreso').textContent  = (p.progreso || 0) + '% completado';
+      document.getElementById('perfil-horas').textContent     = (p.horasEstudio || 0) + ' horas';
+      document.getElementById('perfil-racha').textContent     = (p.racha || 0) + ' días seguidos';
+    }
+
+    /* ── CERRAR SESIÓN ── */
+    function cerrarSesion() {
+      auth.signOut().then(function() { window.location.href = 'login.html'; });
+    }
+  </script>
 
 </body>
 </html>
