@@ -4,10 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard — FrankyEnglish</title>
-    <link rel="icon" href="favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
-  <link rel="apple-touch-icon" href="favicon.png">
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
@@ -35,42 +31,23 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'DM Sans', system-ui, sans-serif;
-      background: var(--gris-fondo);
-      color: var(--gris-texto);
-    }
+    body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--gris-fondo); color: var(--gris-texto); }
 
-    /* ── PANTALLA DE CARGA ── */
+    /* ── CARGA ── */
     #pantalla-carga {
       position: fixed; inset: 0;
       background: linear-gradient(135deg, #1E3A8A, #0F172A);
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 16px;
-      z-index: 999;
+      align-items: center; justify-content: center; gap: 16px; z-index: 999;
     }
-
-    .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid rgba(255,255,255,0.15);
-      border-top-color: #3B82F6;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.15); border-top-color: #3B82F6; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     #pantalla-carga p { font-size: 14px; color: rgba(255,255,255,0.5); }
 
     /* ── LAYOUT ── */
     #contenido-principal { display: none; min-height: 100vh; }
 
-    /* ── OVERLAY (toca fuera del drawer en móvil) ── */
-    .sidebar-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 49;
-    }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 49; }
     .sidebar-overlay.visible { display: block; }
 
     /* ── SIDEBAR ── */
@@ -88,91 +65,45 @@
       display: flex; align-items: center; gap: 10px;
     }
 
-    .logo-icono {
-      width: 34px; height: 34px;
-      background: var(--azul-claro);
-      border-radius: var(--radio-md);
-      display: flex; align-items: center; justify-content: center;
-    }
-
+    .logo-icono { width: 34px; height: 34px; background: var(--azul-claro); border-radius: var(--radio-md); display: flex; align-items: center; justify-content: center; }
     .logo-nombre { font-size: 15px; font-weight: 500; color: #fff; }
     .logo-sub    { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; }
 
-    /* Botón cerrar sidebar en móvil (dentro del drawer) */
-    .sidebar-close {
-      display: none;
-      margin-left: auto;
-      background: none; border: none;
-      color: rgba(255,255,255,0.4); cursor: pointer;
-      padding: 4px; border-radius: 4px;
-      transition: color 0.15s;
-    }
+    .sidebar-close { display: none; margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; padding: 4px; border-radius: 4px; }
     .sidebar-close:hover { color: rgba(255,255,255,0.8); }
 
     .nav-seccion { flex: 1; padding: 18px 0 0; overflow-y: auto; }
 
     .nav-grupo-label {
-      font-size: 10px; font-weight: 500;
-      letter-spacing: 0.09em; text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      padding: 0 20px; margin-bottom: 6px; margin-top: 10px;
+      font-size: 10px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); padding: 0 20px; margin-bottom: 6px; margin-top: 10px;
     }
 
+    /* ── NAV ITEMS — ahora son botones reales ── */
     .nav-item {
       display: flex; align-items: center; gap: 10px;
-      padding: 10px 20px; font-size: 13px;
-      color: rgba(255,255,255,0.6);
-      border-left: 2px solid transparent;
+      width: 100%; padding: 10px 20px; font-size: 13px;
+      color: rgba(255,255,255,0.6); border-left: 2px solid transparent;
+      background: none; border-top: none; border-right: none; border-bottom: none;
       cursor: pointer; transition: all 0.15s;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      text-align: left;
     }
+    .nav-item.activo { color: #fff; background: rgba(59,130,246,0.2); border-left-color: var(--azul-claro); }
+    .nav-item:hover:not(.activo) { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
 
-    .nav-item.activo {
-      color: #fff;
-      background: rgba(59,130,246,0.2);
-      border-left-color: var(--azul-claro);
-    }
+    .nav-badge { margin-left: auto; background: var(--coral); color: #fff; font-size: 10px; font-weight: 500; border-radius: 99px; padding: 1px 6px; }
 
-    .nav-item:hover:not(.activo) {
-      color: rgba(255,255,255,0.9);
-      background: rgba(255,255,255,0.05);
-    }
-
-    .nav-badge {
-      margin-left: auto; background: var(--coral);
-      color: #fff; font-size: 10px; font-weight: 500;
-      border-radius: 99px; padding: 1px 6px;
-    }
-
-    .sidebar-usuario {
-      padding: 14px 20px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    .usuario-avatar {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(59,130,246,0.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 500; color: #93C5FD; flex-shrink: 0;
-    }
-
+    .sidebar-usuario { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+    .usuario-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(59,130,246,0.3); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #93C5FD; flex-shrink: 0; }
     .usuario-nombre { font-size: 13px; color: #fff; font-weight: 500; }
     .usuario-plan   { font-size: 11px; color: rgba(255,255,255,0.4); }
-
-    .btn-logout {
-      margin-left: auto; background: none; border: none;
-      color: rgba(255,255,255,0.3); cursor: pointer;
-      padding: 4px; border-radius: 4px; transition: color 0.15s;
-    }
+    .btn-logout { margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; padding: 4px; border-radius: 4px; transition: color 0.15s; }
     .btn-logout:hover { color: rgba(255,255,255,0.7); }
 
     /* ── MAIN ── */
-    .main {
-      margin-left: 230px; flex: 1;
-      display: flex; flex-direction: column; min-height: 100vh;
-    }
+    .main { margin-left: 230px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-    /* ── TOPBAR ── */
     .topbar {
       background: var(--blanco); border-bottom: 1px solid var(--borde);
       padding: 0 32px; height: 58px;
@@ -180,99 +111,60 @@
       position: sticky; top: 0; z-index: 40;
     }
 
-    /* Botón hamburguesa — solo en móvil */
-    .topbar-hamburguesa {
-      display: none;
-      background: none; border: none; cursor: pointer;
-      padding: 6px; border-radius: var(--radio-md);
-      flex-direction: column; gap: 4px;
-      transition: background 0.15s;
-    }
-    .topbar-hamburguesa:hover { background: var(--gris-fondo); }
-    .topbar-hamburguesa span {
-      display: block; width: 18px; height: 2px;
-      background: var(--gris-texto); border-radius: 1px;
-    }
+    .topbar-izq { display: flex; align-items: center; gap: 10px; }
 
-    .topbar-saludo { font-size: 14px; color: var(--gris-suave); }
-    .topbar-saludo strong { color: var(--gris-texto); font-weight: 500; }
+    .topbar-hamburguesa { display: none; background: none; border: none; cursor: pointer; padding: 6px; border-radius: var(--radio-md); flex-direction: column; gap: 4px; }
+    .topbar-hamburguesa span { display: block; width: 18px; height: 2px; background: var(--gris-texto); border-radius: 1px; }
+
+    /* Título dinámico del topbar */
+    .topbar-titulo { font-size: 15px; font-weight: 500; color: var(--gris-texto); }
+
     .topbar-derecha { display: flex; align-items: center; gap: 10px; }
 
-    .racha-badge {
-      display: flex; align-items: center; gap: 6px;
-      background: var(--amber-suave); border: 1px solid #FAC775;
-      border-radius: var(--radio-md); padding: 5px 12px;
-      font-size: 12px; color: #633806; font-weight: 500;
-    }
+    .racha-badge { display: flex; align-items: center; gap: 6px; background: var(--amber-suave); border: 1px solid #FAC775; border-radius: var(--radio-md); padding: 5px 12px; font-size: 12px; color: #633806; font-weight: 500; }
 
-    .btn-admin {
-      display: none;
-      align-items: center; gap: 6px;
-      height: 32px; padding: 0 12px;
-      background: #FEF2F2; border: 1px solid #FECACA;
-      border-radius: var(--radio-md);
-      font-size: 12px; font-weight: 500; color: #B91C1C;
-      text-decoration: none; transition: background 0.15s;
-    }
+    .btn-admin { display: none; align-items: center; gap: 6px; height: 32px; padding: 0 12px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: var(--radio-md); font-size: 12px; font-weight: 500; color: #B91C1C; text-decoration: none; transition: background 0.15s; }
     .btn-admin:hover { background: #FEE2E2; }
 
-    /* ── CONTENIDO ── */
+    /* ── SECCIONES ── */
     .contenido { padding: 28px 32px; flex: 1; }
 
-    .bienvenida-card {
-      background: var(--azul-suave); border: 1px solid #BFDBFE;
-      border-radius: var(--radio-xl); padding: 20px 24px; margin-bottom: 20px;
-    }
+    .seccion { display: none; }
+    .seccion.activa { display: block; }
+
+    /* ── DASHBOARD ── */
+    .bienvenida-card { background: var(--azul-suave); border: 1px solid #BFDBFE; border-radius: var(--radio-xl); padding: 20px 24px; margin-bottom: 20px; }
     .bienvenida-card h3 { font-size: 16px; font-weight: 500; color: var(--azul-medio); margin-bottom: 6px; }
     .bienvenida-card p  { font-size: 14px; color: #1D4ED8; line-height: 1.6; }
 
-    .progreso-banner {
-      background: var(--blanco); border: 1px solid var(--borde);
-      border-radius: var(--radio-xl); padding: 20px 24px;
-      margin-bottom: 20px; display: flex; align-items: center; gap: 24px;
-    }
-
+    .progreso-banner { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-xl); padding: 20px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 24px; }
     .progreso-info { flex: 1; }
-    .progreso-etiqueta {
-      font-size: 11px; font-weight: 500; letter-spacing: 0.07em;
-      text-transform: uppercase; color: var(--gris-suave); margin-bottom: 4px;
-    }
+    .progreso-etiqueta { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gris-suave); margin-bottom: 4px; }
     .progreso-titulo { font-size: 16px; font-weight: 500; color: var(--azul-oscuro); margin-bottom: 12px; }
     .barra-wrap { height: 7px; background: var(--gris-fondo); border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
     .barra-fill { height: 100%; width: 0%; background: var(--azul-claro); border-radius: 99px; transition: width 1s ease; }
     .progreso-meta { font-size: 13px; color: var(--gris-suave); }
     .progreso-meta strong { color: var(--azul-medio); font-weight: 500; }
 
-    .nivel-badge {
-      text-align: center; background: var(--azul-suave);
-      border: 1px solid #BFDBFE; border-radius: var(--radio-xl);
-      padding: 16px 22px; min-width: 120px; flex-shrink: 0;
-    }
+    .nivel-badge { text-align: center; background: var(--azul-suave); border: 1px solid #BFDBFE; border-radius: var(--radio-xl); padding: 16px 22px; min-width: 120px; flex-shrink: 0; }
     .nivel-label { font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--azul-medio); }
     .nivel-nombre { font-size: 22px; font-weight: 500; color: var(--azul-oscuro); margin-top: 2px; }
     .nivel-sub    { font-size: 12px; color: var(--azul-claro); margin-top: 4px; }
 
     .metricas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
-
-    .metrica-tarjeta {
-      background: var(--blanco); border: 1px solid var(--borde);
-      border-radius: var(--radio-xl); padding: 18px 20px;
-    }
+    .metrica-tarjeta { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-xl); padding: 18px 20px; }
     .metrica-label { font-size: 12px; color: var(--gris-suave); margin-bottom: 6px; }
     .metrica-valor { font-size: 26px; font-weight: 500; color: var(--azul-oscuro); line-height: 1; margin-bottom: 4px; }
     .metrica-sub   { font-size: 12px; color: var(--gris-suave); }
 
-    .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .sec-titulo { font-size: 15px; font-weight: 500; color: var(--azul-oscuro); }
-    .ver-todo   { font-size: 13px; color: var(--azul-claro); cursor: pointer; }
+    /* ── ENCABEZADO DE SECCIÓN ── */
+    .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .sec-titulo { font-size: 16px; font-weight: 500; color: var(--azul-oscuro); }
 
+    /* ── CLASES ── */
     .clases-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 
-    .clase-tarjeta {
-      background: var(--blanco); border: 1px solid var(--borde);
-      border-radius: var(--radio-xl); overflow: hidden; cursor: pointer;
-      transition: transform 0.15s, border-color 0.15s;
-    }
+    .clase-tarjeta { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-xl); overflow: hidden; cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
     .clase-tarjeta:hover { transform: translateY(-2px); border-color: var(--azul-claro); }
 
     .clase-thumb { height: 80px; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -281,126 +173,95 @@
     .thumb-amber { background: #FAEEDA; }
     .thumb-coral { background: #FAECE7; }
 
-    .play-btn {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: rgba(255,255,255,0.9);
-      display: flex; align-items: center; justify-content: center;
-    }
+    .play-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; }
+    .duracion-tag { position: absolute; bottom: 6px; right: 8px; font-size: 10px; background: rgba(0,0,0,0.3); color: #fff; border-radius: 4px; padding: 2px 6px; }
 
-    .duracion-tag {
-      position: absolute; bottom: 6px; right: 8px;
-      font-size: 10px; background: rgba(0,0,0,0.3);
-      color: #fff; border-radius: 4px; padding: 2px 6px;
-    }
-
-    .clase-body    { padding: 12px 14px; }
-    .clase-unidad  { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gris-suave); }
-    .clase-nombre  { font-size: 13px; font-weight: 500; color: var(--azul-oscuro); margin: 3px 0 8px; }
+    .clase-body   { padding: 12px 14px; }
+    .clase-unidad { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gris-suave); }
+    .clase-nombre { font-size: 13px; font-weight: 500; color: var(--azul-oscuro); margin: 3px 0 8px; }
 
     .estado-chip      { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 99px; }
     .estado-nuevo     { background: #EFF6FF; color: #1E3A8A; }
     .estado-bloqueado { background: #F1F5F9; color: #94A3B8; }
+    .estado-hecho     { background: var(--verde-suave); color: #166534; }
 
+    /* ── LISTA GENÉRICA (tareas, calendario, materiales) ── */
+    .lista-vacia { text-align: center; padding: 48px 20px; color: var(--gris-suave); font-size: 14px; }
 
-    /* ══════════════════════════════════════════
-       RESPONSIVE — SOLO MÓVIL (≤ 768px)
-       Desktop queda 100% intacto
-    ══════════════════════════════════════════ */
+    .item-card { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: 14px 18px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; }
+    .item-icono { width: 38px; height: 38px; border-radius: var(--radio-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .item-info  { flex: 1; }
+    .item-titulo { font-size: 14px; font-weight: 500; color: var(--azul-oscuro); margin-bottom: 3px; }
+    .item-meta   { font-size: 12px; color: var(--gris-suave); }
+    .item-accion { flex-shrink: 0; }
+
+    .btn-ver { height: 30px; padding: 0 14px; background: var(--azul-suave); border: 1px solid #BFDBFE; border-radius: var(--radio-md); font-size: 12px; color: var(--azul-medio); font-weight: 500; cursor: pointer; text-decoration: none; display: flex; align-items: center; }
+    .btn-ver:hover { background: #DBEAFE; }
+
+    /* Check de tareas */
+    .tarea-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--borde); flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all 0.15s; }
+    .tarea-check.hecho { background: #16A34A; border-color: #16A34A; }
+
+    /* Perfil */
+    .perfil-avatar-grande {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #1E3A8A, #3B82F6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 500; color: #fff; margin-bottom: 16px;
+    }
+    .perfil-card { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio-xl); padding: 28px 24px; max-width: 500px; }
+    .perfil-fila { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--borde); }
+    .perfil-fila:last-child { border-bottom: none; }
+    .perfil-label { font-size: 12px; color: var(--gris-suave); }
+    .perfil-valor { font-size: 14px; font-weight: 500; color: var(--azul-oscuro); }
+
+    /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-
-      /* El sidebar se convierte en drawer oculto a la izquierda */
-      .sidebar {
-        transform: translateX(-100%);
-        box-shadow: none;
-      }
-
-      /* Cuando el drawer está abierto */
-      .sidebar.drawer-abierto {
-        transform: translateX(0);
-        box-shadow: 4px 0 24px rgba(0,0,0,0.3);
-      }
-
-      /* Mostrar botón de cerrar dentro del drawer */
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.drawer-abierto { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.3); }
       .sidebar-close { display: flex; align-items: center; justify-content: center; }
-
-      /* El main ocupa el ancho completo */
       .main { margin-left: 0; }
-
-      /* Topbar: mostrar hamburguesa, ajustar padding */
       .topbar { padding: 0 16px; }
       .topbar-hamburguesa { display: flex; }
-
-      /* Saludo más corto en móvil */
-      .topbar-saludo { font-size: 13px; }
-
-      /* Ocultar racha en móvil para no apretar */
       .racha-badge { display: none; }
-
-      /* Contenido con menos padding */
       .contenido { padding: 16px; }
-
-      /* Progreso: apilar en columna */
-      .progreso-banner {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 16px;
-        padding: 16px;
-      }
-
+      .progreso-banner { flex-direction: column; align-items: stretch; gap: 16px; padding: 16px; }
       .nivel-badge { min-width: unset; padding: 12px 16px; }
-
-      /* Métricas: 2 columnas en móvil */
       .metricas-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-
-      /* Ocultar tercera métrica o reducirla */
-      .metrica-valor { font-size: 22px; }
-
-      /* Clases: 2 columnas en móvil */
       .clases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-
-      /* Bienvenida más compacta */
       .bienvenida-card { padding: 14px 16px; margin-bottom: 14px; }
-      .bienvenida-card h3 { font-size: 14px; }
-      .bienvenida-card p  { font-size: 13px; }
     }
-
-    /* En pantallas muy pequeñas (≤ 380px): 1 columna */
     @media (max-width: 380px) {
-      .clases-grid    { grid-template-columns: 1fr; }
-      .metricas-grid  { grid-template-columns: 1fr; }
+      .clases-grid   { grid-template-columns: 1fr; }
+      .metricas-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA DE CARGA -->
   <div id="pantalla-carga">
     <div class="spinner"></div>
     <p>Cargando tu portal...</p>
   </div>
 
-  <!-- OVERLAY (toca fuera para cerrar el drawer) -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <!-- CONTENIDO PRINCIPAL -->
   <div id="contenido-principal">
 
-    <!-- SIDEBAR (drawer en móvil) -->
+    <!-- ── SIDEBAR ── -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-logo">
         <div class="logo-icono">
-          <svg viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="5" width="18" height="14" rx="2" fill="#B22234"/>
-            <path d="M3 7h18M3 9h18M3 11h18M3 13h18M3 15h18M3 17h18" stroke="white" stroke-width="1"/>
-            <rect x="3" y="5" width="8" height="6" fill="#3C3B6E"/>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7" stroke="white" stroke-width="1.5"/>
+            <path d="M6 9h6M9 6v6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>
         <div>
           <div class="logo-nombre">FrankyEnglish</div>
           <div class="logo-sub">Learning Portal</div>
         </div>
-        <!-- Botón X para cerrar el drawer (solo móvil) -->
-        <button class="sidebar-close" id="sidebar-close" aria-label="Cerrar menú">
+        <button class="sidebar-close" id="sidebar-close">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M4 4l8 8M12 4l-8 8" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
@@ -409,7 +270,8 @@
 
       <div class="nav-seccion">
         <div class="nav-grupo-label">Principal</div>
-        <div class="nav-item activo" onclick="cerrarDrawer()">
+
+        <button class="nav-item activo" id="nav-dashboard" onclick="navegarA('dashboard', this)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <rect x="1" y="1" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
             <rect x="9" y="1" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
@@ -417,43 +279,50 @@
             <rect x="9" y="9" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/>
           </svg>
           Dashboard
-        </div>
-        <div class="nav-item" onclick="cerrarDrawer()">
+        </button>
+
+        <button class="nav-item" id="nav-clases" onclick="navegarA('clases', this)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M2 4h12M2 8h8M2 12h10" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
+            <rect x="1" y="2" width="14" height="12" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
+            <path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="rgba(255,255,255,0.5)"/>
           </svg>
           Mis clases
-        </div>
-        <div class="nav-item" onclick="cerrarDrawer()">
+        </button>
+
+        <button class="nav-item" id="nav-calendario" onclick="navegarA('calendario', this)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
             <path d="M5 1.5v3M11 1.5v3M2 7h12" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
           </svg>
           Calendario
-        </div>
-        <div class="nav-item" onclick="cerrarDrawer()">
+        </button>
+
+        <button class="nav-item" id="nav-materiales" onclick="navegarA('materiales', this)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
             <path d="M5 5.5h6M5 8.5h4" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
           </svg>
           Materiales
-        </div>
+        </button>
+
         <div class="nav-grupo-label" style="margin-top:16px;">Mi cuenta</div>
-        <div class="nav-item" onclick="cerrarDrawer()">
+
+        <button class="nav-item" id="nav-perfil" onclick="navegarA('perfil', this)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <circle cx="8" cy="5.5" r="2.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
             <path d="M2.5 14c0-3.038 2.462-4.5 5.5-4.5s5.5 1.462 5.5 4.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
           </svg>
           Mi perfil
-        </div>
-        <div class="nav-item" onclick="cerrarDrawer()">
+        </button>
+
+        <button class="nav-item" id="nav-tareas" onclick="navegarA('tareas', this)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <rect x="1" y="2" width="14" height="12" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/>
             <path d="M2.5 5.5h11M5.5 8.5h5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/>
           </svg>
           Tareas
           <span class="nav-badge" id="tareas-badge">0</span>
-        </div>
+        </button>
       </div>
 
       <div class="sidebar-usuario">
@@ -470,30 +339,26 @@
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- ── MAIN ── -->
     <main class="main">
 
-      <!-- TOPBAR -->
       <div class="topbar">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <!-- Hamburguesa (solo visible en móvil) -->
-          <button class="topbar-hamburguesa" id="topbar-hamburguesa" aria-label="Abrir menú">
-            <span></span>
-            <span></span>
-            <span></span>
+        <div class="topbar-izq">
+          <button class="topbar-hamburguesa" id="topbar-hamburguesa">
+            <span></span><span></span><span></span>
           </button>
-          <div class="topbar-saludo">
-            Bienvenida, <strong id="saludo-nombre">...</strong>
-          </div>
+          <span class="topbar-titulo" id="topbar-titulo">Dashboard</span>
         </div>
         <div class="topbar-derecha">
-          <a id="btn-admin" class="btn-admin" href="admin.html">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <circle cx="6.5" cy="4.5" r="2" stroke="#B91C1C" stroke-width="1.2"/>
-              <path d="M2 11c0-2.5 2-3.5 4.5-3.5S11 8.5 11 11" stroke="#B91C1C" stroke-width="1.2" stroke-linecap="round"/>
-            </svg>
-            Panel admin
-          </a>
+
+            <!-- Solo visible para el admin -->
+<a id="btn-admin" class="btn-admin" href="admin.html" style="display:none;">
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+    <circle cx="6.5" cy="4.5" r="2" stroke="#B91C1C" stroke-width="1.2"/>
+    <path d="M2 11c0-2.5 2-3.5 4.5-3.5S11 8.5 11 11" stroke="#B91C1C" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>
+  Panel admin
+</a>
           <div class="racha-badge">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
               <path d="M7.5 1C6 3 6.5 5.5 5 7C3.5 8.5 1.5 7.5 1.5 7.5C1.5 7.5 1 11.5 6.5 11.5C10.5 11.5 12 9 12 7C12 5 10 3.5 9.5 3C9 2.5 9 4 8 4.5C8.5 3 7.5 1 7.5 1Z" fill="#BA7517"/>
@@ -503,222 +368,471 @@
         </div>
       </div>
 
-      <!-- CONTENIDO -->
       <div class="contenido">
 
-        <div class="bienvenida-card">
-          <h3>¡Tu portal está listo!</h3>
-          <p>Aquí verás tu progreso, clases y materiales. Tu profe actualizará tu nivel y avance a medida que vayas completando las clases.</p>
-        </div>
+        <!-- ══════ SECCIÓN: DASHBOARD ══════ -->
+        <div class="seccion activa" id="sec-dashboard">
+         <h2 id="saludo-nombre" style="margin-bottom:12px;"></h2>
+          <div class="bienvenida-card">
+            <h3>¡Bienvenido a tu portal!</h3>
+            <p>Usa el menú de la izquierda para ver tus clases, materiales, calendario y tareas.</p>
+          </div>
 
-        <div class="progreso-banner">
-          <div class="progreso-info">
-            <div class="progreso-etiqueta">Tu nivel actual</div>
-            <div class="progreso-titulo" id="progreso-titulo">A1 — Principiante</div>
-            <div class="barra-wrap"><div class="barra-fill" id="barra-fill"></div></div>
-            <div class="progreso-meta">
-              Completado: <strong id="progreso-pct">0%</strong>
-              &nbsp;·&nbsp; <span id="unidades-texto">0 de 10 unidades</span>
+          <div class="progreso-banner">
+            <div class="progreso-info">
+              <div class="progreso-etiqueta">Tu nivel actual</div>
+              <div class="progreso-titulo" id="progreso-titulo">A1 — Principiante</div>
+              <div class="barra-wrap"><div class="barra-fill" id="barra-fill"></div></div>
+              <div class="progreso-meta">
+                Completado: <strong id="progreso-pct">0%</strong>
+                &nbsp;·&nbsp; <span id="unidades-texto">0 de 10 unidades</span>
+              </div>
+            </div>
+            <div class="nivel-badge">
+              <div class="nivel-label">Próximo nivel</div>
+              <div class="nivel-nombre" id="nivel-nombre">A2</div>
+              <div class="nivel-sub"    id="nivel-siguiente">→ A2</div>
             </div>
           </div>
-          <div class="nivel-badge">
-            <div class="nivel-label">Próximo nivel</div>
-            <div class="nivel-nombre" id="nivel-nombre">A2</div>
-            <div class="nivel-sub"    id="nivel-siguiente">→ A2</div>
-          </div>
-        </div>
 
-        <div class="metricas-grid">
-          <div class="metrica-tarjeta">
-            <div class="metrica-label">Clases completadas</div>
-            <div class="metrica-valor" id="clases-completadas">0</div>
-            <div class="metrica-sub">de tu plan actual</div>
+          <div class="metricas-grid">
+            <div class="metrica-tarjeta">
+              <div class="metrica-label">Clases completadas</div>
+              <div class="metrica-valor" id="clases-completadas">0</div>
+              <div class="metrica-sub">de tu plan actual</div>
+            </div>
+            <div class="metrica-tarjeta">
+              <div class="metrica-label">Horas de estudio</div>
+              <div class="metrica-valor" id="horas-estudio">0h</div>
+              <div class="metrica-sub">en total</div>
+            </div>
+            <div class="metrica-tarjeta">
+              <div class="metrica-label">Tareas pendientes</div>
+              <div class="metrica-valor" id="tareas-pendientes" style="color:var(--coral);">0</div>
+              <div class="metrica-sub">para esta semana</div>
+            </div>
           </div>
-          <div class="metrica-tarjeta">
-            <div class="metrica-label">Horas de estudio</div>
-            <div class="metrica-valor" id="horas-estudio">0h</div>
-            <div class="metrica-sub">en total</div>
-          </div>
-          <div class="metrica-tarjeta">
-            <div class="metrica-label">Tareas pendientes</div>
-            <div class="metrica-valor" id="tareas-pendientes" style="color:var(--coral);">0</div>
-            <div class="metrica-sub">para esta semana</div>
-          </div>
-        </div>
 
-        <div class="sec-header">
-          <div class="sec-titulo">Primeras clases disponibles</div>
-          <span class="ver-todo">Ver todas →</span>
-        </div>
-
-        <div class="clases-grid">
-          <div class="clase-tarjeta">
-            <div class="clase-thumb thumb-teal">
-              <div class="play-btn"><svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M1 1L9 6L1 11V1Z" fill="#1D9E75"/></svg></div>
-              <div class="duracion-tag">12 min</div>
-            </div>
-            <div class="clase-body">
-              <div class="clase-unidad">Unidad 1</div>
-              <div class="clase-nombre">Greetings & Introductions</div>
-              <span class="estado-chip estado-nuevo">Disponible</span>
-            </div>
+          <div class="sec-header">
+            <div class="sec-titulo">Últimas clases</div>
+            <button onclick="navegarA('clases', document.getElementById('nav-clases'))" style="background:none;border:none;font-size:13px;color:var(--azul-claro);cursor:pointer;">Ver todas →</button>
           </div>
-          <div class="clase-tarjeta">
-            <div class="clase-thumb thumb-azul">
-              <div class="play-btn"><svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M1 1L9 6L1 11V1Z" fill="#3B82F6"/></svg></div>
-              <div class="duracion-tag">15 min</div>
-            </div>
-            <div class="clase-body">
-              <div class="clase-unidad">Unidad 1</div>
-              <div class="clase-nombre">Numbers & Alphabet</div>
-              <span class="estado-chip estado-bloqueado">Bloqueada</span>
-            </div>
-          </div>
-          <div class="clase-tarjeta">
-            <div class="clase-thumb thumb-amber">
-              <div class="play-btn"><svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M1 1L9 6L1 11V1Z" fill="#EF9F27"/></svg></div>
-              <div class="duracion-tag">18 min</div>
-            </div>
-            <div class="clase-body">
-              <div class="clase-unidad">Unidad 2</div>
-              <div class="clase-nombre">Colors & Objects</div>
-              <span class="estado-chip estado-bloqueado">Bloqueada</span>
-            </div>
-          </div>
-          <div class="clase-tarjeta">
-            <div class="clase-thumb thumb-coral">
-              <div class="play-btn"><svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M1 1L9 6L1 11V1Z" fill="#D85A30"/></svg></div>
-              <div class="duracion-tag">20 min</div>
-            </div>
-            <div class="clase-body">
-              <div class="clase-unidad">Unidad 2</div>
-              <div class="clase-nombre">Daily Routines</div>
-              <span class="estado-chip estado-bloqueado">Bloqueada</span>
-            </div>
+          <div class="clases-grid" id="dashboard-clases">
+            <div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gris-suave);font-size:13px;">Cargando clases...</div>
           </div>
         </div>
 
-      </div>
+        <!-- ══════ SECCIÓN: MIS CLASES ══════ -->
+        <div class="seccion" id="sec-clases">
+          <div class="sec-header">
+            <div class="sec-titulo">Mis clases</div>
+          </div>
+          <div id="lista-clases">
+            <div class="lista-vacia">Cargando clases...</div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: CALENDARIO ══════ -->
+        <div class="seccion" id="sec-calendario">
+          <div class="sec-header">
+            <div class="sec-titulo">Clases en vivo</div>
+          </div>
+          <div id="lista-calendario">
+            <div class="lista-vacia">Cargando clases en vivo...</div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: MATERIALES ══════ -->
+        <div class="seccion" id="sec-materiales">
+          <div class="sec-header">
+            <div class="sec-titulo">Materiales</div>
+          </div>
+          <div id="lista-materiales">
+            <div class="lista-vacia">Cargando materiales...</div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: MI PERFIL ══════ -->
+        <div class="seccion" id="sec-perfil">
+          <div class="perfil-avatar-grande" id="perfil-iniciales">--</div>
+          <div class="perfil-card">
+            <div class="perfil-fila">
+              <span class="perfil-label">Nombre</span>
+              <span class="perfil-valor" id="perfil-nombre">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Correo</span>
+              <span class="perfil-valor" id="perfil-email">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Nivel actual</span>
+              <span class="perfil-valor" id="perfil-nivel">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Progreso</span>
+              <span class="perfil-valor" id="perfil-progreso">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Horas de estudio</span>
+              <span class="perfil-valor" id="perfil-horas">—</span>
+            </div>
+            <div class="perfil-fila">
+              <span class="perfil-label">Racha actual</span>
+              <span class="perfil-valor" id="perfil-racha">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════ SECCIÓN: TAREAS ══════ -->
+        <div class="seccion" id="sec-tareas">
+          <div class="sec-header">
+            <div class="sec-titulo">Mis tareas</div>
+          </div>
+          <div id="lista-tareas">
+            <div class="lista-vacia">Cargando tareas...</div>
+          </div>
+        </div>
+
+      </div><!-- fin .contenido -->
     </main>
 
   </div><!-- fin #contenido-principal -->
 
-
-  <!-- FIREBASE compat -->
+  <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    /* ── FIREBASE CONFIG ── */
+    /* ── CONFIG ── */
     const firebaseConfig = {
       apiKey:            "AIzaSyBYnI8vDNGkzCxEwAX93HbbxeC7Nq0UkW0",
       authDomain:        "portal-de-ingles.firebaseapp.com",
       projectId:         "portal-de-ingles",
+      storageBucket:     "portal-de-ingles.firebasestorage.app",
       messagingSenderId: "555874735361",
       appId:             "1:555874735361:web:2dc6e4b51a9b5c5548f700",
       measurementId:     "G-488275BW4C"
     };
 
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db   = firebase.firestore();
+    var auth = firebase.auth();
+    var db   = firebase.firestore();
+    var perfilGlobal = null;
 
-    /* ── DRAWER MÓVIL ── */
-    var sidebar   = document.getElementById("sidebar");
-    var overlay   = document.getElementById("sidebar-overlay");
-    var hamburger = document.getElementById("topbar-hamburguesa");
-    var closeBtn  = document.getElementById("sidebar-close");
+    /* ══════════════════════════════════════════
+       NAVEGACIÓN ENTRE SECCIONES
+    ══════════════════════════════════════════ */
+    var titulos = {
+      dashboard:  'Dashboard',
+      clases:     'Mis clases',
+      calendario: 'Calendario',
+      materiales: 'Materiales',
+      perfil:     'Mi perfil',
+      tareas:     'Tareas'
+    };
+
+    function navegarA(seccion, btnEl) {
+      // Ocultar todas las secciones
+      document.querySelectorAll('.seccion').forEach(function(s) { s.classList.remove('activa'); });
+      // Desactivar todos los nav items
+      document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('activo'); });
+
+      // Mostrar sección elegida
+      document.getElementById('sec-' + seccion).classList.add('activa');
+
+      // Marcar botón activo
+      if (btnEl) btnEl.classList.add('activo');
+
+      // Actualizar título del topbar
+      document.getElementById('topbar-titulo').textContent = titulos[seccion] || seccion;
+
+      // Cerrar drawer en móvil
+      cerrarDrawer();
+
+      // Cargar contenido de la sección si aplica
+      if (seccion === 'clases')     cargarClases();
+      if (seccion === 'calendario') cargarCalendario();
+      if (seccion === 'materiales') cargarMateriales();
+      if (seccion === 'tareas')     cargarTareas();
+      if (seccion === 'perfil')     mostrarPerfil();
+    }
+
+    /* ══════════════════════════════════════════
+       DRAWER MÓVIL
+    ══════════════════════════════════════════ */
+    var sidebar   = document.getElementById('sidebar');
+    var overlay   = document.getElementById('sidebar-overlay');
+    var hamburger = document.getElementById('topbar-hamburguesa');
+    var closeBtn  = document.getElementById('sidebar-close');
 
     function abrirDrawer() {
-      sidebar.classList.add("drawer-abierto");
-      overlay.classList.add("visible");
-      document.body.style.overflow = "hidden"; // evita scroll del fondo
+      sidebar.classList.add('drawer-abierto');
+      overlay.classList.add('visible');
+      document.body.style.overflow = 'hidden';
     }
 
     function cerrarDrawer() {
-      sidebar.classList.remove("drawer-abierto");
-      overlay.classList.remove("visible");
-      document.body.style.overflow = "";
+      sidebar.classList.remove('drawer-abierto');
+      overlay.classList.remove('visible');
+      document.body.style.overflow = '';
     }
 
-    hamburger.addEventListener("click", abrirDrawer);
-    closeBtn.addEventListener("click",  cerrarDrawer);
-    overlay.addEventListener("click",   cerrarDrawer);
+    hamburger.addEventListener('click', abrirDrawer);
+    closeBtn.addEventListener('click',  cerrarDrawer);
+    overlay.addEventListener('click',   cerrarDrawer);
+    window.addEventListener('resize',   function() { if (window.innerWidth > 768) cerrarDrawer(); });
 
-    // Cerrar si se amplía a desktop
-    window.addEventListener("resize", function() {
-      if (window.innerWidth > 768) cerrarDrawer();
-    });
-
-    /* ── SESIÓN ── */
+    /* ══════════════════════════════════════════
+       AUTENTICACIÓN Y PERFIL
+    ══════════════════════════════════════════ */
     auth.onAuthStateChanged(async function(usuario) {
-      if (!usuario) { window.location.href = "login.html"; return; }
-      const perfil = await cargarPerfil(usuario);
-      mostrarDashboard(perfil);
+      if (!usuario) { window.location.href = 'login.html'; return; }
+      var perfil = await cargarPerfil(usuario);
+      perfilGlobal = perfil;
+      mostrarDashboard(perfil, usuario);
     });
 
-    /* ── PERFIL FIRESTORE ── */
     async function cargarPerfil(usuario) {
-      const ref  = db.collection("estudiantes").doc(usuario.uid);
-      const snap = await ref.get();
+      var ref  = db.collection('estudiantes').doc(usuario.uid);
+      var snap = await ref.get();
       if (snap.exists) return snap.data();
 
-      const perfilNuevo = {
-        nombre:              usuario.displayName || usuario.email.split("@")[0],
-        email:               usuario.email,
-        nivel:               "A1",
-        nivelNombre:         "Principiante",
-        nivelSiguiente:      "A2",
-        progreso:            0,
-        unidadesCompletadas: 0,
-        unidadesTotal:       10,
-        horasEstudio:        0,
-        racha:               0,
-        tareasPendientes:    0,
-        creadoEn:            firebase.firestore.FieldValue.serverTimestamp()
+      var perfilNuevo = {
+        nombre: usuario.displayName || usuario.email.split('@')[0],
+        email:  usuario.email,
+        nivel: 'A1', nivelNombre: 'Principiante', nivelSiguiente: 'A2',
+        progreso: 0, unidadesCompletadas: 0, unidadesTotal: 10,
+        horasEstudio: 0, racha: 0, tareasPendientes: 0,
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
       };
       await ref.set(perfilNuevo);
       return perfilNuevo;
     }
 
-    /* ── MOSTRAR DATOS ── */
-    function mostrarDashboard(p) {
-      document.getElementById("pantalla-carga").style.display      = "none";
-      document.getElementById("contenido-principal").style.display = "flex";
+    function mostrarDashboard(p, usuario) {
+      document.getElementById('pantalla-carga').style.display      = 'none';
+      document.getElementById('contenido-principal').style.display = 'flex';
 
-      var nombre = p.nombre || "Estudiante";
-      document.getElementById("saludo-nombre").textContent     = nombre;
-      document.getElementById("usuario-nombre").textContent    = nombre;
-      document.getElementById("usuario-iniciales").textContent =
-        nombre.split(" ").map(function(n){ return n[0]; }).join("").slice(0,2).toUpperCase();
+      var nombre = p.nombre || 'Estudiante';
+      var iniciales = nombre.split(' ').map(function(n){ return n[0]; }).join('').slice(0,2).toUpperCase();
+      var saludoEl = document.getElementById('saludo-nombre');
+if (saludoEl) {
+  saludoEl.textContent = "Hola, " + nombre;
+}
+      document.getElementById('usuario-nombre').textContent    = nombre;
+      document.getElementById('usuario-iniciales').textContent = iniciales;
+      document.getElementById('usuario-plan').textContent      = 'Nivel ' + (p.nivel || 'A1');
 
-      document.getElementById("progreso-titulo").textContent =
-        (p.nivel || "A1") + " — " + (p.nivelNombre || "Principiante");
-      document.getElementById("barra-fill").style.width      = (p.progreso || 0) + "%";
-      document.getElementById("progreso-pct").textContent    = (p.progreso || 0) + "%";
-      document.getElementById("unidades-texto").textContent  =
-        (p.unidadesCompletadas || 0) + " de " + (p.unidadesTotal || 10) + " unidades";
-      document.getElementById("nivel-nombre").textContent    = p.nivelSiguiente || "A2";
-      document.getElementById("nivel-siguiente").textContent = "→ " + (p.nivelSiguiente || "A2");
-      document.getElementById("usuario-plan").textContent    = "Nivel " + (p.nivel || "A1");
+      document.getElementById('progreso-titulo').textContent = (p.nivel || 'A1') + ' — ' + (p.nivelNombre || 'Principiante');
+      document.getElementById('barra-fill').style.width      = (p.progreso || 0) + '%';
+      document.getElementById('progreso-pct').textContent    = (p.progreso || 0) + '%';
+      document.getElementById('unidades-texto').textContent  = (p.unidadesCompletadas || 0) + ' de ' + (p.unidadesTotal || 10) + ' unidades';
+      document.getElementById('nivel-nombre').textContent    = p.nivelSiguiente || 'A2';
+      document.getElementById('nivel-siguiente').textContent = '→ ' + (p.nivelSiguiente || 'A2');
 
-      document.getElementById("clases-completadas").textContent = p.unidadesCompletadas || 0;
-      document.getElementById("horas-estudio").textContent      = (p.horasEstudio || 0) + "h";
-      document.getElementById("tareas-pendientes").textContent  = p.tareasPendientes || 0;
-      document.getElementById("tareas-badge").textContent       = p.tareasPendientes || 0;
-      document.getElementById("racha-texto").textContent        = (p.racha || 0) + " días seguidos";
+      document.getElementById('clases-completadas').textContent = p.unidadesCompletadas || 0;
+      document.getElementById('horas-estudio').textContent      = (p.horasEstudio || 0) + 'h';
+      document.getElementById('tareas-pendientes').textContent  = p.tareasPendientes || 0;
+      document.getElementById('tareas-badge').textContent       = p.tareasPendientes || 0;
+      document.getElementById('racha-texto').textContent        = (p.racha || 0) + ' días seguidos';
 
-      var ADMIN_EMAIL = "francovich2808@gmail.com";
-      var emailActual = auth.currentUser ? auth.currentUser.email : "";
-      if (emailActual === ADMIN_EMAIL) {
-        document.getElementById("btn-admin").style.display = "flex";
-      }
+// Botón admin
+var ADMIN_EMAIL = 'francovich2808@gmail.com';
+
+if (usuario.email && usuario.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+  document.getElementById('btn-admin').style.display = 'flex';
+}
+
+      // Cargar clases en el dashboard
+      cargarClasesDashboard();
+    }
+
+    /* ══════════════════════════════════════════
+       COLORES PARA CARDS DE CLASES
+    ══════════════════════════════════════════ */
+    var thumbColores = ['thumb-teal', 'thumb-azul', 'thumb-amber', 'thumb-coral'];
+    var playColores  = ['#1D9E75', '#3B82F6', '#EF9F27', '#D85A30'];
+
+    function claseCardHTML(doc, idx) {
+      var d = doc.data ? doc.data() : doc;
+      var color = thumbColores[idx % 4];
+      var play  = playColores[idx % 4];
+      var estado = d.estado || 'nuevo';
+      var estadoClass = estado === 'completada' ? 'estado-hecho' : estado === 'bloqueado' ? 'estado-bloqueado' : 'estado-nuevo';
+      var estadoLabel = estado === 'completada' ? 'Completada' : estado === 'bloqueado' ? 'Bloqueada' : 'Disponible';
+      var url = d.videoUrl || d.url || '#';
+
+      return '<div class="clase-tarjeta" onclick="' + (url !== '#' ? 'window.open(\'' + url + '\',\'_blank\')' : '') + '">' +
+        '<div class="clase-thumb ' + color + '">' +
+          '<div class="play-btn"><svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M1 1L9 6L1 11V1Z" fill="' + play + '"/></svg></div>' +
+          (d.duracion ? '<div class="duracion-tag">' + d.duracion + ' min</div>' : '') +
+        '</div>' +
+        '<div class="clase-body">' +
+          '<div class="clase-unidad">' + (d.unidad || '') + '</div>' +
+          '<div class="clase-nombre">' + (d.titulo || 'Sin título') + '</div>' +
+          '<span class="estado-chip ' + estadoClass + '">' + estadoLabel + '</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /* ── CLASES EN DASHBOARD (últimas 4) ── */
+    function cargarClasesDashboard() {
+      db.collection('clases').orderBy('orden').limit(4).get()
+        .then(function(snap) {
+          var cont = document.getElementById('dashboard-clases');
+          if (snap.empty) {
+            cont.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gris-suave);font-size:13px;">Aún no hay clases publicadas.</div>';
+            return;
+          }
+          var html = '';
+          snap.docs.forEach(function(doc, i) { html += claseCardHTML(doc, i); });
+          cont.innerHTML = html;
+        })
+        .catch(function() {
+          document.getElementById('dashboard-clases').innerHTML =
+            '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gris-suave);font-size:13px;">No se pudieron cargar las clases.</div>';
+        });
+    }
+
+    /* ── MIS CLASES (todas) ── */
+    function cargarClases() {
+      var cont = document.getElementById('lista-clases');
+      cont.innerHTML = '<div class="lista-vacia">Cargando...</div>';
+
+      db.collection('clases').orderBy('orden').get()
+        .then(function(snap) {
+          if (snap.empty) { cont.innerHTML = '<div class="lista-vacia">Aún no hay clases publicadas.</div>'; return; }
+          var html = '<div class="clases-grid">';
+          snap.docs.forEach(function(doc, i) { html += claseCardHTML(doc, i); });
+          html += '</div>';
+          cont.innerHTML = html;
+        })
+        .catch(function() { cont.innerHTML = '<div class="lista-vacia">No se pudieron cargar las clases.</div>'; });
+    }
+
+    /* ── CALENDARIO (clases en vivo) ── */
+    function cargarCalendario() {
+      var cont = document.getElementById('lista-calendario');
+      cont.innerHTML = '<div class="lista-vacia">Cargando...</div>';
+
+      db.collection('clases-vivo').get()
+        .then(function(snap) {
+          if (snap.empty) { cont.innerHTML = '<div class="lista-vacia">No hay clases en vivo programadas aún.</div>'; return; }
+
+          var docs = snap.docs.sort(function(a, b) {
+            var fa = (a.data().fecha || '') + (a.data().hora || '');
+            var fb = (b.data().fecha || '') + (b.data().hora || '');
+            return fa > fb ? 1 : -1;
+          });
+
+          var html = '';
+          docs.forEach(function(doc) {
+            var d = doc.data();
+            html += '<div class="item-card">' +
+              '<div class="item-icono" style="background:#F0FDF4;">' +
+                '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1.5" y="2.5" width="15" height="13" rx="2" stroke="#16A34A" stroke-width="1.3"/><path d="M5 1.5v3M13 1.5v3M1.5 7.5h15" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round"/></svg>' +
+              '</div>' +
+              '<div class="item-info">' +
+                '<div class="item-titulo">' + (d.titulo || 'Clase en vivo') + '</div>' +
+                '<div class="item-meta">' + (d.fecha || '') + ' · ' + (d.hora || '') + ' · ' + (d.duracion || 60) + ' min · Nivel ' + (d.nivel || 'Todos') + '</div>' +
+              '</div>' +
+              (d.meetUrl ? '<div class="item-accion"><a class="btn-ver" href="' + d.meetUrl + '" target="_blank">Unirse</a></div>' : '') +
+            '</div>';
+          });
+          cont.innerHTML = html;
+        })
+        .catch(function() { cont.innerHTML = '<div class="lista-vacia">No se pudo cargar el calendario.</div>'; });
+    }
+
+    /* ── MATERIALES ── */
+    function cargarMateriales() {
+      var cont = document.getElementById('lista-materiales');
+      cont.innerHTML = '<div class="lista-vacia">Cargando...</div>';
+
+      db.collection('materiales').get()
+        .then(function(snap) {
+          if (snap.empty) { cont.innerHTML = '<div class="lista-vacia">Aún no hay materiales publicados.</div>'; return; }
+
+          var html = '';
+          snap.docs.forEach(function(doc) {
+            var d = doc.data();
+            html += '<div class="item-card">' +
+              '<div class="item-icono" style="background:#FEF2F2;">' +
+                '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 1.5h12a1 1 0 011 1v13a1 1 0 01-1 1H3a1 1 0 01-1-1v-13a1 1 0 011-1z" stroke="#DC2626" stroke-width="1.3"/><path d="M5 6h8M5 9h6M5 12h7" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/></svg>' +
+              '</div>' +
+              '<div class="item-info">' +
+                '<div class="item-titulo">' + (d.titulo || 'Material') + '</div>' +
+                '<div class="item-meta">' + (d.tipo || 'PDF') + ' · ' + (d.unidad || '') + (d.nivel ? ' · Nivel ' + d.nivel : '') + '</div>' +
+              '</div>' +
+              (d.url ? '<div class="item-accion"><a class="btn-ver" href="' + d.url + '" target="_blank">Descargar</a></div>' : '') +
+            '</div>';
+          });
+          cont.innerHTML = html;
+        })
+        .catch(function() { cont.innerHTML = '<div class="lista-vacia">No se pudieron cargar los materiales.</div>'; });
+    }
+
+    /* ── TAREAS ── */
+    function cargarTareas() {
+      var cont = document.getElementById('lista-tareas');
+      cont.innerHTML = '<div class="lista-vacia">Cargando...</div>';
+
+      var uid = auth.currentUser ? auth.currentUser.uid : null;
+      if (!uid) return;
+
+      db.collection('estudiantes').doc(uid).collection('tareas').get()
+        .then(function(snap) {
+          if (snap.empty) { cont.innerHTML = '<div class="lista-vacia">No tienes tareas asignadas aún.</div>'; return; }
+
+          var html = '';
+          snap.docs.forEach(function(doc) {
+            var d   = doc.data();
+            var ok  = d.completada ? 'hecho' : '';
+            html += '<div class="item-card">' +
+              '<div class="tarea-check ' + ok + '" onclick="toggleTarea(\'' + doc.id + '\', this)">' +
+                (d.completada ? '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') +
+              '</div>' +
+              '<div class="item-info">' +
+                '<div class="item-titulo" style="' + (d.completada ? 'text-decoration:line-through;color:var(--gris-suave);' : '') + '">' + (d.titulo || 'Tarea') + '</div>' +
+                '<div class="item-meta">' + (d.descripcion || '') + (d.fechaLimite ? ' · Vence: ' + d.fechaLimite : '') + '</div>' +
+              '</div>' +
+              (d.url ? '<div class="item-accion"><a class="btn-ver" href="' + d.url + '" target="_blank">Ver</a></div>' : '') +
+            '</div>';
+          });
+          cont.innerHTML = html;
+        })
+        .catch(function() { cont.innerHTML = '<div class="lista-vacia">No se pudieron cargar las tareas.</div>'; });
+    }
+
+    /* ── MARCAR TAREA COMO COMPLETADA ── */
+    function toggleTarea(tareaId, el) {
+      var uid  = auth.currentUser ? auth.currentUser.uid : null;
+      if (!uid) return;
+      var hecho = el.classList.contains('hecho');
+      var ref   = db.collection('estudiantes').doc(uid).collection('tareas').doc(tareaId);
+      ref.update({ completada: !hecho }).then(function() { cargarTareas(); });
+    }
+
+    /* ── MI PERFIL ── */
+    function mostrarPerfil() {
+      var p = perfilGlobal;
+      if (!p) return;
+      var nombre   = p.nombre || 'Estudiante';
+      var iniciales = nombre.split(' ').map(function(n){ return n[0]; }).join('').slice(0,2).toUpperCase();
+
+      document.getElementById('perfil-iniciales').textContent = iniciales;
+      document.getElementById('perfil-nombre').textContent    = nombre;
+      document.getElementById('perfil-email').textContent     = p.email || '—';
+      document.getElementById('perfil-nivel').textContent     = (p.nivel || 'A1') + ' — ' + (p.nivelNombre || 'Principiante');
+      document.getElementById('perfil-progreso').textContent  = (p.progreso || 0) + '% completado';
+      document.getElementById('perfil-horas').textContent     = (p.horasEstudio || 0) + ' horas';
+      document.getElementById('perfil-racha').textContent     = (p.racha || 0) + ' días seguidos';
     }
 
     /* ── CERRAR SESIÓN ── */
     function cerrarSesion() {
-      auth.signOut().then(function() { window.location.href = "login.html"; });
+      auth.signOut().then(function() { window.location.href = 'login.html'; });
     }
   </script>
 
