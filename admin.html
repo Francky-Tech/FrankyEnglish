@@ -753,57 +753,45 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
-  /* ── CONFIG — mismos valores que login.html ─── */
-  const firebaseConfig = {
-      apiKey:            "AIzaSyBYnI8vDNGkzCxEwAX93HbbxeC7Nq0UkW0",
-      authDomain:        "portal-de-ingles.firebaseapp.com",
-      projectId:         "portal-de-ingles",
-      storageBucket:     "portal-de-ingles.firebasestorage.app",
-      messagingSenderId: "555874735361",
-      appId:             "1:555874735361:web:2dc6e4b51a9b5c5548f700",
-      measurementId:     "G-488275BW4C"
+  var firebaseConfig = {
+    apiKey:            "AIzaSyBYnI8vDNGkzCxEwAX93HbbxeC7Nq0UkW0",
+    authDomain:        "portal-de-ingles.firebaseapp.com",
+    projectId:         "portal-de-ingles",
+    storageBucket:     "portal-de-ingles.firebasestorage.app",
+    messagingSenderId: "555874735361",
+    appId:             "1:555874735361:web:2dc6e4b51a9b5c5548f700",
+    measurementId:     "G-488275BW4C"
   };
 
   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db   = firebase.firestore();
+  var auth = firebase.auth();
+  var db   = firebase.firestore();
 
-  /* ── TU EMAIL DE ADMIN ──────────────────────────
-     Cambia esto por tu email real.
-     Solo este email podrá acceder al panel.
-  ─────────────────────────────────────────────── */
-  const ADMIN_EMAIL = "francovich2808@gmail.com";
+  var ADMIN_EMAIL = "francovich2808@gmail.com";
 
-  /* ── SESIÓN ─────────────────────────────────── */
+  /* ── SESIÓN ── */
   auth.onAuthStateChanged(function(usuario) {
-    if (!usuario) {
-      window.location.href = "login.html";
-      return;
-    }
+    if (!usuario) { window.location.href = "login.html"; return; }
     if (usuario.email !== ADMIN_EMAIL) {
       alert("No tienes acceso al panel de administración.");
-      auth.signOut();
-      window.location.href = "login.html";
-      return;
+      auth.signOut(); window.location.href = "login.html"; return;
     }
     document.getElementById("admin-email").textContent = usuario.email;
     document.getElementById("pantalla-carga").style.display = "none";
     document.getElementById("contenido").style.display = "block";
+    /* Activar listeners en tiempo real */
     cargarEstudiantes();
     cargarClases();
     cargarMateriales();
     cargarClasesVivo();
   });
 
-  /* ── NAVEGACIÓN ─────────────────────────────── */
-  var seccionActual = "estudiantes";
-
+  /* ── NAVEGACIÓN ── */
   function irA(seccion, btn) {
     document.querySelectorAll(".seccion").forEach(function(s) { s.classList.remove("activa"); });
     document.querySelectorAll(".nav-btn").forEach(function(b) { b.classList.remove("activo"); });
     document.getElementById("sec-" + seccion).classList.add("activa");
     btn.classList.add("activo");
-    seccionActual = seccion;
     var titulos = {
       estudiantes: ["Estudiantes", "Gestiona el progreso de tus estudiantes"],
       clases:      ["Clases (videos)", "Agrega y organiza tus clases grabadas"],
@@ -815,7 +803,7 @@
     document.getElementById("topbar-sub").textContent    = titulos[seccion][1];
   }
 
-  /* ── TOAST ──────────────────────────────────── */
+  /* ── TOAST ── */
   function toast(msg, tipo) {
     var t = document.getElementById("toast");
     t.textContent = msg;
@@ -824,12 +812,12 @@
   }
 
   /* ════════════════════════════════════════════
-     ESTUDIANTES
+     ESTUDIANTES — listener en tiempo real
   ════════════════════════════════════════════ */
   var todosEstudiantes = [];
 
   function cargarEstudiantes() {
-    db.collection("estudiantes").get().then(function(snap) {
+    db.collection("estudiantes").onSnapshot(function(snap) {
       todosEstudiantes = [];
       snap.forEach(function(doc) {
         todosEstudiantes.push(Object.assign({ uid: doc.id }, doc.data()));
@@ -844,9 +832,7 @@
     var basico   = todosEstudiantes.filter(function(e) { return e.nivel === "A1" || e.nivel === "A2"; }).length;
     var avanzado = todosEstudiantes.filter(function(e) { return e.nivel === "B1" || e.nivel === "B2"; }).length;
     var prom     = total > 0
-      ? Math.round(todosEstudiantes.reduce(function(s, e) { return s + (e.progreso || 0); }, 0) / total)
-      : 0;
-
+      ? Math.round(todosEstudiantes.reduce(function(s, e) { return s + (e.progreso || 0); }, 0) / total) : 0;
     document.getElementById("stat-total").textContent    = total;
     document.getElementById("stat-basico").textContent   = basico;
     document.getElementById("stat-avanzado").textContent = avanzado;
@@ -857,9 +843,7 @@
     var q  = document.getElementById("buscador").value.toLowerCase();
     var nv = document.getElementById("filtro-nivel").value;
     var filtrados = todosEstudiantes.filter(function(e) {
-      var coincideTexto = !q ||
-        (e.nombre || "").toLowerCase().includes(q) ||
-        (e.email  || "").toLowerCase().includes(q);
+      var coincideTexto = !q || (e.nombre||"").toLowerCase().includes(q) || (e.email||"").toLowerCase().includes(q);
       var coincideNivel = !nv || e.nivel === nv;
       return coincideTexto && coincideNivel;
     });
@@ -869,40 +853,39 @@
   function renderizarTabla(lista) {
     var tbody = document.getElementById("tabla-estudiantes");
     if (!lista.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="vacio">No se encontraron estudiantes.</td></tr>';
-      return;
+      tbody.innerHTML = '<tr><td colspan="6" class="vacio">No se encontraron estudiantes.</td></tr>'; return;
     }
     tbody.innerHTML = lista.map(function(e) {
       var progreso = e.progreso || 0;
-      return '<tr>' +
-        '<td><strong style="font-size:13px;">' + (e.nombre || "Sin nombre") + '</strong><br>' +
-        '<span style="font-size:11px;color:var(--gris-suave);">' + (e.email || "") + '</span></td>' +
-        '<td><span class="nivel-chip nivel-' + (e.nivel || "A1") + '">' + (e.nivel || "A1") + '</span></td>' +
-        '<td><div class="progreso-mini">' +
-          '<div class="barra-mini-wrap"><div class="barra-mini-fill" style="width:' + progreso + '%"></div></div>' +
-          '<span class="progreso-num">' + progreso + '%</span>' +
-        '</div></td>' +
-        '<td>' + (e.horasEstudio || 0) + 'h</td>' +
-        '<td>' + (e.tareasPendientes || 0) + '</td>' +
-        '<td><button class="btn btn-ghost btn-sm" onclick="abrirModal(\'' + e.uid + '\')">Editar</button></td>' +
-      '</tr>';
+      return '<tr>'
+        + '<td><strong style="font-size:13px;">' + (e.nombre||"Sin nombre") + '</strong><br>'
+        + '<span style="font-size:11px;color:var(--gris-suave);">' + (e.email||"") + '</span></td>'
+        + '<td><span class="nivel-chip nivel-' + (e.nivel||"A1") + '">' + (e.nivel||"A1") + '</span></td>'
+        + '<td><div class="progreso-mini">'
+          + '<div class="barra-mini-wrap"><div class="barra-mini-fill" style="width:'+progreso+'%"></div></div>'
+          + '<span class="progreso-num">'+progreso+'%</span>'
+        + '</div></td>'
+        + '<td>' + (e.horasEstudio||0) + 'h</td>'
+        + '<td>' + (e.tareasPendientes||0) + '</td>'
+        + '<td><button class="btn btn-ghost btn-sm" onclick="abrirModal(\'' + e.uid + '\')">Editar</button></td>'
+      + '</tr>';
     }).join("");
   }
 
-  /* ── MODAL EDITAR ─── */
+  /* ── MODAL EDITAR ── */
   function abrirModal(uid) {
     var e = todosEstudiantes.find(function(x) { return x.uid === uid; });
     if (!e) return;
-    document.getElementById("modal-uid").value          = uid;
-    document.getElementById("modal-nombre-titulo").textContent = "Editar: " + (e.nombre || e.email);
-    document.getElementById("modal-nombre").value       = e.nombre || "";
-    document.getElementById("modal-email").value        = e.email  || "";
-    document.getElementById("modal-nivel").value        = e.nivel  || "A1";
-    document.getElementById("modal-progreso").value     = e.progreso || 0;
-    document.getElementById("modal-unidades").value     = e.unidadesCompletadas || 0;
-    document.getElementById("modal-horas").value        = e.horasEstudio || 0;
-    document.getElementById("modal-racha").value        = e.racha || 0;
-    document.getElementById("modal-tareas").value       = e.tareasPendientes || 0;
+    document.getElementById("modal-uid").value               = uid;
+    document.getElementById("modal-nombre-titulo").textContent = "Editar: " + (e.nombre||e.email);
+    document.getElementById("modal-nombre").value            = e.nombre||"";
+    document.getElementById("modal-email").value             = e.email||"";
+    document.getElementById("modal-nivel").value             = e.nivel||"A1";
+    document.getElementById("modal-progreso").value          = e.progreso||0;
+    document.getElementById("modal-unidades").value          = e.unidadesCompletadas||0;
+    document.getElementById("modal-horas").value             = e.horasEstudio||0;
+    document.getElementById("modal-racha").value             = e.racha||0;
+    document.getElementById("modal-tareas").value            = e.tareasPendientes||0;
     document.getElementById("modal-estudiante").classList.add("abierto");
   }
 
@@ -915,58 +898,47 @@
     var nivel = document.getElementById("modal-nivel").value;
     var siguientes = { A1:"A2", A2:"B1", B1:"B2", B2:"C1" };
     var nombres    = { A1:"Principiante", A2:"Básico", B1:"Intermedio", B2:"Avanzado" };
-
     var datos = {
       nombre:              document.getElementById("modal-nombre").value.trim(),
       nivel:               nivel,
       nivelNombre:         nombres[nivel],
       nivelSiguiente:      siguientes[nivel],
-      progreso:            parseInt(document.getElementById("modal-progreso").value) || 0,
-      unidadesCompletadas: parseInt(document.getElementById("modal-unidades").value) || 0,
-      horasEstudio:        parseInt(document.getElementById("modal-horas").value) || 0,
-      racha:               parseInt(document.getElementById("modal-racha").value) || 0,
-      tareasPendientes:    parseInt(document.getElementById("modal-tareas").value) || 0
+      progreso:            parseInt(document.getElementById("modal-progreso").value)||0,
+      unidadesCompletadas: parseInt(document.getElementById("modal-unidades").value)||0,
+      horasEstudio:        parseInt(document.getElementById("modal-horas").value)||0,
+      racha:               parseInt(document.getElementById("modal-racha").value)||0,
+      tareasPendientes:    parseInt(document.getElementById("modal-tareas").value)||0
     };
-
     db.collection("estudiantes").doc(uid).update(datos)
-      .then(function() {
-        cerrarModal();
-        toast("Estudiante actualizado correctamente", "ok");
-        cargarEstudiantes();
-      })
+      .then(function() { cerrarModal(); toast("Estudiante actualizado correctamente", "ok"); })
       .catch(function(err) { toast("Error: " + err.message, "error"); });
   }
 
   /* ════════════════════════════════════════════
-     CLASES (VIDEOS)
+     CLASES — listener en tiempo real
   ════════════════════════════════════════════ */
   function agregarClase() {
     var datos = {
       titulo:   document.getElementById("clase-titulo").value.trim(),
       unidad:   document.getElementById("clase-unidad").value.trim(),
       nivel:    document.getElementById("clase-nivel").value,
-      duracion: parseInt(document.getElementById("clase-duracion").value) || 0,
-      orden:    parseInt(document.getElementById("clase-orden").value) || 1,
+      duracion: parseInt(document.getElementById("clase-duracion").value)||0,
+      orden:    parseInt(document.getElementById("clase-orden").value)||1,
       videoUrl: document.getElementById("clase-url").value.trim(),
       creadoEn: firebase.firestore.FieldValue.serverTimestamp()
     };
-
-    if (!datos.titulo || !datos.videoUrl) {
-      toast("Completa el título y la URL del video", "error"); return;
-    }
-
+    if (!datos.titulo || !datos.videoUrl) { toast("Completa el título y la URL del video", "error"); return; }
     db.collection("clases").add(datos)
       .then(function() {
         toast("Clase guardada", "ok");
         ["clase-titulo","clase-unidad","clase-duracion","clase-orden","clase-url"]
           .forEach(function(id) { document.getElementById(id).value = ""; });
-        cargarClases();
       })
       .catch(function(err) { toast("Error: " + err.message, "error"); });
   }
 
   function cargarClases() {
-    db.collection("clases").orderBy("orden").get().then(function(snap) {
+    db.collection("clases").orderBy("orden").onSnapshot(function(snap) {
       var lista = document.getElementById("lista-clases");
       if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay clases aún.</div>'; return; }
       lista.innerHTML = "";
@@ -975,25 +947,21 @@
         var div = document.createElement("div");
         div.className = "item-lista";
         div.innerHTML =
-          '<div class="item-icono" style="background:#EFF6FF;">' +
-            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
-              '<rect x="1" y="2" width="14" height="12" rx="2" stroke="#3B82F6" stroke-width="1.3"/>' +
-              '<path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="#3B82F6"/>' +
-            '</svg></div>' +
-          '<div>' +
-            '<div class="item-nombre">' + d.titulo + '</div>' +
-            '<div class="item-meta">' + d.unidad + ' · Nivel ' + d.nivel + ' · ' + d.duracion + ' min</div>' +
-          '</div>' +
-          '<div class="item-acciones">' +
-            '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'clases\',\'' + doc.id + '\',this)">Eliminar</button>' +
-          '</div>';
+          '<div class="item-icono" style="background:#EFF6FF;">'
+            + '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="#3B82F6" stroke-width="1.3"/><path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="#3B82F6"/></svg>'
+          + '</div>'
+          + '<div><div class="item-nombre">' + d.titulo + '</div>'
+          + '<div class="item-meta">' + d.unidad + ' · Nivel ' + d.nivel + ' · ' + d.duracion + ' min</div></div>'
+          + '<div class="item-acciones">'
+            + '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'clases\',\'' + doc.id + '\',this)">Eliminar</button>'
+          + '</div>';
         lista.appendChild(div);
       });
     });
   }
 
   /* ════════════════════════════════════════════
-     MATERIALES
+     MATERIALES — listener en tiempo real
   ════════════════════════════════════════════ */
   function agregarMaterial() {
     var datos = {
@@ -1004,22 +972,17 @@
       url:      document.getElementById("mat-url").value.trim(),
       creadoEn: firebase.firestore.FieldValue.serverTimestamp()
     };
-
-    if (!datos.titulo || !datos.url) {
-      toast("Completa el nombre y la URL", "error"); return;
-    }
-
+    if (!datos.titulo || !datos.url) { toast("Completa el nombre y la URL", "error"); return; }
     db.collection("materiales").add(datos)
       .then(function() {
         toast("Material guardado", "ok");
         ["mat-titulo","mat-unidad","mat-url"].forEach(function(id) { document.getElementById(id).value = ""; });
-        cargarMateriales();
       })
       .catch(function(err) { toast("Error: " + err.message, "error"); });
   }
 
   function cargarMateriales() {
-    db.collection("materiales").get().then(function(snap) {
+    db.collection("materiales").onSnapshot(function(snap) {
       var lista = document.getElementById("lista-materiales");
       if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay materiales aún.</div>'; return; }
       lista.innerHTML = "";
@@ -1028,26 +991,22 @@
         var div = document.createElement("div");
         div.className = "item-lista";
         div.innerHTML =
-          '<div class="item-icono" style="background:#FEF2F2;">' +
-            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
-              '<path d="M3 1.5h10a1 1 0 011 1v11a1 1 0 01-1 1H3a1 1 0 01-1-1v-11a1 1 0 011-1z" stroke="#DC2626" stroke-width="1.3"/>' +
-              '<path d="M5 5h6M5 7.5h4" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/>' +
-            '</svg></div>' +
-          '<div>' +
-            '<div class="item-nombre">' + d.titulo + '</div>' +
-            '<div class="item-meta">' + d.tipo + ' · ' + d.unidad + ' · Nivel ' + d.nivel + '</div>' +
-          '</div>' +
-          '<div class="item-acciones">' +
-            '<a href="' + d.url + '" target="_blank" class="btn btn-ghost btn-sm">Ver</a>' +
-            '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'materiales\',\'' + doc.id + '\',this)">Eliminar</button>' +
-          '</div>';
+          '<div class="item-icono" style="background:#FEF2F2;">'
+            + '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 1.5h10a1 1 0 011 1v11a1 1 0 01-1 1H3a1 1 0 01-1-1v-11a1 1 0 011-1z" stroke="#DC2626" stroke-width="1.3"/><path d="M5 5h6M5 7.5h4" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/></svg>'
+          + '</div>'
+          + '<div><div class="item-nombre">' + d.titulo + '</div>'
+          + '<div class="item-meta">' + d.tipo + ' · ' + d.unidad + ' · Nivel ' + d.nivel + '</div></div>'
+          + '<div class="item-acciones">'
+            + '<a href="' + d.url + '" target="_blank" class="btn btn-ghost btn-sm">Ver</a>'
+            + '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'materiales\',\'' + doc.id + '\',this)">Eliminar</button>'
+          + '</div>';
         lista.appendChild(div);
       });
     });
   }
 
   /* ════════════════════════════════════════════
-     CLASES EN VIVO
+     CLASES EN VIVO — listener en tiempo real
   ════════════════════════════════════════════ */
   function agregarClaseVivo() {
     var datos = {
@@ -1055,70 +1014,42 @@
       nivel:    document.getElementById("vivo-nivel").value,
       fecha:    document.getElementById("vivo-fecha").value,
       hora:     document.getElementById("vivo-hora").value,
-      duracion: parseInt(document.getElementById("vivo-duracion").value) || 60,
+      duracion: parseInt(document.getElementById("vivo-duracion").value)||60,
       meetUrl:  document.getElementById("vivo-url").value.trim(),
       creadoEn: firebase.firestore.FieldValue.serverTimestamp()
     };
-
-    if (!datos.titulo || !datos.fecha || !datos.meetUrl) {
-      toast("Completa título, fecha y link de Meet", "error"); return;
-    }
-
+    if (!datos.titulo || !datos.fecha || !datos.meetUrl) { toast("Completa título, fecha y link de Meet", "error"); return; }
     db.collection("clases-vivo").add(datos)
       .then(function() {
         toast("Clase en vivo guardada", "ok");
         ["vivo-titulo","vivo-fecha","vivo-hora","vivo-duracion","vivo-url"]
           .forEach(function(id) { document.getElementById(id).value = ""; });
-        cargarClasesVivo();
       })
       .catch(function(err) { toast("Error: " + err.message, "error"); });
   }
 
   function cargarClasesVivo() {
-    db.collection("clases-vivo").orderBy("fecha").get().then(function(snap) {
+    db.collection("clases-vivo").onSnapshot(function(snap) {
       var lista = document.getElementById("lista-vivo");
       if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay clases programadas.</div>'; return; }
       lista.innerHTML = "";
-      snap.forEach(function(doc) {
-        var d = doc.data();
-        var div = document.createElement("div");
-        div.className = "item-lista";
-        div.innerHTML =
-          '<div class="item-icono" style="background:#F0FDF4;">' +
-            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
-              '<rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="#16A34A" stroke-width="1.3"/>' +
-              '<path d="M5 1.5v3M11 1.5v3M1.5 6.5h13" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round"/>' +
-            '</svg></div>' +
-          '<div>' +
-            '<div class="item-nombre">' + d.titulo + '</div>' +
-            '<div class="item-meta">' + d.fecha + ' · ' + d.hora + ' · ' + d.duracion + ' min · Nivel ' + d.nivel + '</div>' +
-          '</div>' +
-          '<div class="item-acciones">' +
-            '<a href="' + d.meetUrl + '" target="_blank" class="btn btn-ghost btn-sm">Meet</a>' +
-            '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'clases-vivo\',\'' + doc.id + '\',this)">Eliminar</button>' +
-          '</div>';
-        lista.appendChild(div);
+      var docs = snap.docs.slice().sort(function(a,b){
+        return ((a.data().fecha||'')+(a.data().hora||'')) > ((b.data().fecha||'')+(b.data().hora||'')) ? 1 : -1;
       });
-    }).catch(function() {
-      cargarClasesVivoSinOrden();
-    });
-  }
-
-  function cargarClasesVivoSinOrden() {
-    db.collection("clases-vivo").get().then(function(snap) {
-      var lista = document.getElementById("lista-vivo");
-      if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay clases programadas.</div>'; return; }
-      lista.innerHTML = "";
-      snap.forEach(function(doc) {
+      docs.forEach(function(doc) {
         var d = doc.data();
         var div = document.createElement("div");
         div.className = "item-lista";
         div.innerHTML =
-          '<div class="item-nombre">' + d.titulo + '</div>' +
-          '<div class="item-meta">' + d.fecha + ' · ' + d.hora + '</div>' +
-          '<div class="item-acciones">' +
-            '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'clases-vivo\',\'' + doc.id + '\',this)">Eliminar</button>' +
-          '</div>';
+          '<div class="item-icono" style="background:#F0FDF4;">'
+            + '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="#16A34A" stroke-width="1.3"/><path d="M5 1.5v3M11 1.5v3M1.5 6.5h13" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round"/></svg>'
+          + '</div>'
+          + '<div><div class="item-nombre">' + d.titulo + '</div>'
+          + '<div class="item-meta">' + (d.fecha||'') + ' · ' + (d.hora||'') + ' · ' + (d.duracion||60) + ' min · Nivel ' + (d.nivel||'Todos') + '</div></div>'
+          + '<div class="item-acciones">'
+            + '<a href="' + (d.meetUrl||'#') + '" target="_blank" class="btn btn-ghost btn-sm">Meet</a>'
+            + '<button class="btn btn-rojo btn-sm" onclick="eliminarDoc(\'clases-vivo\',\'' + doc.id + '\',this)">Eliminar</button>'
+          + '</div>';
         lista.appendChild(div);
       });
     });
@@ -1133,57 +1064,40 @@
     var desc   = document.getElementById("tarea-desc").value.trim();
     var nivel  = document.getElementById("tarea-nivel").value;
     var url    = document.getElementById("tarea-url").value.trim();
-
     if (!titulo || !fecha) { toast("Completa el título y la fecha límite", "error"); return; }
-
     var destinatarios = nivel === "todos"
       ? todosEstudiantes
       : todosEstudiantes.filter(function(e) { return e.nivel === nivel; });
-
-    if (!destinatarios.length) {
-      toast("No hay estudiantes en ese nivel aún", "error"); return;
-    }
-
+    if (!destinatarios.length) { toast("No hay estudiantes en ese nivel aún", "error"); return; }
     var batch = db.batch();
-
     destinatarios.forEach(function(e) {
       var ref = db.collection("estudiantes").doc(e.uid).collection("tareas").doc();
       batch.set(ref, {
-        titulo: titulo,
-        descripcion: desc,
-        fechaLimite: fecha,
-        url: url,
-        completada: false,
+        titulo: titulo, descripcion: desc, fechaLimite: fecha,
+        url: url, completada: false,
         creadoEn: firebase.firestore.FieldValue.serverTimestamp()
       });
-      var estudRef = db.collection("estudiantes").doc(e.uid);
-      batch.update(estudRef, {
+      batch.update(db.collection("estudiantes").doc(e.uid), {
         tareasPendientes: firebase.firestore.FieldValue.increment(1)
       });
     });
-
     batch.commit()
       .then(function() {
         toast("Tarea enviada a " + destinatarios.length + " estudiante(s)", "ok");
-        ["tarea-titulo","tarea-fecha","tarea-desc","tarea-url"]
-          .forEach(function(id) { document.getElementById(id).value = ""; });
-        cargarEstudiantes();
+        ["tarea-titulo","tarea-fecha","tarea-desc","tarea-url"].forEach(function(id) { document.getElementById(id).value = ""; });
       })
       .catch(function(err) { toast("Error: " + err.message, "error"); });
   }
 
-  /* ── ELIMINAR DOCUMENTO ─── */
+  /* ── ELIMINAR ── */
   function eliminarDoc(coleccion, id, btn) {
     if (!confirm("¿Eliminar este elemento?")) return;
     db.collection(coleccion).doc(id).delete()
-      .then(function() {
-        btn.closest(".item-lista").remove();
-        toast("Eliminado correctamente", "ok");
-      })
+      .then(function() { btn.closest(".item-lista").remove(); toast("Eliminado correctamente", "ok"); })
       .catch(function(err) { toast("Error: " + err.message, "error"); });
   }
 
-  /* ── CERRAR SESIÓN ─── */
+  /* ── CERRAR SESIÓN ── */
   function cerrarSesion() {
     auth.signOut().then(function() { window.location.href = "login.html"; });
   }
