@@ -175,10 +175,11 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icono">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <circle cx="9" cy="9" r="7" stroke="white" stroke-width="1.5"/>
-          <path d="M6 9h6M9 6v6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="5" width="18" height="14" rx="2" fill="#B22234"/>
+            <path d="M3 7h18M3 9h18M3 11h18M3 13h18M3 15h18M3 17h18" stroke="white" stroke-width="1"/>
+            <rect x="3" y="5" width="8" height="6" fill="#3C3B6E"/>
+          </svg>
       </div>
       <div><div class="logo-nombre">FrankyEnglish</div><div class="logo-sub">Learning Portal</div></div>
       <button class="sidebar-close" id="sidebar-close">
@@ -436,12 +437,11 @@
         document.getElementById('contenido-principal').style.display='flex';
 
         actualizarUIConPerfil(perfilGlobal, usuario);
-      }, function(){ window.location.href='login.html'; });
 
-    /* Listener tiempo real en dashboard-clases (últimas 4) */
-    activarListenerDashboardClases();
-    /* Listener tiempo real en tareas (para badge) */
-    activarListenerTareasBadge(usuario.uid);
+        /* Activar listeners de contenido ahora que uidActual está definido */
+        if(!unsubClases) activarListenerDashboardClases();
+        activarListenerTareasBadge(usuario.uid);
+      }, function(){ window.location.href='login.html'; });
   });
 
   /* ── Actualizar todos los elementos del perfil en UI ── */
@@ -504,27 +504,30 @@
      LISTENERS EN TIEMPO REAL
   ══════════════════════════════════════ */
 
-  /* Dashboard: últimas 4 clases */
+  /* Dashboard: últimas 4 clases del estudiante */
   function activarListenerDashboardClases(){
-    if(unsubClases) return; /* ya activo */
+    if(!uidActual || unsubClases) return;
     var cont = document.getElementById('dashboard-clases');
-    unsubClases = db.collection('clases').orderBy('orden').limit(4)
+    unsubClases = db.collection('estudiantes').doc(uidActual)
+      .collection('clasesAsignadas').orderBy('orden').limit(4)
       .onSnapshot(function(snap){
-        if(snap.empty){ cont.innerHTML='<div style="grid-column:1/-1" class="cargando">Aún no hay clases publicadas.</div>'; return; }
+        if(snap.empty){ cont.innerHTML='<div style="grid-column:1/-1" class="cargando">Aún no tienes clases asignadas.</div>'; return; }
         var html=''; snap.docs.forEach(function(d,i){ html+=claseHTML(d.data(),i); });
         cont.innerHTML=html;
       }, function(){ cont.innerHTML='<div style="grid-column:1/-1" class="cargando">No se pudieron cargar las clases.</div>'; });
   }
 
-  /* Mis clases: todas */
+  /* Mis clases: todas las del estudiante */
   var unsubClasesAll = null;
   function activarListenerClases(){
+    if(!uidActual) return;
     var cont = document.getElementById('lista-clases');
-    if(unsubClasesAll){ return; } /* ya escuchando */
+    if(unsubClasesAll){ return; }
     cont.innerHTML='<div class="cargando">Cargando...</div>';
-    unsubClasesAll = db.collection('clases').orderBy('orden')
+    unsubClasesAll = db.collection('estudiantes').doc(uidActual)
+      .collection('clasesAsignadas').orderBy('orden')
       .onSnapshot(function(snap){
-        if(snap.empty){ cont.innerHTML='<div class="lista-vacia">Aún no hay clases publicadas.</div>'; return; }
+        if(snap.empty){ cont.innerHTML='<div class="lista-vacia">Aún no tienes clases asignadas.</div>'; return; }
         var html='<div class="clases-grid">';
         snap.docs.forEach(function(d,i){ html+=claseHTML(d.data(),i); });
         html+='</div>';
@@ -532,14 +535,16 @@
       }, function(){ cont.innerHTML='<div class="lista-vacia">Error al cargar clases.</div>'; });
   }
 
-  /* Calendario */
+  /* Calendario: clases en vivo del estudiante */
   function activarListenerCalendario(){
+    if(!uidActual) return;
     var cont = document.getElementById('lista-calendario');
     if(unsubCalendario){ return; }
     cont.innerHTML='<div class="cargando">Cargando...</div>';
-    unsubCalendario = db.collection('clases-vivo')
+    unsubCalendario = db.collection('estudiantes').doc(uidActual)
+      .collection('clasesVivo')
       .onSnapshot(function(snap){
-        if(snap.empty){ cont.innerHTML='<div class="lista-vacia">No hay clases en vivo programadas aún.</div>'; return; }
+        if(snap.empty){ cont.innerHTML='<div class="lista-vacia">No tienes clases en vivo programadas aún.</div>'; return; }
         var docs = snap.docs.slice().sort(function(a,b){
           return ((a.data().fecha||'')+(a.data().hora||'')) > ((b.data().fecha||'')+(b.data().hora||'')) ? 1:-1;
         });
@@ -548,7 +553,7 @@
           var d=doc.data();
           html+='<div class="item-card">'
             +'<div class="item-icono" style="background:#F0FDF4;"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1.5" y="2.5" width="15" height="13" rx="2" stroke="#16A34A" stroke-width="1.3"/><path d="M5 1.5v3M13 1.5v3M1.5 7.5h15" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round"/></svg></div>'
-            +'<div class="item-info"><div class="item-titulo">'+(d.titulo||'Clase en vivo')+'</div><div class="item-meta">'+(d.fecha||'')+' · '+(d.hora||'')+' · '+(d.duracion||60)+' min · Nivel '+(d.nivel||'Todos')+'</div></div>'
+            +'<div class="item-info"><div class="item-titulo">'+(d.titulo||'Clase en vivo')+'</div><div class="item-meta">'+(d.fecha||'')+' · '+(d.hora||'')+' · '+(d.duracion||60)+' min</div></div>'
             +(d.meetUrl?'<div class="item-accion"><a class="btn-accion verde" href="'+d.meetUrl+'" target="_blank">Unirse</a></div>':'')
           +'</div>';
         });
@@ -556,14 +561,16 @@
       }, function(){ cont.innerHTML='<div class="lista-vacia">Error al cargar el calendario.</div>'; });
   }
 
-  /* Materiales */
+  /* Materiales: del estudiante */
   function activarListenerMateriales(){
+    if(!uidActual) return;
     var cont = document.getElementById('lista-materiales');
     if(unsubMateriales){ return; }
     cont.innerHTML='<div class="cargando">Cargando...</div>';
-    unsubMateriales = db.collection('materiales')
+    unsubMateriales = db.collection('estudiantes').doc(uidActual)
+      .collection('materiales')
       .onSnapshot(function(snap){
-        if(snap.empty){ cont.innerHTML='<div class="lista-vacia">Aún no hay materiales publicados.</div>'; return; }
+        if(snap.empty){ cont.innerHTML='<div class="lista-vacia">Aún no tienes materiales asignados.</div>'; return; }
         var html='';
         snap.docs.forEach(function(doc){
           var d=doc.data();
