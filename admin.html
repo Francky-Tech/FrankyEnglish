@@ -7,901 +7,561 @@
   <title>Admin — FrankyEnglish</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
+
   <style>
     :root {
-      --azul-oscuro: #0F172A;
-      --azul-medio: #1E3A8A;
-      --azul-claro: #3B82F6;
-      --azul-suave: #EFF6FF;
-      --verde: #16A34A;
-      --verde-suave: #F0FDF4;
-      --coral: #DC2626;
-      --coral-suave: #FEF2F2;
-      --amber: #D97706;
-      --amber-suave: #FFFBEB;
-      --gris-texto: #0F172A;
-      --gris-suave: #64748B;
-      --gris-fondo: #F8FAFC;
-      --blanco: #ffffff;
-      --borde: #E2E8F0;
-      --radio-md: 8px;
-      --radio-lg: 12px;
-      --radio-xl: 16px;
+      /* Academy Noir — Admin */
+      --bg:          #080D1A;
+      --surface:     #0F1629;
+      --surface-2:   #161E35;
+      --surface-3:   #1C2640;
+      --border:      rgba(255,255,255,0.07);
+      --border-lit:  rgba(248,196,80,0.28);
+
+      --gold:        #F8C450;
+      --gold-dim:    rgba(248,196,80,0.1);
+      --gold-glow:   rgba(248,196,80,0.22);
+      --sky:         #38BDF8;
+      --sky-dim:     rgba(56,189,248,0.1);
+      --green:       #34D399;
+      --green-dim:   rgba(52,211,153,0.1);
+      --red:         #F87171;
+      --red-dim:     rgba(248,113,113,0.1);
+      --amber:       #FBBF24;
+      --amber-dim:   rgba(251,191,36,0.1);
+
+      --text-1:      #F0F4FF;
+      --text-2:      #8B98B8;
+      --text-3:      #3D4A66;
+
+      /* Legacy aliases */
+      --azul-oscuro: #080D1A;
+      --azul-medio:  #1C2640;
+      --azul-claro:  #38BDF8;
+      --azul-suave:  rgba(56,189,248,0.1);
+      --verde:       #34D399;
+      --verde-suave: rgba(52,211,153,0.08);
+      --coral:       #F87171;
+      --coral-suave: rgba(248,113,113,0.08);
+      --amber-suave: rgba(251,191,36,0.1);
+      --gris-texto:  #F0F4FF;
+      --gris-suave:  #8B98B8;
+      --gris-fondo:  #0F1629;
+      --blanco:      #161E35;
+      --borde:       rgba(255,255,255,0.07);
+      --radio-md:    8px;
+      --radio-lg:    12px;
+      --radio-xl:    16px;
     }
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'DM Sans', system-ui, sans-serif;
-      background: var(--gris-fondo);
-      color: var(--gris-texto);
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Inter Tight',system-ui,sans-serif;
+      background:var(--bg);
+      color:var(--text-1);
+      -webkit-font-smoothing:antialiased;
     }
 
     /* CARGA */
-    #pantalla-carga {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, #1E3A8A, #0F172A);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      z-index: 999;
+    #pantalla-carga{
+      position:fixed;inset:0;
+      background:var(--bg);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:999;
     }
-
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid rgba(255, 255, 255, 0.15);
-      border-top-color: #3B82F6;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .spinner{
+      width:36px;height:36px;
+      border:2px solid rgba(248,196,80,0.1);
+      border-top-color:var(--gold);
+      border-radius:50%;animation:spin 0.9s linear infinite;
     }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    #pantalla-carga p {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.45);
-    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #pantalla-carga p{font-size:12px;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;}
 
     /* LAYOUT */
-    #contenido {
-      display: none;
-    }
+    #contenido{display:none;}
+    .shell{display:flex;min-height:100vh;}
 
-    .shell {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* OVERLAY MÓVIL */
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      z-index: 49;
-    }
-
-    .sidebar-overlay.visible {
-      display: block;
-    }
+    /* OVERLAY */
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:49;backdrop-filter:blur(4px);}
+    .sidebar-overlay.visible{display:block;}
 
     /* SIDEBAR */
-    .sidebar {
-      width: 220px;
-      min-width: 220px;
-      background: linear-gradient(180deg, #1E3A8A, #0F172A);
-      position: fixed;
-      height: 100vh;
-      top: 0;
-      left: 0;
-      display: flex;
-      flex-direction: column;
-      z-index: 50;
-      transition: transform 0.3s ease;
+    .sidebar{
+      width:220px;min-width:220px;
+      background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);
+      border-right:1px solid var(--border);
+      position:fixed;height:100vh;top:0;left:0;
+      display:flex;flex-direction:column;
+      z-index:50;transition:transform 0.3s ease;
+      overflow:hidden;
     }
-
-    .sidebar-logo {
-      padding: 20px 18px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
+    .sidebar::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 180px 300px at 50% 0%, rgba(248,196,80,0.04) 0%, transparent 65%);
+      pointer-events:none;
     }
-
-    .logo-nombre {
-      font-size: 15px;
-      font-weight: 500;
-      color: #fff;
+    .sidebar-logo{
+      padding:20px 18px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:flex-start;justify-content:space-between;
+      position:relative;
     }
-
-    .logo-sub {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.35);
-      margin-top: 2px;
+    .logo-nombre{
+      font-family:'Sora',sans-serif;
+      font-size:14px;font-weight:600;color:var(--text-1);letter-spacing:-0.02em;
     }
-
-    .admin-badge {
-      display: inline-block;
-      margin-top: 6px;
-      background: rgba(220, 38, 38, 0.25);
-      border: 1px solid rgba(220, 38, 38, 0.4);
-      color: #FCA5A5;
-      font-size: 10px;
-      font-weight: 500;
-      border-radius: 99px;
-      padding: 2px 8px;
+    .logo-sub{font-size:11px;color:var(--text-3);margin-top:2px;}
+    .admin-badge{
+      display:inline-block;margin-top:6px;
+      background:rgba(248,113,113,0.12);
+      border:1px solid rgba(248,113,113,0.25);
+      color:var(--red);font-size:9px;font-weight:700;
+      border-radius:99px;padding:2px 8px;letter-spacing:0.06em;
     }
-
-    .sidebar-close {
-      display: none;
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.4);
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      margin-top: 2px;
+    .sidebar-close{
+      display:none;background:none;border:none;
+      color:var(--text-3);cursor:pointer;
+      padding:4px;border-radius:4px;flex-shrink:0;margin-top:2px;
+      transition:color 0.15s;
     }
+    .sidebar-close:hover{color:var(--text-1);}
 
-    .sidebar-close:hover {
-      color: rgba(255, 255, 255, 0.8);
+    .nav{flex:1;padding:14px 0;overflow-y:auto;}
+    .nav::-webkit-scrollbar{width:0;}
+    .nav-label{
+      font-size:9px;font-weight:700;letter-spacing:0.12em;
+      text-transform:uppercase;color:var(--text-3);
+      padding:0 18px;margin-bottom:4px;margin-top:14px;
     }
-
-    .nav {
-      flex: 1;
-      padding: 16px 0;
-      overflow-y: auto;
+    .nav-btn{
+      display:flex;align-items:center;gap:9px;
+      width:100%;padding:9px 18px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;font-weight:500;
+      color:var(--text-2);background:none;border:none;
+      cursor:pointer;text-align:left;
+      position:relative;
+      transition:color 0.2s;
     }
-
-    .nav-label {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.3);
-      padding: 0 18px;
-      margin-bottom: 4px;
-      margin-top: 12px;
+    .nav-btn::before{
+      content:'';position:absolute;left:0;top:5px;bottom:5px;
+      width:2px;border-radius:0 2px 2px 0;
+      background:var(--gold);transform:scaleY(0);
+      transition:transform 0.2s ease;
     }
+    .nav-btn.activo{color:var(--text-1);}
+    .nav-btn.activo::before{transform:scaleY(1);}
+    .nav-btn:hover:not(.activo){color:var(--text-1);background:rgba(255,255,255,0.03);}
+    .nav-btn svg{flex-shrink:0;opacity:0.55;transition:opacity 0.2s;}
+    .nav-btn.activo svg,.nav-btn:hover svg{opacity:1;}
 
-    .nav-btn {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      width: 100%;
-      padding: 9px 18px;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.6);
-      background: none;
-      border: none;
-      border-left: 2px solid transparent;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.15s;
-      font-family: 'DM Sans', system-ui, sans-serif;
-    }
-
-    .nav-btn:hover {
-      color: rgba(255, 255, 255, 0.9);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .nav-btn.activo {
-      color: #fff;
-      background: rgba(59, 130, 246, 0.2);
-      border-left-color: #3B82F6;
-    }
-
-    .sidebar-footer {
-      padding: 14px 18px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.4);
+    .sidebar-footer{
+      padding:14px 18px;border-top:1px solid var(--border);
+      font-size:11px;color:var(--text-3);
     }
 
     /* MAIN */
-    .main {
-      margin-left: 220px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    .main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+    .topbar{
+      background:rgba(8,13,26,0.85);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      padding:0 28px;height:56px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:40;
     }
-
-    .topbar {
-      background: var(--blanco);
-      border-bottom: 1px solid var(--borde);
-      padding: 0 28px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 40;
+    .topbar-izq{display:flex;align-items:center;gap:10px;}
+    .topbar-hamburguesa{
+      display:none;background:none;border:none;cursor:pointer;
+      padding:6px;border-radius:var(--radio-md);flex-direction:column;gap:4px;
     }
-
-    .topbar-izq {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .topbar-hamburguesa span{display:block;width:18px;height:1.5px;background:var(--text-2);border-radius:1px;}
+    .topbar-titulo{
+      font-family:'Sora',sans-serif;
+      font-size:15px;font-weight:600;color:var(--text-1);letter-spacing:-0.02em;
     }
-
-    .topbar-hamburguesa {
-      display: none;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: var(--radio-md);
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .topbar-hamburguesa span {
-      display: block;
-      width: 18px;
-      height: 2px;
-      background: var(--gris-texto);
-      border-radius: 1px;
-    }
-
-    .topbar-titulo {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--azul-oscuro);
-    }
-
-    .topbar-sub {
-      font-size: 12px;
-      color: var(--gris-suave);
-      margin-top: 1px;
-    }
+    .topbar-sub{font-size:12px;color:var(--text-3);margin-top:1px;}
 
     /* TOAST */
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--azul-oscuro);
-      color: #fff;
-      font-size: 13px;
-      padding: 10px 18px;
-      border-radius: var(--radio-lg);
-      opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.25s;
-      z-index: 999;
-      pointer-events: none;
+    #toast{
+      position:fixed;bottom:24px;right:24px;
+      background:var(--surface-2);
+      border:1px solid var(--border);
+      color:var(--text-1);
+      font-size:13px;font-family:'Inter Tight',sans-serif;
+      padding:10px 18px;border-radius:var(--radio-lg);
+      opacity:0;transform:translateY(8px);
+      transition:all 0.25s;z-index:999;pointer-events:none;
+      box-shadow:0 8px 24px rgba(0,0,0,0.4);
     }
-
-    #toast.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    #toast.ok {
-      background: #15803D;
-    }
-
-    #toast.error {
-      background: #DC2626;
-    }
+    #toast.visible{opacity:1;transform:translateY(0);}
+    #toast.ok{background:#0F2A1A;border-color:rgba(52,211,153,0.3);color:var(--green);}
+    #toast.error{background:#2A0F0F;border-color:rgba(248,113,113,0.3);color:var(--red);}
 
     /* SECCIONES */
-    .seccion {
-      display: none;
-      padding: 24px 28px;
-    }
+    .seccion{display:none;padding:24px 28px;}
+    .seccion.activa{display:block;animation:fadeUp 0.3s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-    .seccion.activa {
-      display: block;
+    /* BANNER ESTUDIANTE */
+    .estudiante-banner{
+      display:none;
+      background:linear-gradient(135deg,var(--surface),var(--surface-2));
+      border:1px solid var(--border-lit);
+      border-radius:var(--radio-xl);
+      padding:16px 20px;margin-bottom:20px;
+      align-items:center;gap:14px;
     }
+    .estudiante-banner.visible{display:flex;}
+    .est-avatar{
+      width:40px;height:40px;border-radius:50%;
+      background:var(--gold-dim);border:1.5px solid var(--border-lit);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Sora',sans-serif;
+      font-size:13px;font-weight:700;color:var(--gold);flex-shrink:0;
+    }
+    .est-info{flex:1;}
+    .est-nombre{font-size:14px;font-weight:600;color:var(--text-1);}
+    .est-email{font-size:12px;color:var(--text-3);margin-top:2px;}
+    .est-nivel{
+      font-size:10px;font-weight:600;
+      background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);
+      color:var(--sky);border-radius:99px;padding:2px 8px;
+      margin-top:4px;display:inline-block;letter-spacing:0.04em;
+    }
+    .btn-cambiar{
+      height:30px;padding:0 14px;
+      background:rgba(255,255,255,0.06);border:1px solid var(--border);
+      border-radius:var(--radio-md);color:var(--text-2);
+      font-size:12px;cursor:pointer;white-space:nowrap;
+      font-family:'Inter Tight',sans-serif;font-weight:500;
+      transition:all 0.15s;
+    }
+    .btn-cambiar:hover{background:rgba(255,255,255,0.1);color:var(--text-1);}
 
-    /* BANNER DE ESTUDIANTE SELECCIONADO */
-    .estudiante-banner {
-      display: none;
-      background: linear-gradient(135deg, #1E3A8A, #0F172A);
-      border-radius: var(--radio-xl);
-      padding: 16px 20px;
-      margin-bottom: 20px;
-      align-items: center;
-      gap: 14px;
-      color: #fff;
+    /* SELECTOR */
+    .selector-card{
+      background:var(--surface);border:1.5px dashed var(--border);
+      border-radius:var(--radio-xl);padding:32px 24px;
+      text-align:center;margin-bottom:20px;
     }
-
-    .estudiante-banner.visible {
-      display: flex;
+    .selector-card p{font-size:13px;color:var(--text-2);margin-bottom:16px;}
+    .selector-busqueda{display:flex;gap:10px;margin-bottom:12px;}
+    .selector-busqueda input{
+      flex:1;height:38px;
+      background:var(--surface-2);border:1px solid var(--border);
+      border-radius:var(--radio-md);padding:0 12px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;
+      color:var(--text-1);
+      transition:border-color 0.15s;
     }
-
-    .est-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(59, 130, 246, 0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 500;
-      color: #93C5FD;
-      flex-shrink: 0;
+    .selector-busqueda input::placeholder{color:var(--text-3);}
+    .selector-busqueda input:focus{outline:none;border-color:rgba(56,189,248,0.4);}
+    .selector-lista{
+      max-height:260px;overflow-y:auto;
+      border:1px solid var(--border);border-radius:var(--radio-lg);
+      background:var(--surface-2);
     }
-
-    .est-info {
-      flex: 1;
+    .selector-item{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 14px;border-bottom:1px solid var(--border);
+      cursor:pointer;transition:background 0.1s;
     }
-
-    .est-nombre {
-      font-size: 15px;
-      font-weight: 500;
-      color: #fff;
+    .selector-item:last-child{border-bottom:none;}
+    .selector-item:hover{background:rgba(255,255,255,0.04);}
+    .sel-avatar{
+      width:32px;height:32px;border-radius:50%;
+      background:var(--sky-dim);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Sora',sans-serif;
+      font-size:11px;font-weight:700;color:var(--sky);flex-shrink:0;
     }
-
-    .est-email {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.5);
-      margin-top: 2px;
-    }
-
-    .est-nivel {
-      font-size: 11px;
-      background: rgba(59, 130, 246, 0.25);
-      border: 1px solid rgba(59, 130, 246, 0.4);
-      color: #93C5FD;
-      border-radius: 99px;
-      padding: 2px 8px;
-      margin-top: 4px;
-      display: inline-block;
-    }
-
-    .btn-cambiar {
-      height: 30px;
-      padding: 0 14px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: var(--radio-md);
-      color: rgba(255, 255, 255, 0.75);
-      font-size: 12px;
-      cursor: pointer;
-      white-space: nowrap;
-      font-family: 'DM Sans', system-ui, sans-serif;
-    }
-
-    .btn-cambiar:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    /* SELECTOR DE ESTUDIANTE */
-    .selector-card {
-      background: var(--blanco);
-      border: 2px dashed var(--borde);
-      border-radius: var(--radio-xl);
-      padding: 32px 24px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .selector-card p {
-      font-size: 14px;
-      color: var(--gris-suave);
-      margin-bottom: 16px;
-    }
-
-    .selector-busqueda {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .selector-busqueda input {
-      flex: 1;
-      height: 38px;
-      border: 1px solid var(--borde);
-      border-radius: var(--radio-md);
-      padding: 0 12px;
-      font-size: 13px;
-      font-family: 'DM Sans', system-ui, sans-serif;
-    }
-
-    .selector-busqueda input:focus {
-      outline: none;
-      border-color: var(--azul-claro);
-    }
-
-    .selector-lista {
-      max-height: 260px;
-      overflow-y: auto;
-      border: 1px solid var(--borde);
-      border-radius: var(--radio-lg);
-    }
-
-    .selector-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--borde);
-      cursor: pointer;
-      transition: background 0.1s;
-    }
-
-    .selector-item:last-child {
-      border-bottom: none;
-    }
-
-    .selector-item:hover {
-      background: var(--gris-fondo);
-    }
-
-    .sel-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--azul-suave);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--azul-medio);
-      flex-shrink: 0;
-    }
-
-    .sel-nombre {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--azul-oscuro);
-    }
-
-    .sel-email {
-      font-size: 11px;
-      color: var(--gris-suave);
-    }
-
-    .sel-nivel {
-      margin-left: auto;
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 99px;
-    }
+    .sel-nombre{font-size:13px;font-weight:500;color:var(--text-1);}
+    .sel-email{font-size:11px;color:var(--text-3);}
+    .sel-nivel{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:99px;}
 
     /* CARDS */
-    .card {
-      background: var(--blanco);
-      border: 1px solid var(--borde);
-      border-radius: var(--radio-xl);
-      padding: 20px 24px;
-      margin-bottom: 16px;
+    .card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radio-xl);padding:20px 24px;margin-bottom:16px;
     }
-
-    .card-titulo {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--azul-oscuro);
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--borde);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .card:hover{border-color:rgba(255,255,255,0.1);}
+    .card-titulo{
+      font-size:13px;font-weight:600;color:var(--text-1);
+      margin-bottom:16px;padding-bottom:12px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:8px;
     }
 
     /* FORMULARIOS */
-    .campo {
-      margin-bottom: 14px;
+    .campo{margin-bottom:14px;}
+    .campo label{
+      display:block;font-size:11px;font-weight:600;
+      color:var(--text-3);margin-bottom:5px;letter-spacing:0.04em;
     }
-
-    .campo label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--gris-suave);
-      margin-bottom: 5px;
+    .campo input,.campo select,.campo textarea{
+      width:100%;height:38px;
+      background:var(--surface-2);border:1px solid var(--border);
+      border-radius:var(--radio-md);padding:0 12px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;
+      color:var(--text-1);
+      transition:border-color 0.15s,box-shadow 0.15s;
     }
-
-    .campo input,
-    .campo select,
-    .campo textarea {
-      width: 100%;
-      height: 38px;
-      border: 1px solid var(--borde);
-      border-radius: var(--radio-md);
-      padding: 0 12px;
-      font-size: 13px;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      color: var(--gris-texto);
-      background: var(--blanco);
-      transition: border-color 0.15s;
+    .campo input::placeholder,.campo textarea::placeholder{color:var(--text-3);}
+    .campo input:focus,.campo select:focus,.campo textarea:focus{
+      outline:none;border-color:rgba(56,189,248,0.4);
+      box-shadow:0 0 0 3px rgba(56,189,248,0.06);
     }
-
-    .campo input:focus,
-    .campo select:focus,
-    .campo textarea:focus {
-      outline: none;
-      border-color: var(--azul-claro);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .campo textarea {
-      height: auto;
-      padding: 10px 12px;
-      resize: vertical;
-    }
-
-    .fila-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .fila-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 14px;
-    }
+    .campo select{appearance:none;cursor:pointer;}
+    .campo textarea{height:auto;padding:10px 12px;resize:vertical;}
+    .fila-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .fila-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 
     /* BOTONES */
-    .btn {
-      height: 36px;
-      padding: 0 18px;
-      border: none;
-      border-radius: var(--radio-md);
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      cursor: pointer;
-      transition: all 0.15s;
+    .btn{
+      height:36px;padding:0 18px;border:none;
+      border-radius:var(--radio-md);
+      font-size:13px;font-weight:600;
+      font-family:'Inter Tight',sans-serif;
+      cursor:pointer;transition:all 0.15s;
     }
-
-    .btn-primario {
-      background: var(--azul-claro);
-      color: #fff;
+    .btn-primario{background:var(--sky);color:#080D1A;}
+    .btn-primario:hover{background:#60CEFF;box-shadow:0 4px 12px rgba(56,189,248,0.3);}
+    .btn-verde{background:var(--green);color:#080D1A;}
+    .btn-verde:hover{background:#6EE7C7;box-shadow:0 4px 12px rgba(52,211,153,0.3);}
+    .btn-rojo{background:var(--red);color:#080D1A;}
+    .btn-rojo:hover{background:#FCA5A5;}
+    .btn-ghost{
+      background:var(--surface-2);color:var(--text-2);
+      border:1px solid var(--border);
     }
-
-    .btn-primario:hover {
-      background: var(--azul-medio);
-    }
-
-    .btn-verde {
-      background: var(--verde);
-      color: #fff;
-    }
-
-    .btn-verde:hover {
-      background: #15803D;
-    }
-
-    .btn-rojo {
-      background: var(--coral);
-      color: #fff;
-    }
-
-    .btn-rojo:hover {
-      background: #B91C1C;
-    }
-
-    .btn-ghost {
-      background: var(--gris-fondo);
-      color: var(--gris-suave);
-      border: 1px solid var(--borde);
-    }
-
-    .btn-ghost:hover {
-      background: var(--borde);
-    }
-
-    .btn-sm {
-      height: 28px;
-      padding: 0 12px;
-      font-size: 12px;
-    }
+    .btn-ghost:hover{background:var(--surface-3);color:var(--text-1);}
+    .btn-sm{height:28px;padding:0 12px;font-size:12px;}
 
     /* TABLA */
-    .tabla-wrap {
-      overflow-x: auto;
+    .tabla-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    thead th{
+      text-align:left;padding:10px 14px;
+      font-size:10px;font-weight:700;color:var(--text-3);
+      letter-spacing:0.08em;text-transform:uppercase;
+      border-bottom:1px solid var(--border);
+      background:var(--surface-2);
     }
+    tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:rgba(255,255,255,0.02);}
+    tbody td{padding:12px 14px;color:var(--text-1);vertical-align:middle;}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
+    .nivel-chip{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:0.04em;}
+    .nivel-A1{background:rgba(56,189,248,0.1);color:var(--sky);}
+    .nivel-A2{background:rgba(52,211,153,0.1);color:var(--green);}
+    .nivel-B1{background:rgba(248,196,80,0.1);color:var(--gold);}
+    .nivel-B2{background:rgba(248,113,113,0.1);color:var(--red);}
+    .nivel-C1{background:rgba(167,139,250,0.1);color:#A78BFA;}
+    .nivel-C2{background:rgba(251,146,60,0.1);color:#FB923C;}
 
-    thead th {
-      text-align: left;
-      padding: 10px 14px;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--gris-suave);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--borde);
-      background: var(--gris-fondo);
-    }
-
-    tbody tr {
-      border-bottom: 1px solid var(--borde);
-      transition: background 0.1s;
-    }
-
-    tbody tr:last-child {
-      border-bottom: none;
-    }
-
-    tbody tr:hover {
-      background: var(--gris-fondo);
-    }
-
-    tbody td {
-      padding: 12px 14px;
-      color: var(--gris-texto);
-      vertical-align: middle;
-    }
-
-    .nivel-chip {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 500;
-      padding: 3px 9px;
-      border-radius: 99px;
-    }
-
-    .nivel-A1 {
-      background: #EFF6FF;
-      color: #1E40AF;
-    }
-
-    .nivel-A2 {
-      background: #F0FDF4;
-      color: #15803D;
-    }
-
-    .nivel-B1 {
-      background: #FFFBEB;
-      color: #B45309;
-    }
-
-    .nivel-B2 {
-      background: #FEF2F2;
-      color: #B91C1C;
-    }
-
-    .progreso-mini {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .barra-mini-wrap {
-      flex: 1;
-      height: 5px;
-      background: var(--borde);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .barra-mini-fill {
-      height: 100%;
-      background: var(--azul-claro);
-      border-radius: 99px;
-    }
-
-    .progreso-num {
-      font-size: 12px;
-      color: var(--gris-suave);
-      min-width: 28px;
-    }
+    .progreso-mini{display:flex;align-items:center;gap:8px;}
+    .barra-mini-wrap{flex:1;height:4px;background:var(--surface-3);border-radius:99px;overflow:hidden;}
+    .barra-mini-fill{height:100%;background:var(--sky);border-radius:99px;}
+    .progreso-num{font-size:11px;color:var(--text-3);min-width:28px;}
 
     /* BUSCADOR */
-    .buscador-wrap {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-      align-items: center;
+    .buscador-wrap{display:flex;gap:10px;margin-bottom:16px;align-items:center;}
+    .buscador{
+      flex:1;height:36px;
+      background:var(--surface-2);border:1px solid var(--border);
+      border-radius:var(--radio-md);padding:0 12px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;
+      color:var(--text-1);transition:border-color 0.15s;
     }
-
-    .buscador {
-      flex: 1;
-      height: 36px;
-      border: 1px solid var(--borde);
-      border-radius: var(--radio-md);
-      padding: 0 12px;
-      font-size: 13px;
-      font-family: 'DM Sans', system-ui, sans-serif;
-    }
-
-    .buscador:focus {
-      outline: none;
-      border-color: var(--azul-claro);
-    }
+    .buscador::placeholder{color:var(--text-3);}
+    .buscador:focus{outline:none;border-color:rgba(56,189,248,0.4);}
 
     /* MODAL */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,0.75);
+      display:none;align-items:center;justify-content:center;
+      z-index:200;backdrop-filter:blur(6px);
     }
-
-    .modal-overlay.abierto {
-      display: flex;
+    .modal-overlay.abierto{display:flex;}
+    .modal{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:20px;padding:24px;
+      width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;
+      box-shadow:0 24px 64px rgba(0,0,0,0.6);
+      animation:fadeUp 0.25s ease both;
     }
-
-    .modal {
-      background: var(--blanco);
-      border-radius: var(--radio-xl);
-      padding: 24px;
-      width: 480px;
-      max-width: 95vw;
-      max-height: 90vh;
-      overflow-y: auto;
+    .modal-titulo{
+      font-family:'Sora',sans-serif;
+      font-size:15px;font-weight:600;color:var(--text-1);
+      margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);
     }
-
-    .modal-titulo {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--azul-oscuro);
-      margin-bottom: 18px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--borde);
-    }
-
-    .modal-acciones {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-      justify-content: flex-end;
-    }
+    .modal-acciones{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
 
     /* LISTAS */
-    .item-lista {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--borde);
+    .item-lista{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 14px;border-bottom:1px solid var(--border);
+      transition:background 0.1s;
     }
-
-    .item-lista:last-child {
-      border-bottom: none;
+    .item-lista:last-child{border-bottom:none;}
+    .item-lista:hover{background:rgba(255,255,255,0.02);}
+    .item-icono{
+      width:34px;height:34px;border-radius:var(--radio-md);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
     }
-
-    .item-icono {
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radio-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .item-nombre {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--azul-oscuro);
-    }
-
-    .item-meta {
-      font-size: 12px;
-      color: var(--gris-suave);
-      margin-top: 1px;
-    }
-
-    .item-acciones {
-      margin-left: auto;
-      display: flex;
-      gap: 6px;
-    }
+    .item-nombre{font-size:13px;font-weight:500;color:var(--text-1);}
+    .item-meta{font-size:11px;color:var(--text-3);margin-top:1px;}
+    .item-acciones{margin-left:auto;display:flex;gap:6px;}
 
     /* STATS */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+    .stat-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radio-xl);padding:16px 18px;
+      transition:border-color 0.2s,transform 0.2s;
+    }
+    .stat-card:hover{border-color:rgba(248,196,80,0.2);transform:translateY(-1px);}
+    .stat-label{font-size:10px;font-weight:600;color:var(--text-3);margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase;}
+    .stat-valor{
+      font-family:'Sora',sans-serif;
+      font-size:26px;font-weight:700;color:var(--text-1);
     }
 
-    .stat-card {
-      background: var(--blanco);
-      border: 1px solid var(--borde);
-      border-radius: var(--radio-xl);
-      padding: 16px 18px;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: var(--gris-suave);
-      margin-bottom: 6px;
-    }
-
-    .stat-valor {
-      font-size: 24px;
-      font-weight: 500;
-      color: var(--azul-oscuro);
-    }
-
-    .vacio {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--gris-suave);
-      font-size: 13px;
-    }
+    .vacio{text-align:center;padding:40px 20px;color:var(--text-3);font-size:13px;}
 
     /* RESPONSIVE */
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%);}
+      .sidebar.drawer-abierto{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,0.7);}
+      .sidebar-close{display:flex;align-items:center;justify-content:center;}
+      .main{margin-left:0;}
+      .topbar{padding:0 16px;}
+      .topbar-hamburguesa{display:flex;}
+      .seccion{padding:16px;}
+      .fila-2,.fila-3{grid-template-columns:1fr;}
+      .stats-row{grid-template-columns:repeat(2,1fr);}
+      .topbar-sub{display:none;}
+    }
+    @media(max-width:420px){.stats-row{grid-template-columns:1fr;}}
+
+    /* ══ CURRÍCULO ══ */
+    .curriculo-tabs {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .curriculo-tab {
+      height: 32px; padding: 0 16px; border-radius: 99px;
+      border: 1px solid var(--border); background: var(--surface-2);
+      font-size: 12px; font-weight: 600; color: var(--text-2);
+      cursor: pointer; font-family: 'Inter Tight', sans-serif;
+      transition: all 0.15s;
+    }
+    .curriculo-tab:hover { border-color: rgba(56,189,248,0.3); color: var(--sky); }
+    .curriculo-tab.activo { background: var(--sky); border-color: var(--sky); color: #080D1A; }
+
+    .clase-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;
+    }
+    .clase-card {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radio-lg); padding: 14px 16px;
+      cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .clase-card:hover {
+      border-color: rgba(56,189,248,0.25);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transform: translateY(-1px);
+    }
+    .clase-card.publicada { border-left: 2px solid var(--green); }
+    .clase-card.borrador  { border-left: 2px solid var(--gold); }
+
+    .clase-num {
+      font-size: 10px; font-weight: 700; color: var(--text-3);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px;
+    }
+    .clase-titulo-card { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 4px; line-height: 1.4; }
+    .clase-desc-card {
+      font-size: 11px; color: var(--text-2); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .clase-estado-badge {
+      position: absolute; top: 10px; right: 10px;
+      font-size: 9px; font-weight: 700; padding: 2px 7px;
+      border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-publicada { background: rgba(52,211,153,0.1); color: var(--green); }
+    .badge-borrador  { background: rgba(248,196,80,0.1); color: var(--gold); }
+    .badge-vacio     { background: var(--surface-3); color: var(--text-3); }
+
+    /* Modal currículo */
+    .modal-curriculo { width: 680px; }
+    .modal-tabs {
+      display: flex; gap: 4px; margin-bottom: 20px;
+      border-bottom: 1px solid var(--border); padding-bottom: 0;
+    }
+    .modal-tab {
+      height: 34px; padding: 0 14px; border: none; background: none;
+      font-size: 13px; color: var(--text-3); cursor: pointer;
+      font-family: 'Inter Tight', sans-serif; font-weight: 500;
+      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+    }
+    .modal-tab:hover { color: var(--sky); }
+    .modal-tab.activo { color: var(--sky); border-bottom-color: var(--sky); }
+    .modal-panel { display: none; }
+    .modal-panel.activo { display: block; }
+
+    .quiz-pregunta-item {
+      background: var(--surface-3); border: 1px solid var(--border);
+      border-radius: var(--radio-md); padding: 12px 14px; margin-bottom: 10px;
+    }
+    .quiz-pregunta-num { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .quiz-pregunta-texto { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 6px; }
+    .quiz-opciones { display: flex; flex-direction: column; gap: 3px; }
+    .quiz-opcion { font-size: 12px; color: var(--text-2); padding: 2px 0; }
+    .quiz-opcion.correcta { color: var(--green); font-weight: 600; }
+    .quiz-opcion.correcta::before { content: "✓ "; }
+
+    .ia-estado {
+      background: var(--sky-dim); border: 1px solid rgba(56,189,248,0.2);
+      border-radius: var(--radio-md); padding: 12px 14px;
+      font-size: 13px; color: var(--sky); margin-bottom: 14px; display: none;
+    }
+    .ia-estado.visible { display: block; }
+    .ia-spinner {
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid rgba(56,189,248,0.15); border-top-color: var(--sky);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+      margin-right: 8px; vertical-align: middle;
+    }
+
+    .asignar-nivel-card {
+      background: var(--gold-dim); border: 1px solid var(--border-lit);
+      border-radius: var(--radio-xl); padding: 20px 24px; margin-bottom: 20px;
+    }
+    .asignar-nivel-titulo { font-family:'Sora',sans-serif; font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+    .asignar-nivel-desc { font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
+    .asignar-nivel-fila { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+    .nivel-selector-wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nivel-btn-sel {
+      height: 30px; padding: 0 14px; border: 1px solid var(--border);
+      border-radius: 99px; background: var(--surface-2);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: 'Inter Tight', sans-serif; transition: all 0.15s; color: var(--text-2);
+    }
+    .nivel-btn-sel:hover, .nivel-btn-sel.activo {
+      background: var(--gold); border-color: var(--gold); color: #080D1A;
+    }
+
     @media(max-width:768px) {
-      .sidebar {
-        transform: translateX(-100%);
-      }
-
-      .sidebar.drawer-abierto {
-        transform: translateX(0);
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
-      }
-
-      .sidebar-close {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .main {
-        margin-left: 0;
-      }
-
-      .topbar {
-        padding: 0 16px;
-      }
-
-      .topbar-hamburguesa {
-        display: flex;
-      }
-
-      .seccion {
-        padding: 16px;
-      }
-
-      .fila-2,
-      .fila-3 {
-        grid-template-columns: 1fr;
-      }
-
-      .stats-row {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .topbar-sub {
-        display: none;
-      }
+      .clase-grid { grid-template-columns: 1fr 1fr; }
+      .modal-curriculo { width: 95vw; }
     }
-
-    @media(max-width:420px) {
-      .stats-row {
-        grid-template-columns: 1fr;
-      }
-    }
+    @media(max-width:480px) { .clase-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 
@@ -933,6 +593,8 @@
             <option value="A2">A2 — Básico</option>
             <option value="B1">B1 — Intermedio</option>
             <option value="B2">B2 — Avanzado</option>
+            <option value="C1">C1 — Avanzado Superior</option>
+            <option value="C2">C2 — Maestría</option>
           </select>
         </div>
         <div class="campo"><label>Progreso (%)</label><input type="number" id="modal-progreso" min="0" max="100"
@@ -955,6 +617,97 @@
     </div>
   </div>
 
+  <!-- MODAL CURRÍCULO -->
+  <div class="modal-overlay" id="modal-curriculo-overlay">
+    <div class="modal modal-curriculo">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div class="modal-titulo" id="modal-clase-titulo" style="border:none;margin:0;padding:0;">Clase</div>
+        <button class="btn btn-ghost btn-sm" onclick="cerrarModalCurriculo()">✕ Cerrar</button>
+      </div>
+      <div style="font-size:12px;color:var(--gris-suave);margin-bottom:14px;" id="modal-clase-subtitulo"></div>
+
+      <!-- Tabs del modal -->
+      <div class="modal-tabs">
+        <button class="modal-tab activo" onclick="cambiarModalTab('info',this)">📋 Información</button>
+        <button class="modal-tab" onclick="cambiarModalTab('quiz',this)">❓ Quiz</button>
+        <button class="modal-tab" onclick="cambiarModalTab('asignar',this)">👤 Asignar</button>
+      </div>
+
+      <!-- PANEL INFO -->
+      <div class="modal-panel activo" id="mpanel-info">
+        <div class="fila-2">
+          <div class="campo"><label>Título de la clase</label><input type="text" id="mc-titulo" placeholder="ej: Greetings and Introductions" /></div>
+          <div class="campo"><label>Número de clase (1-24)</label><input type="number" id="mc-numero" min="1" max="24" placeholder="1" /></div>
+        </div>
+        <div class="campo"><label>Descripción</label><textarea id="mc-descripcion" rows="2" placeholder="Descripción breve de la clase..."></textarea></div>
+        <div class="fila-2">
+          <div class="campo"><label>Vocabulario (temas)</label><input type="text" id="mc-vocabulario" placeholder="ej: greetings, farewells, titles" /></div>
+          <div class="campo"><label>Gramática</label><input type="text" id="mc-gramatica" placeholder="ej: Subject pronouns, verb to be" /></div>
+        </div>
+        <div class="fila-2">
+          <div class="campo"><label>Pronunciación</label><input type="text" id="mc-pronunciacion" placeholder="ej: Intonation in questions" /></div>
+          <div class="campo"><label>Habilidades (skills)</label><input type="text" id="mc-habilidades" placeholder="ej: Speaking, Listening" /></div>
+        </div>
+        <div class="fila-2">
+          <div class="campo"><label>Cultura</label><input type="text" id="mc-cultura" placeholder="ej: British vs American greetings" /></div>
+          <div class="campo"><label>Video sugerido (YouTube URL)</label><input type="url" id="mc-video" placeholder="https://www.youtube.com/watch?v=..." /></div>
+        </div>
+        <div class="campo">
+          <label>Estado</label>
+          <select id="mc-estado">
+            <option value="borrador">Borrador (no visible para estudiantes)</option>
+            <option value="publicada">Publicada (visible)</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn btn-primario" onclick="guardarClase()">Guardar clase</button>
+          <button class="btn btn-ghost" onclick="cerrarModalCurriculo()">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- PANEL QUIZ -->
+      <div class="modal-panel" id="mpanel-quiz">
+        <div class="ia-estado" id="ia-estado">
+          <span class="ia-spinner"></span>
+          <span id="ia-estado-texto">Generando quiz con IA...</span>
+        </div>
+
+        <div id="quiz-acciones" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="btn btn-primario" onclick="generarQuizIA()">✨ Generar con IA (borrador)</button>
+          <button class="btn btn-ghost" onclick="toggleQuizEditor()">✏️ Editar manualmente</button>
+          <button class="btn btn-verde" id="btn-publicar-quiz" onclick="publicarQuiz()" style="display:none;">✓ Publicar quiz</button>
+        </div>
+
+        <div id="quiz-preview">
+          <div class="vacio" id="quiz-vacio">No hay quiz creado para esta clase. Genera uno con IA o créalo manualmente.</div>
+          <div id="quiz-preguntas-lista"></div>
+        </div>
+
+        <div id="quiz-editor" style="display:none;">
+          <div id="quiz-editor-preguntas"></div>
+          <button class="btn btn-ghost btn-sm" onclick="agregarPreguntaManual()" style="margin-bottom:14px;">+ Agregar pregunta</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primario" onclick="guardarQuizManual()">Guardar quiz</button>
+            <button class="btn btn-ghost" onclick="toggleQuizEditor()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL ASIGNAR -->
+      <div class="modal-panel" id="mpanel-asignar">
+        <p style="font-size:13px;color:var(--gris-suave);margin-bottom:16px;">Asigna esta clase individualmente a un estudiante. También puedes asignar el nivel completo desde la vista principal.</p>
+        <div class="campo">
+          <label>Seleccionar estudiante</label>
+          <select id="mc-asignar-est" style="height:38px;font-size:13px;">
+            <option value="">— Elegir estudiante —</option>
+          </select>
+        </div>
+        <button class="btn btn-verde" onclick="asignarClaseIndividual()">Asignar esta clase</button>
+        <div id="mc-asignar-resultado" style="margin-top:12px;font-size:13px;"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="contenido">
     <div class="shell">
 
@@ -968,7 +721,7 @@
           </div>
           <button class="sidebar-close" id="sidebar-close">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 4l8 8M12 4l-8 8" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" />
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
             </svg>
           </button>
         </div>
@@ -1011,6 +764,16 @@
               <path d="M4 5.5h7M4 8h5M4 10.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
             </svg>
             Tareas
+          </button>
+          <div class="nav-label" style="margin-top:16px;">Contenido</div>
+          <button class="nav-btn" onclick="irA('curriculo',this)">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M2 2h11v11H2z" stroke="currentColor" stroke-width="1.3" rx="1"/>
+              <path d="M5 5h5M5 7.5h3M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="11.5" cy="11.5" r="2.5" fill="#3B82F6" stroke="none"/>
+              <path d="M10.5 11.5l.8.8 1.4-1.4" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Currículo
           </button>
         </div>
 
@@ -1320,6 +1083,58 @@
           </div>
         </div>
 
+        <!-- ══════ CURRÍCULO ══════ -->
+        <div class="seccion" id="sec-curriculo">
+
+          <!-- Asignación rápida por nivel -->
+          <div class="asignar-nivel-card">
+            <div class="asignar-nivel-titulo">📚 Asignar nivel completo a estudiante</div>
+            <div class="asignar-nivel-desc">Asigna todas las clases publicadas de un nivel a un estudiante de un solo clic.</div>
+            <div class="asignar-nivel-fila">
+              <div>
+                <div style="font-size:11px;color:var(--gris-suave);margin-bottom:6px;">Seleccionar nivel</div>
+                <div class="nivel-selector-wrap" id="nivel-asignar-btns">
+                  <button class="nivel-btn-sel activo" onclick="selNivelAsignar('A1',this)">A1</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('A2',this)">A2</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('B1',this)">B1</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('B2',this)">B2</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('C1',this)">C1</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('C2',this)">C2</button>
+                </div>
+              </div>
+              <div style="flex:1;min-width:200px;">
+                <div style="font-size:11px;color:var(--gris-suave);margin-bottom:6px;">Seleccionar estudiante</div>
+                <select id="sel-est-nivel" class="campo" style="height:32px;font-size:12px;margin:0;border:1px solid var(--borde);border-radius:var(--radio-md);padding:0 10px;font-family:'DM Sans',system-ui,sans-serif;width:100%;">
+                  <option value="">— Elegir estudiante —</option>
+                </select>
+              </div>
+              <button class="btn btn-verde" style="white-space:nowrap;flex-shrink:0;" onclick="asignarNivelCompleto()">Asignar nivel</button>
+            </div>
+          </div>
+
+          <!-- Tabs por nivel -->
+          <div class="curriculo-tabs" id="curriculo-tabs">
+            <button class="curriculo-tab activo" onclick="cambiarNivel('A1',this)">A1 · Principiante</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('A2',this)">A2 · Básico</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('B1',this)">B1 · Intermedio</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('B2',this)">B2 · Avanzado</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('C1',this)">C1 · Avanzado Superior</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('C2',this)">C2 · Maestría</button>
+            <button class="btn btn-primario btn-sm" style="margin-left:auto;" onclick="generarNivelCompleto()">✨ Generar nivel con IA</button>
+          </div>
+
+          <!-- Grid de clases -->
+          <div class="card" style="padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div id="curriculo-nivel-titulo" style="font-size:14px;font-weight:500;color:var(--azul-oscuro);">A1 — Principiante · 24 clases</div>
+              <div style="font-size:12px;color:var(--gris-suave);" id="curriculo-conteo">0 publicadas</div>
+            </div>
+            <div class="clase-grid" id="clase-grid">
+              <div class="vacio">Cargando clases...</div>
+            </div>
+          </div>
+        </div>
+
       </main>
     </div>
   </div>
@@ -1386,7 +1201,8 @@
       clases: ["Clases (videos)", "Asigna clases grabadas a un estudiante"],
       materiales: ["Materiales", "Asigna PDFs y recursos a un estudiante"],
       calendario: ["Clases en vivo", "Programa clases en vivo para un estudiante"],
-      tareas: ["Tareas", "Envía tareas a un estudiante"]
+      tareas: ["Tareas", "Envía tareas a un estudiante"],
+      curriculo: ["Currículo", "Gestiona las 144 clases del currículo anual"]
     };
 
     function irA(seccion, btn) {
@@ -1397,6 +1213,10 @@
       document.getElementById('topbar-titulo').textContent = TITULOS[seccion][0];
       document.getElementById('topbar-sub').textContent = TITULOS[seccion][1];
       cerrarDrawer();
+      if(seccion === 'curriculo'){
+        cargarClasesNivel(nivelActual);
+        actualizarSelectorEstNivel();
+      }
     }
 
     /* ══════════════════════════════════
@@ -1500,6 +1320,7 @@
     ══════════════════════════════════ */
     function renderizarTodosSelectores() {
       ['clases', 'materiales', 'calendario', 'tareas'].forEach(function (s) { renderizarSelector(s, todosEstudiantes); });
+      actualizarSelectorEstNivel();
     }
 
     function filtrarSelector(seccion) {
@@ -1738,6 +1559,446 @@
 
     /* ── Cerrar sesión ── */
     function cerrarSesion() { auth.signOut().then(function () { window.location.href = 'login.html'; }); }
+
+    /* ══════════════════════════════════════════════════════
+       CURRÍCULO — Sistema completo
+    ══════════════════════════════════════════════════════ */
+
+    var NIVELES_INFO = {
+      A1: { nombre: 'Principiante',       clases: 24 },
+      A2: { nombre: 'Básico',             clases: 24 },
+      B1: { nombre: 'Intermedio',         clases: 24 },
+      B2: { nombre: 'Avanzado',           clases: 24 },
+      C1: { nombre: 'Avanzado Superior',  clases: 24 },
+      C2: { nombre: 'Maestría',           clases: 24 }
+    };
+
+    var nivelActual = 'A1';
+    var nivelAsignar = 'A1';
+    var claseActualId = null;
+    var claseActualData = null;
+    var quizActual = null;
+    var unsub_curriculo = null;
+
+    /* ─── Navegación de nivel ─── */
+    function cambiarNivel(nivel, btn) {
+      nivelActual = nivel;
+      document.querySelectorAll('.curriculo-tab').forEach(function(b){ b.classList.remove('activo'); });
+      if(btn) btn.classList.add('activo');
+      var info = NIVELES_INFO[nivel];
+      document.getElementById('curriculo-nivel-titulo').textContent = nivel + ' — ' + info.nombre + ' · ' + info.clases + ' clases';
+      cargarClasesNivel(nivel);
+    }
+
+    /* ─── Cargar clases de un nivel ─── */
+    function cargarClasesNivel(nivel) {
+      if(unsub_curriculo) unsub_curriculo();
+      document.getElementById('clase-grid').innerHTML = '<div class="vacio">Cargando...</div>';
+      unsub_curriculo = db.collection('curriculo').doc(nivel).collection('clases')
+        .orderBy('numero')
+        .onSnapshot(function(snap){
+          var mapa = {};
+          snap.forEach(function(doc){ mapa[doc.data().numero] = Object.assign({ id: doc.id }, doc.data()); });
+          renderizarGrid(nivel, mapa);
+        });
+    }
+
+    function renderizarGrid(nivel, mapa) {
+      var grid = document.getElementById('clase-grid');
+      var publicadas = 0;
+      var html = '';
+      for(var i = 1; i <= 24; i++){
+        var c = mapa[i];
+        if(c){
+          var estado = c.estado || 'borrador';
+          if(estado === 'publicada') publicadas++;
+          html += '<div class="clase-card ' + estado + '" onclick="abrirModalClase(\'' + nivel + '\',' + i + ',\'' + c.id + '\')">'
+            + '<span class="clase-estado-badge badge-' + estado + '">' + (estado === 'publicada' ? 'Publicada' : 'Borrador') + '</span>'
+            + '<div class="clase-num">Clase ' + i + ' de 24</div>'
+            + '<div class="clase-titulo-card">' + (c.titulo || 'Sin título') + '</div>'
+            + '<div class="clase-desc-card">' + (c.descripcion || '') + '</div>'
+            + '</div>';
+        } else {
+          html += '<div class="clase-card" onclick="abrirModalClase(\'' + nivel + '\',' + i + ',null)" style="opacity:0.55;">'
+            + '<span class="clase-estado-badge badge-vacio">Vacía</span>'
+            + '<div class="clase-num">Clase ' + i + ' de 24</div>'
+            + '<div class="clase-titulo-card" style="color:var(--gris-suave);">Sin contenido</div>'
+            + '<div class="clase-desc-card">Haz clic para crear esta clase</div>'
+            + '</div>';
+        }
+      }
+      grid.innerHTML = html;
+      document.getElementById('curriculo-conteo').textContent = publicadas + ' publicadas de 24';
+    }
+
+    /* ─── Abrir modal de clase ─── */
+    function abrirModalClase(nivel, numero, id) {
+      claseActualId = id;
+      claseActualData = null;
+      quizActual = null;
+
+      document.getElementById('modal-clase-titulo').textContent = nivel + ' · Clase ' + numero;
+      document.getElementById('modal-clase-subtitulo').textContent = NIVELES_INFO[nivel].nombre + ' — Clase ' + numero + ' de 24';
+
+      /* Reset campos */
+      ['mc-titulo','mc-numero','mc-descripcion','mc-vocabulario','mc-gramatica',
+       'mc-pronunciacion','mc-habilidades','mc-cultura','mc-video'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.value = '';
+      });
+      document.getElementById('mc-numero').value = numero;
+      document.getElementById('mc-estado').value = 'borrador';
+
+      /* Guardar nivel+numero en dataset */
+      document.getElementById('modal-clase-titulo').dataset.nivel = nivel;
+      document.getElementById('modal-clase-titulo').dataset.numero = numero;
+
+      /* Llenar selector estudiantes */
+      var sel = document.getElementById('mc-asignar-est');
+      sel.innerHTML = '<option value="">— Elegir estudiante —</option>';
+      todosEstudiantes.forEach(function(e){
+        sel.innerHTML += '<option value="' + e.uid + '">' + (e.nombre||e.email) + ' (' + (e.nivel||'A1') + ')</option>';
+      });
+      document.getElementById('mc-asignar-resultado').textContent = '';
+
+      /* Reset quiz */
+      document.getElementById('ia-estado').classList.remove('visible');
+      document.getElementById('quiz-vacio').style.display = 'block';
+      document.getElementById('quiz-preguntas-lista').innerHTML = '';
+      document.getElementById('btn-publicar-quiz').style.display = 'none';
+      document.getElementById('quiz-editor').style.display = 'none';
+
+      /* Cargar datos si existe */
+      if(id){
+        db.collection('curriculo').doc(nivel).collection('clases').doc(id).get().then(function(doc){
+          if(!doc.exists) return;
+          var d = doc.data();
+          claseActualData = d;
+          document.getElementById('mc-titulo').value = d.titulo || '';
+          document.getElementById('mc-descripcion').value = d.descripcion || '';
+          document.getElementById('mc-vocabulario').value = (d.vocabulario||[]).join(', ');
+          document.getElementById('mc-gramatica').value = d.gramatica || '';
+          document.getElementById('mc-pronunciacion').value = d.pronunciacion || '';
+          document.getElementById('mc-habilidades').value = (d.habilidades||[]).join(', ');
+          document.getElementById('mc-cultura').value = d.cultura || '';
+          document.getElementById('mc-video').value = d.videoSugerido || '';
+          document.getElementById('mc-estado').value = d.estado || 'borrador';
+
+          /* Cargar quiz si existe */
+          db.collection('curriculo').doc(nivel).collection('clases').doc(id)
+            .collection('quiz').doc('preguntas').get().then(function(qDoc){
+              if(qDoc.exists){
+                quizActual = qDoc.data().preguntas || [];
+                renderizarQuizPreview(quizActual);
+                document.getElementById('btn-publicar-quiz').style.display = quizActual.length ? 'block' : 'none';
+              }
+            });
+        });
+      }
+
+      cambiarModalTab('info', document.querySelector('.modal-tab'));
+      document.getElementById('modal-curriculo-overlay').classList.add('abierto');
+    }
+
+    function cerrarModalCurriculo() {
+      document.getElementById('modal-curriculo-overlay').classList.remove('abierto');
+    }
+
+    function cambiarModalTab(tab, btn) {
+      document.querySelectorAll('.modal-panel').forEach(function(p){ p.classList.remove('activo'); });
+      document.querySelectorAll('.modal-tab').forEach(function(b){ b.classList.remove('activo'); });
+      document.getElementById('mpanel-' + tab).classList.add('activo');
+      if(btn) btn.classList.add('activo');
+    }
+
+    /* ─── Guardar clase ─── */
+    function guardarClase() {
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var numero = parseInt(document.getElementById('modal-clase-titulo').dataset.numero);
+      var datos = {
+        numero:       numero,
+        nivel:        nivel,
+        titulo:       document.getElementById('mc-titulo').value.trim(),
+        descripcion:  document.getElementById('mc-descripcion').value.trim(),
+        vocabulario:  document.getElementById('mc-vocabulario').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean),
+        gramatica:    document.getElementById('mc-gramatica').value.trim(),
+        pronunciacion:document.getElementById('mc-pronunciacion').value.trim(),
+        habilidades:  document.getElementById('mc-habilidades').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean),
+        cultura:      document.getElementById('mc-cultura').value.trim(),
+        videoSugerido:document.getElementById('mc-video').value.trim(),
+        estado:       document.getElementById('mc-estado').value,
+        actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if(!datos.titulo){ toast('El título es obligatorio', 'error'); return; }
+
+      var ref = db.collection('curriculo').doc(nivel).collection('clases');
+      var promise = claseActualId
+        ? ref.doc(claseActualId).update(datos)
+        : ref.add(Object.assign({ creadoEn: firebase.firestore.FieldValue.serverTimestamp() }, datos));
+
+      promise.then(function(docRef){
+        if(!claseActualId && docRef) claseActualId = docRef.id;
+        toast('Clase guardada correctamente', 'ok');
+        cerrarModalCurriculo();
+      }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Generar nivel completo con IA ─── */
+    function generarNivelCompleto() {
+      var info = NIVELES_INFO[nivelActual];
+      if(!confirm('¿Generar las 24 clases del nivel ' + nivelActual + ' con IA? Esto tomará unos segundos y creará todas las clases como borradores.')) return;
+      toast('Generando curriculum ' + nivelActual + '...', 'ok');
+      generarCurriculoNivel(nivelActual, info.nombre);
+    }
+
+    async function generarCurriculoNivel(nivel, nombreNivel) {
+      var prompt = 'Genera el currículo completo de 24 clases de inglés para el nivel ' + nivel + ' (' + nombreNivel + ') del Marco Europeo de Referencia. '
+        + 'Son 3 clases semanales durante 8 semanas. '
+        + 'Responde SOLO con un array JSON válido de 24 objetos. Cada objeto debe tener exactamente estas propiedades: '
+        + 'numero (1-24), titulo (en inglés, max 6 palabras), descripcion (1 oración en español), '
+        + 'vocabulario (array de 3-5 strings en inglés), gramatica (string), pronunciacion (string), '
+        + 'habilidades (array: speaking/listening/reading/writing), cultura (string breve), videoSugerido (string con tema del video sugerido). '
+        + 'No incluyas markdown, backticks ni texto adicional. Solo el array JSON puro.';
+
+      try {
+        var response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        var data = await response.json();
+        var texto = data.content[0].text.trim();
+        texto = texto.replace(/```json|```/g, '').trim();
+        var clases = JSON.parse(texto);
+
+        var batch = db.batch();
+        clases.forEach(function(clase) {
+          var ref = db.collection('curriculo').doc(nivel).collection('clases').doc();
+          batch.set(ref, Object.assign({
+            nivel: nivel,
+            estado: 'borrador',
+            creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+          }, clase));
+        });
+        await batch.commit();
+        toast('✓ ' + clases.length + ' clases generadas para ' + nivel, 'ok');
+      } catch(err) {
+        toast('Error generando: ' + err.message, 'error');
+        console.error(err);
+      }
+    }
+
+    /* ─── Generar quiz con IA ─── */
+    async function generarQuizIA() {
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var titulo = document.getElementById('mc-titulo').value || claseActualData && claseActualData.titulo || 'Clase de inglés';
+      var gramatica = document.getElementById('mc-gramatica').value || '';
+      var vocabulario = document.getElementById('mc-vocabulario').value || '';
+
+      document.getElementById('ia-estado').classList.add('visible');
+      document.getElementById('ia-estado-texto').textContent = 'Generando quiz con IA...';
+
+      var prompt = 'Genera un quiz de 5 preguntas para una clase de inglés nivel ' + nivel + ' sobre el tema: "' + titulo + '". '
+        + (gramatica ? 'Gramática cubierta: ' + gramatica + '. ' : '')
+        + (vocabulario ? 'Vocabulario: ' + vocabulario + '. ' : '')
+        + 'Incluye 3 preguntas de selección múltiple, 1 de completar espacio y 1 de verdadero/falso. '
+        + 'Responde SOLO con un array JSON de 5 objetos con propiedades: '
+        + 'tipo ("multiple"|"completar"|"verdadero_falso"), pregunta (string), '
+        + 'opciones (array de strings, null si no aplica), respuesta (string con la respuesta correcta). '
+        + 'No incluyas markdown ni texto adicional.';
+
+      try {
+        var response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        var data = await response.json();
+        var texto = data.content[0].text.trim().replace(/```json|```/g, '').trim();
+        quizActual = JSON.parse(texto);
+
+        document.getElementById('ia-estado-texto').textContent = '✓ Quiz generado. Revísalo antes de publicar.';
+        renderizarQuizPreview(quizActual);
+        document.getElementById('btn-publicar-quiz').style.display = 'block';
+        document.getElementById('quiz-vacio').style.display = 'none';
+      } catch(err) {
+        document.getElementById('ia-estado-texto').textContent = 'Error: ' + err.message;
+        toast('Error generando quiz: ' + err.message, 'error');
+      }
+    }
+
+    function renderizarQuizPreview(preguntas) {
+      var lista = document.getElementById('quiz-preguntas-lista');
+      if(!preguntas || !preguntas.length){ lista.innerHTML = ''; return; }
+      document.getElementById('quiz-vacio').style.display = 'none';
+      lista.innerHTML = preguntas.map(function(p, i){
+        var tipo = p.tipo === 'multiple' ? 'Selección múltiple' : p.tipo === 'completar' ? 'Completar' : 'V / F';
+        var opcsHtml = '';
+        if(p.opciones && p.opciones.length){
+          opcsHtml = '<div class="quiz-opciones">' + p.opciones.map(function(o){
+            return '<div class="quiz-opcion' + (o === p.respuesta ? ' correcta' : '') + '">' + o + '</div>';
+          }).join('') + '</div>';
+        } else {
+          opcsHtml = '<div class="quiz-opcion correcta">→ ' + (p.respuesta||'') + '</div>';
+        }
+        return '<div class="quiz-pregunta-item">'
+          + '<div class="quiz-pregunta-num">Pregunta ' + (i+1) + ' · ' + tipo + '</div>'
+          + '<div class="quiz-pregunta-texto">' + p.pregunta + '</div>'
+          + opcsHtml
+          + '</div>';
+      }).join('');
+    }
+
+    function publicarQuiz() {
+      if(!quizActual || !quizActual.length){ toast('No hay quiz para publicar', 'error'); return; }
+      if(!claseActualId){ toast('Guarda la clase primero', 'error'); return; }
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      db.collection('curriculo').doc(nivel).collection('clases').doc(claseActualId)
+        .collection('quiz').doc('preguntas').set({
+          preguntas: quizActual,
+          publicado: true,
+          actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function(){
+          toast('Quiz publicado correctamente', 'ok');
+          document.getElementById('ia-estado-texto').textContent = '✓ Quiz publicado y visible para los estudiantes.';
+        }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Editor manual de quiz ─── */
+    function toggleQuizEditor() {
+      var ed = document.getElementById('quiz-editor');
+      if(ed.style.display === 'none'){
+        ed.style.display = 'block';
+        if(!quizActual || !quizActual.length){
+          document.getElementById('quiz-editor-preguntas').innerHTML = '';
+          agregarPreguntaManual();
+        } else {
+          renderizarQuizEditor(quizActual);
+        }
+      } else {
+        ed.style.display = 'none';
+      }
+    }
+
+    function renderizarQuizEditor(preguntas) {
+      var cont = document.getElementById('quiz-editor-preguntas');
+      cont.innerHTML = preguntas.map(function(p, i){
+        return '<div class="quiz-pregunta-item" data-idx="' + i + '">'
+          + '<div style="display:flex;justify-content:space-between;margin-bottom:8px;">'
+          + '<div class="quiz-pregunta-num">Pregunta ' + (i+1) + '</div>'
+          + '<button class="btn btn-ghost btn-sm" onclick="eliminarPreguntaEditor(' + i + ')">Eliminar</button>'
+          + '</div>'
+          + '<div class="campo" style="margin-bottom:8px;"><label>Pregunta</label><input type="text" value="' + (p.pregunta||'').replace(/"/g,'&quot;') + '" onchange="actualizarPreguntaEditor(' + i + ',\'pregunta\',this.value)" /></div>'
+          + '<div class="campo" style="margin-bottom:8px;"><label>Respuesta correcta</label><input type="text" value="' + (p.respuesta||'').replace(/"/g,'&quot;') + '" onchange="actualizarPreguntaEditor(' + i + ',\'respuesta\',this.value)" /></div>'
+          + '</div>';
+      }).join('');
+    }
+
+    var quizEditorData = [];
+    function agregarPreguntaManual() {
+      quizEditorData.push({ tipo: 'multiple', pregunta: '', opciones: ['','','',''], respuesta: '' });
+      renderizarQuizEditor(quizEditorData);
+    }
+    function eliminarPreguntaEditor(idx) {
+      quizEditorData.splice(idx, 1);
+      renderizarQuizEditor(quizEditorData);
+    }
+    function actualizarPreguntaEditor(idx, campo, valor) {
+      if(!quizEditorData[idx]) quizEditorData[idx] = {};
+      quizEditorData[idx][campo] = valor;
+    }
+    function guardarQuizManual() {
+      quizActual = quizEditorData.filter(function(p){ return p.pregunta; });
+      renderizarQuizPreview(quizActual);
+      document.getElementById('quiz-editor').style.display = 'none';
+      document.getElementById('btn-publicar-quiz').style.display = quizActual.length ? 'block' : 'none';
+      toast('Quiz actualizado. Publícalo cuando esté listo.', 'ok');
+    }
+
+    /* ─── Asignar nivel completo ─── */
+    function selNivelAsignar(nivel, btn) {
+      nivelAsignar = nivel;
+      document.querySelectorAll('.nivel-btn-sel').forEach(function(b){ b.classList.remove('activo'); });
+      if(btn) btn.classList.add('activo');
+    }
+
+    function asignarNivelCompleto() {
+      var uid = document.getElementById('sel-est-nivel').value;
+      if(!uid){ toast('Selecciona un estudiante', 'error'); return; }
+      var estudiante = todosEstudiantes.find(function(e){ return e.uid === uid; });
+      if(!uid || !estudiante){ toast('Estudiante no encontrado', 'error'); return; }
+
+      db.collection('curriculo').doc(nivelAsignar).collection('clases')
+        .where('estado','==','publicada')
+        .orderBy('numero')
+        .get().then(function(snap){
+          if(snap.empty){ toast('No hay clases publicadas en nivel ' + nivelAsignar, 'error'); return; }
+          var batch = db.batch();
+          snap.forEach(function(doc){
+            var c = doc.data();
+            var ref = db.collection('estudiantes').doc(uid).collection('clasesAsignadas').doc();
+            batch.set(ref, {
+              titulo:       c.titulo || 'Clase ' + c.numero,
+              unidad:       'Nivel ' + nivelAsignar + ' · Clase ' + c.numero,
+              nivel:        nivelAsignar,
+              duracion:     45,
+              orden:        c.numero,
+              videoUrl:     c.videoSugerido || '',
+              claseId:      doc.id,
+              nivelCurriculo: nivelAsignar,
+              creadoEn:     firebase.firestore.FieldValue.serverTimestamp()
+            });
+          });
+          return batch.commit().then(function(){
+            toast('✓ ' + snap.size + ' clases de ' + nivelAsignar + ' asignadas a ' + (estudiante.nombre||estudiante.email), 'ok');
+          });
+        }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Asignar clase individual desde modal ─── */
+    function asignarClaseIndividual() {
+      var uid = document.getElementById('mc-asignar-est').value;
+      if(!uid){ toast('Selecciona un estudiante', 'error'); return; }
+      if(!claseActualId){ toast('Guarda la clase primero', 'error'); return; }
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var numero = parseInt(document.getElementById('modal-clase-titulo').dataset.numero);
+      var titulo = document.getElementById('mc-titulo').value || 'Clase ' + numero;
+      var video = document.getElementById('mc-video').value || '';
+      var est = todosEstudiantes.find(function(e){ return e.uid === uid; });
+
+      db.collection('estudiantes').doc(uid).collection('clasesAsignadas').add({
+        titulo: titulo,
+        unidad: 'Nivel ' + nivel + ' · Clase ' + numero,
+        nivel: nivel,
+        duracion: 45,
+        orden: numero,
+        videoUrl: video,
+        claseId: claseActualId,
+        nivelCurriculo: nivel,
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        document.getElementById('mc-asignar-resultado').innerHTML = '<span style="color:var(--verde);">✓ Clase asignada a ' + (est ? est.nombre||est.email : uid) + '</span>';
+        toast('Clase asignada correctamente', 'ok');
+      }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Actualizar selector de estudiantes para currículo ─── */
+    function actualizarSelectorEstNivel() {
+      var sel = document.getElementById('sel-est-nivel');
+      if(!sel) return;
+      sel.innerHTML = '<option value="">— Elegir estudiante —</option>';
+      todosEstudiantes.forEach(function(e){
+        sel.innerHTML += '<option value="' + e.uid + '">' + (e.nombre||e.email) + ' (' + (e.nivel||'A1') + ')</option>';
+      });
+    }
   </script>
 </body>
 

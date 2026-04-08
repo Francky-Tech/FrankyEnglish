@@ -6,145 +6,505 @@
   <title>Dashboard — FrankyEnglish</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600&display=swap');
+
     :root {
-      --azul-oscuro:#0F172A; --azul-medio:#1E3A8A; --azul-claro:#3B82F6;
-      --azul-suave:#EFF6FF; --teal-suave:#E1F5EE; --amber-suave:#FAEEDA;
-      --coral:#D85A30; --coral-suave:#FAECE7; --verde-suave:#EAF3DE;
-      --gris-texto:#0F172A; --gris-suave:#64748B; --gris-fondo:#F8FAFC;
-      --blanco:#ffffff; --borde:#E5E7EB;
-      --radio-md:8px; --radio-lg:12px; --radio-xl:16px;
+      /* Academy Noir palette */
+      --bg:          #080D1A;
+      --surface:     #0F1629;
+      --surface-2:   #161E35;
+      --surface-3:   #1C2640;
+      --border:      rgba(255,255,255,0.07);
+      --border-lit:  rgba(248,196,80,0.3);
+
+      /* Accents */
+      --gold:        #F8C450;
+      --gold-dim:    rgba(248,196,80,0.12);
+      --gold-glow:   rgba(248,196,80,0.25);
+      --sky:         #38BDF8;
+      --sky-dim:     rgba(56,189,248,0.1);
+      --green:       #34D399;
+      --green-dim:   rgba(52,211,153,0.1);
+      --red:         #F87171;
+      --red-dim:     rgba(248,113,113,0.1);
+      --amber:       #FBBF24;
+
+      /* Text */
+      --text-1:      #F0F4FF;
+      --text-2:      #8B98B8;
+      --text-3:      #4A5568;
+
+      /* Legacy aliases (keep JS working) */
+      --azul-oscuro: #080D1A;
+      --azul-medio:  #1C2640;
+      --azul-claro:  #38BDF8;
+      --azul-suave:  rgba(56,189,248,0.1);
+      --coral:       #F87171;
+      --coral-suave: rgba(248,113,113,0.1);
+      --verde-suave: rgba(52,211,153,0.1);
+      --gris-texto:  #F0F4FF;
+      --gris-suave:  #8B98B8;
+      --gris-fondo:  #0F1629;
+      --blanco:      #161E35;
+      --borde:       rgba(255,255,255,0.07);
+      --radio-md:    8px;
+      --radio-lg:    12px;
+      --radio-xl:    16px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'DM Sans',system-ui,sans-serif;background:var(--gris-fondo);color:var(--gris-texto);}
+    html { scroll-behavior: smooth; }
+    body{
+      font-family:'Inter Tight',system-ui,sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      -webkit-font-smoothing: antialiased;
+    }
 
-    /* CARGA */
-    #pantalla-carga{position:fixed;inset:0;background:linear-gradient(135deg,#1E3A8A,#0F172A);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999;}
-    .spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.15);border-top-color:#3B82F6;border-radius:50%;animation:spin 0.8s linear infinite;}
+    /* ── LOADING ── */
+    #pantalla-carga{
+      position:fixed;inset:0;
+      background: var(--bg);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:999;
+    }
+    .spinner{
+      width:40px;height:40px;
+      border:2px solid rgba(248,196,80,0.1);
+      border-top-color: var(--gold);
+      border-radius:50%;
+      animation:spin 0.9s linear infinite;
+    }
     @keyframes spin{to{transform:rotate(360deg);}}
-    #pantalla-carga p{font-size:14px;color:rgba(255,255,255,0.5);}
+    #pantalla-carga p{font-size:13px;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;}
 
-    /* LAYOUT */
+    /* ── LAYOUT ── */
     #contenido-principal{display:none;min-height:100vh;}
-    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:49;}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:49;backdrop-filter:blur(4px);}
     .sidebar-overlay.visible{display:block;}
 
-    /* SIDEBAR */
-    .sidebar{width:230px;min-width:230px;background:linear-gradient(180deg,#1E3A8A,#0F172A);display:flex;flex-direction:column;position:fixed;height:100vh;top:0;left:0;z-index:50;transition:transform 0.3s ease;}
-    .sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
-    .logo-icono{width:34px;height:34px;background:var(--azul-claro);border-radius:var(--radio-md);display:flex;align-items:center;justify-content:center;}
-    .logo-nombre{font-size:15px;font-weight:500;color:#fff;}
-    .logo-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px;}
-    .sidebar-close{display:none;margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;padding:4px;border-radius:4px;}
-    .sidebar-close:hover{color:rgba(255,255,255,0.8);}
-    .nav-seccion{flex:1;padding:18px 0 0;overflow-y:auto;}
-    .nav-grupo-label{font-size:10px;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:0 20px;margin-bottom:6px;margin-top:10px;}
-    .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 20px;font-size:13px;color:rgba(255,255,255,0.6);border-left:2px solid transparent;background:none;border-top:none;border-right:none;border-bottom:none;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',system-ui,sans-serif;text-align:left;}
-    .nav-item.activo{color:#fff;background:rgba(59,130,246,0.2);border-left-color:var(--azul-claro);}
-    .nav-item:hover:not(.activo){color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.05);}
-    .nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;font-weight:500;border-radius:99px;padding:1px 6px;}
-    .sidebar-usuario{padding:14px 20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
-    .usuario-avatar{width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#93C5FD;flex-shrink:0;}
-    .usuario-nombre{font-size:13px;color:#fff;font-weight:500;}
-    .usuario-plan{font-size:11px;color:rgba(255,255,255,0.4);}
-    .btn-logout{margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;padding:4px;border-radius:4px;transition:color 0.15s;}
-    .btn-logout:hover{color:rgba(255,255,255,0.7);}
+    /* ── SIDEBAR ── */
+    .sidebar{
+      width:240px;min-width:240px;
+      background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+      border-right: 1px solid var(--border);
+      display:flex;flex-direction:column;
+      position:fixed;height:100vh;top:0;left:0;
+      z-index:50;transition:transform 0.3s ease;
+      overflow: hidden;
+    }
+    /* Subtle texture overlay */
+    .sidebar::before {
+      content:'';
+      position:absolute;inset:0;
+      background: radial-gradient(ellipse 200px 400px at 50% 0%, rgba(248,196,80,0.04) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .sidebar-logo{
+      padding:24px 22px 20px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:12px;
+      position:relative;
+    }
+    .logo-icono{
+      width:36px;height:36px;
+      background: linear-gradient(135deg, var(--gold), #E8A820);
+      border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow: 0 4px 12px rgba(248,196,80,0.3);
+      flex-shrink:0;
+    }
+    .logo-nombre{
+      font-family:'Sora',sans-serif;
+      font-size:15px;font-weight:600;
+      color:var(--text-1);letter-spacing:-0.02em;
+    }
+    .logo-sub{font-size:11px;color:var(--text-3);margin-top:1px;letter-spacing:0.02em;}
+    .sidebar-close{
+      display:none;margin-left:auto;
+      background:none;border:none;
+      color:var(--text-3);cursor:pointer;
+      padding:4px;border-radius:4px;
+      transition:color 0.15s;
+    }
+    .sidebar-close:hover{color:var(--text-1);}
 
-    /* MAIN */
-    .main{margin-left:230px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
-    .topbar{background:var(--blanco);border-bottom:1px solid var(--borde);padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
-    .topbar-izq{display:flex;align-items:center;gap:10px;}
-    .topbar-hamburguesa{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--radio-md);flex-direction:column;gap:4px;}
-    .topbar-hamburguesa span{display:block;width:18px;height:2px;background:var(--gris-texto);border-radius:1px;}
-    .topbar-titulo{font-size:15px;font-weight:500;color:var(--gris-texto);}
+    .nav-seccion{flex:1;padding:14px 0 0;overflow-y:auto;}
+    .nav-seccion::-webkit-scrollbar{width:0;}
+
+    .nav-grupo-label{
+      font-size:9px;font-weight:600;
+      letter-spacing:0.12em;text-transform:uppercase;
+      color:var(--text-3);
+      padding:0 22px;margin-bottom:4px;margin-top:14px;
+    }
+    .nav-item{
+      display:flex;align-items:center;gap:10px;
+      width:100%;padding:9px 22px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;font-weight:500;
+      color:var(--text-2);
+      background:none;border:none;
+      cursor:pointer;text-align:left;
+      position:relative;
+      transition:color 0.2s;
+    }
+    .nav-item::before {
+      content:'';
+      position:absolute;left:0;top:4px;bottom:4px;
+      width:2px;border-radius:0 2px 2px 0;
+      background: var(--gold);
+      transform:scaleY(0);
+      transition:transform 0.2s ease;
+    }
+    .nav-item.activo{color:var(--text-1);}
+    .nav-item.activo::before{transform:scaleY(1);}
+    .nav-item.activo .nav-item-bg{
+      background: linear-gradient(90deg, rgba(248,196,80,0.08) 0%, transparent 100%);
+    }
+    .nav-item-bg{
+      position:absolute;inset:0;
+      border-radius:0;
+      transition:background 0.2s;
+      pointer-events:none;
+    }
+    .nav-item:hover:not(.activo){color:var(--text-1);}
+    .nav-item:hover .nav-item-bg{background:rgba(255,255,255,0.03);}
+    .nav-item svg{flex-shrink:0;opacity:0.6;transition:opacity 0.2s;}
+    .nav-item.activo svg{opacity:1;}
+    .nav-item span{position:relative;}
+
+    .nav-badge{
+      margin-left:auto;
+      background: var(--red);
+      color:#fff;font-size:9px;font-weight:600;
+      border-radius:99px;padding:2px 7px;
+      position:relative;
+    }
+
+    .sidebar-usuario{
+      padding:16px 22px;
+      border-top:1px solid var(--border);
+      display:flex;align-items:center;gap:10px;
+    }
+    .usuario-avatar{
+      width:34px;height:34px;border-radius:50%;
+      background: linear-gradient(135deg, #1C2640, #2A3A5C);
+      border:1.5px solid var(--border-lit);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Sora',sans-serif;
+      font-size:12px;font-weight:600;color:var(--gold);
+      flex-shrink:0;
+    }
+    .usuario-nombre{font-size:13px;color:var(--text-1);font-weight:500;}
+    .usuario-plan{font-size:11px;color:var(--text-3);}
+    .btn-logout{
+      margin-left:auto;background:none;border:none;
+      color:var(--text-3);cursor:pointer;padding:4px;
+      border-radius:4px;transition:color 0.15s;
+    }
+    .btn-logout:hover{color:var(--red);}
+
+    /* ── MAIN ── */
+    .main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{
+      background: rgba(8,13,26,0.85);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      padding:0 32px;height:58px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:40;
+    }
+    .topbar-izq{display:flex;align-items:center;gap:12px;}
+    .topbar-hamburguesa{
+      display:none;background:none;border:none;cursor:pointer;
+      padding:6px;border-radius:var(--radio-md);
+      flex-direction:column;gap:4px;
+    }
+    .topbar-hamburguesa span{
+      display:block;width:18px;height:1.5px;
+      background:var(--text-2);border-radius:1px;
+    }
+    .topbar-titulo{
+      font-family:'Sora',sans-serif;
+      font-size:15px;font-weight:600;
+      color:var(--text-1);letter-spacing:-0.02em;
+    }
     .topbar-derecha{display:flex;align-items:center;gap:10px;}
-    .racha-badge{display:flex;align-items:center;gap:6px;background:var(--amber-suave);border:1px solid #FAC775;border-radius:var(--radio-md);padding:5px 12px;font-size:12px;color:#633806;font-weight:500;}
-    .btn-admin{display:none;align-items:center;gap:6px;height:32px;padding:0 12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radio-md);font-size:12px;font-weight:500;color:#B91C1C;text-decoration:none;transition:background 0.15s;}
-    .btn-admin:hover{background:#FEE2E2;}
+    .racha-badge{
+      display:flex;align-items:center;gap:6px;
+      background: var(--gold-dim);
+      border:1px solid var(--gold-glow);
+      border-radius:var(--radio-md);
+      padding:5px 12px;
+      font-size:12px;color:var(--gold);font-weight:600;
+    }
+    .btn-admin{
+      display:none;align-items:center;gap:6px;
+      height:30px;padding:0 12px;
+      background:var(--red-dim);border:1px solid rgba(248,113,113,0.2);
+      border-radius:var(--radio-md);
+      font-size:12px;font-weight:600;color:var(--red);
+      text-decoration:none;transition:all 0.15s;
+    }
+    .btn-admin:hover{background:rgba(248,113,113,0.15);}
 
-    /* SECCIONES */
+    /* ── SECCIONES ── */
     .contenido{padding:28px 32px;flex:1;}
     .seccion{display:none;}
-    .seccion.activa{display:block;}
+    .seccion.activa{display:block;animation:fadeUp 0.3s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-    /* DASHBOARD */
-    .bienvenida-card{background:var(--azul-suave);border:1px solid #BFDBFE;border-radius:var(--radio-xl);padding:20px 24px;margin-bottom:20px;}
-    .bienvenida-card h3{font-size:16px;font-weight:500;color:var(--azul-medio);margin-bottom:6px;}
-    .bienvenida-card p{font-size:14px;color:#1D4ED8;line-height:1.6;}
-    .progreso-banner{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--radio-xl);padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:24px;}
+    /* ── DASHBOARD ── */
+    .bienvenida-card{
+      background: linear-gradient(135deg, rgba(248,196,80,0.08) 0%, rgba(56,189,248,0.05) 100%);
+      border:1px solid var(--border-lit);
+      border-radius:var(--radio-xl);
+      padding:22px 26px;margin-bottom:22px;
+      position:relative;overflow:hidden;
+    }
+    .bienvenida-card::before{
+      content:'';position:absolute;
+      top:-40px;right:-40px;
+      width:160px;height:160px;
+      background:radial-gradient(circle, rgba(248,196,80,0.08), transparent 70%);
+      pointer-events:none;
+    }
+    .bienvenida-card h3{
+      font-family:'Sora',sans-serif;
+      font-size:16px;font-weight:600;
+      color:var(--gold);margin-bottom:5px;
+    }
+    .bienvenida-card p{font-size:13px;color:var(--text-2);line-height:1.65;}
+
+    .progreso-banner{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radio-xl);
+      padding:22px 26px;margin-bottom:22px;
+      display:flex;align-items:center;gap:28px;
+      transition:border-color 0.3s;
+    }
+    .progreso-banner:hover{border-color:rgba(56,189,248,0.2);}
     .progreso-info{flex:1;}
-    .progreso-etiqueta{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--gris-suave);margin-bottom:4px;}
-    .progreso-titulo{font-size:16px;font-weight:500;color:var(--azul-oscuro);margin-bottom:12px;}
-    .barra-wrap{height:7px;background:var(--gris-fondo);border-radius:99px;overflow:hidden;margin-bottom:6px;}
-    .barra-fill{height:100%;width:0%;background:var(--azul-claro);border-radius:99px;transition:width 1s ease;}
-    .progreso-meta{font-size:13px;color:var(--gris-suave);}
-    .progreso-meta strong{color:var(--azul-medio);font-weight:500;}
-    .nivel-badge{text-align:center;background:var(--azul-suave);border:1px solid #BFDBFE;border-radius:var(--radio-xl);padding:16px 22px;min-width:120px;flex-shrink:0;}
-    .nivel-label{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--azul-medio);}
-    .nivel-nombre{font-size:22px;font-weight:500;color:var(--azul-oscuro);margin-top:2px;}
-    .nivel-sub{font-size:12px;color:var(--azul-claro);margin-top:4px;}
-    .metricas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;}
-    .metrica-tarjeta{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--radio-xl);padding:18px 20px;}
-    .metrica-label{font-size:12px;color:var(--gris-suave);margin-bottom:6px;}
-    .metrica-valor{font-size:26px;font-weight:500;color:var(--azul-oscuro);line-height:1;margin-bottom:4px;}
-    .metrica-sub{font-size:12px;color:var(--gris-suave);}
+    .progreso-etiqueta{
+      font-size:10px;font-weight:600;
+      letter-spacing:0.1em;text-transform:uppercase;
+      color:var(--text-3);margin-bottom:5px;
+    }
+    .progreso-titulo{
+      font-family:'Sora',sans-serif;
+      font-size:17px;font-weight:600;
+      color:var(--text-1);margin-bottom:14px;
+    }
+    .barra-wrap{
+      height:5px;background:var(--surface-3);
+      border-radius:99px;overflow:hidden;margin-bottom:8px;
+    }
+    .barra-fill{
+      height:100%;width:0%;
+      background:linear-gradient(90deg, var(--sky), var(--green));
+      border-radius:99px;
+      transition:width 1.2s cubic-bezier(0.4,0,0.2,1);
+      box-shadow:0 0 8px rgba(56,189,248,0.4);
+    }
+    .progreso-meta{font-size:12px;color:var(--text-3);}
+    .progreso-meta strong{color:var(--sky);font-weight:600;}
+    .nivel-badge{
+      text-align:center;
+      background:var(--sky-dim);
+      border:1px solid rgba(56,189,248,0.2);
+      border-radius:var(--radio-xl);
+      padding:18px 24px;min-width:130px;flex-shrink:0;
+    }
+    .nivel-label{
+      font-size:9px;font-weight:600;
+      letter-spacing:0.1em;text-transform:uppercase;color:var(--sky);
+    }
+    .nivel-nombre{
+      font-family:'Sora',sans-serif;
+      font-size:26px;font-weight:700;
+      color:var(--text-1);margin-top:4px;
+    }
+    .nivel-sub{font-size:11px;color:var(--text-3);margin-top:5px;}
+
+    .metricas-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);
+      gap:14px;margin-bottom:28px;
+    }
+    .metrica-tarjeta{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radio-xl);
+      padding:20px 22px;
+      transition:border-color 0.2s,transform 0.2s;
+      cursor:default;
+    }
+    .metrica-tarjeta:hover{
+      border-color:rgba(248,196,80,0.2);
+      transform:translateY(-2px);
+    }
+    .metrica-label{font-size:11px;color:var(--text-3);margin-bottom:8px;font-weight:500;}
+    .metrica-valor{
+      font-family:'Sora',sans-serif;
+      font-size:28px;font-weight:700;
+      color:var(--text-1);line-height:1;margin-bottom:5px;
+    }
+    .metrica-sub{font-size:11px;color:var(--text-3);}
+
     .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-    .sec-titulo{font-size:16px;font-weight:500;color:var(--azul-oscuro);}
-    .btn-ver-todo{background:none;border:none;font-size:13px;color:var(--azul-claro);cursor:pointer;}
+    .sec-titulo{
+      font-family:'Sora',sans-serif;
+      font-size:15px;font-weight:600;color:var(--text-1);
+    }
+    .btn-ver-todo{
+      background:none;border:none;font-size:12px;
+      color:var(--sky);cursor:pointer;font-weight:500;
+      transition:color 0.15s;
+    }
+    .btn-ver-todo:hover{color:var(--text-1);}
 
-    /* CLASES GRID */
+    /* ── CLASES GRID ── */
     .clases-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-    .clase-tarjeta{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--radio-xl);overflow:hidden;cursor:pointer;transition:transform 0.15s,border-color 0.15s;}
-    .clase-tarjeta:hover{transform:translateY(-2px);border-color:var(--azul-claro);}
-    .clase-thumb{height:80px;display:flex;align-items:center;justify-content:center;position:relative;}
-    .thumb-azul{background:#EFF6FF;} .thumb-teal{background:#E1F5EE;} .thumb-amber{background:#FAEEDA;} .thumb-coral{background:#FAECE7;}
-    .play-btn{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;}
-    .duracion-tag{position:absolute;bottom:6px;right:8px;font-size:10px;background:rgba(0,0,0,0.3);color:#fff;border-radius:4px;padding:2px 6px;}
+    .clase-tarjeta{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radio-xl);overflow:hidden;
+      cursor:pointer;
+      transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;
+    }
+    .clase-tarjeta:hover{
+      transform:translateY(-3px);
+      border-color:rgba(248,196,80,0.3);
+      box-shadow:0 8px 24px rgba(0,0,0,0.4),0 0 0 1px rgba(248,196,80,0.1);
+    }
+    .clase-thumb{
+      height:82px;display:flex;align-items:center;
+      justify-content:center;position:relative;
+    }
+    .thumb-azul{background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(56,189,248,0.05));}
+    .thumb-teal{background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(52,211,153,0.05));}
+    .thumb-amber{background:linear-gradient(135deg,rgba(248,196,80,0.15),rgba(248,196,80,0.05));}
+    .thumb-coral{background:linear-gradient(135deg,rgba(248,113,113,0.15),rgba(248,113,113,0.05));}
+    .play-btn{
+      width:34px;height:34px;border-radius:50%;
+      background:rgba(255,255,255,0.1);
+      border:1px solid rgba(255,255,255,0.15);
+      display:flex;align-items:center;justify-content:center;
+      backdrop-filter:blur(4px);
+      transition:transform 0.2s,background 0.2s;
+    }
+    .clase-tarjeta:hover .play-btn{transform:scale(1.1);background:rgba(255,255,255,0.18);}
+    .duracion-tag{
+      position:absolute;bottom:6px;right:8px;
+      font-size:10px;background:rgba(0,0,0,0.5);
+      color:rgba(255,255,255,0.7);border-radius:4px;padding:2px 6px;
+      backdrop-filter:blur(4px);
+    }
     .clase-body{padding:12px 14px;}
-    .clase-unidad{font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--gris-suave);}
-    .clase-nombre{font-size:13px;font-weight:500;color:var(--azul-oscuro);margin:3px 0 8px;}
-    .estado-chip{display:inline-block;font-size:10px;padding:3px 8px;border-radius:99px;}
-    .estado-nuevo{background:#EFF6FF;color:#1E3A8A;}
-    .estado-bloqueado{background:#F1F5F9;color:#94A3B8;}
-    .estado-hecho{background:var(--verde-suave);color:#166534;}
+    .clase-unidad{
+      font-size:10px;font-weight:600;
+      letter-spacing:0.07em;text-transform:uppercase;
+      color:var(--text-3);
+    }
+    .clase-nombre{font-size:13px;font-weight:500;color:var(--text-1);margin:4px 0 10px;}
+    .estado-chip{
+      display:inline-block;font-size:10px;font-weight:600;
+      padding:3px 8px;border-radius:99px;
+    }
+    .estado-nuevo{background:rgba(56,189,248,0.1);color:var(--sky);}
+    .estado-bloqueado{background:var(--surface-3);color:var(--text-3);}
+    .estado-hecho{background:rgba(52,211,153,0.1);color:var(--green);}
 
-    /* LISTAS (calendario, materiales, tareas, perfil) */
-    .lista-vacia{text-align:center;padding:48px 20px;color:var(--gris-suave);font-size:14px;}
-    .item-card{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--radio-lg);padding:14px 18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;}
-    .item-icono{width:38px;height:38px;border-radius:var(--radio-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    /* ── LISTAS ── */
+    .lista-vacia{
+      text-align:center;padding:52px 20px;
+      color:var(--text-3);font-size:13px;
+    }
+    .item-card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radio-lg);
+      padding:14px 18px;margin-bottom:8px;
+      display:flex;align-items:flex-start;gap:14px;
+      transition:border-color 0.2s;
+      animation:fadeUp 0.25s ease both;
+    }
+    .item-card:hover{border-color:rgba(56,189,248,0.15);}
+    .item-icono{
+      width:38px;height:38px;border-radius:var(--radio-md);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
     .item-info{flex:1;}
-    .item-titulo{font-size:14px;font-weight:500;color:var(--azul-oscuro);margin-bottom:3px;}
-    .item-meta{font-size:12px;color:var(--gris-suave);}
+    .item-titulo{font-size:13px;font-weight:500;color:var(--text-1);margin-bottom:3px;}
+    .item-meta{font-size:11px;color:var(--text-3);}
     .item-accion{flex-shrink:0;}
-    .btn-accion{height:30px;padding:0 14px;background:var(--azul-suave);border:1px solid #BFDBFE;border-radius:var(--radio-md);font-size:12px;color:var(--azul-medio);font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;}
-    .btn-accion:hover{background:#DBEAFE;}
-    .btn-accion.verde{background:#F0FDF4;border-color:#BBF7D0;color:#15803D;}
-    .btn-accion.verde:hover{background:#DCFCE7;}
+    .btn-accion{
+      height:30px;padding:0 14px;
+      background:var(--sky-dim);
+      border:1px solid rgba(56,189,248,0.2);
+      border-radius:var(--radio-md);
+      font-size:12px;color:var(--sky);font-weight:600;
+      cursor:pointer;text-decoration:none;
+      display:inline-flex;align-items:center;
+      font-family:'Inter Tight',sans-serif;
+      transition:all 0.15s;
+    }
+    .btn-accion:hover{background:rgba(56,189,248,0.15);border-color:rgba(56,189,248,0.35);}
+    .btn-accion.verde{
+      background:rgba(52,211,153,0.1);
+      border-color:rgba(52,211,153,0.2);color:var(--green);
+    }
+    .btn-accion.verde:hover{background:rgba(52,211,153,0.18);}
 
-    /* TAREAS */
-    .tarea-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--borde);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all 0.15s;}
-    .tarea-check.hecho{background:#16A34A;border-color:#16A34A;}
-    .tarea-check:hover:not(.hecho){border-color:var(--azul-claro);}
+    /* ── TAREAS ── */
+    .tarea-check{
+      width:20px;height:20px;border-radius:6px;
+      border:1.5px solid var(--border);
+      flex-shrink:0;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      margin-top:2px;
+      transition:all 0.2s;
+    }
+    .tarea-check.hecho{background:var(--green);border-color:var(--green);}
+    .tarea-check:hover:not(.hecho){border-color:var(--sky);}
 
-    /* PERFIL */
-    .perfil-avatar-grande{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#1E3A8A,#3B82F6);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500;color:#fff;margin-bottom:20px;}
-    .perfil-card{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--radio-xl);padding:0;overflow:hidden;max-width:520px;}
-    .perfil-fila{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--borde);}
+    /* ── PERFIL ── */
+    .perfil-avatar-grande{
+      width:76px;height:76px;border-radius:50%;
+      background:linear-gradient(135deg,var(--surface-2),var(--surface-3));
+      border:2px solid var(--border-lit);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Sora',sans-serif;
+      font-size:28px;font-weight:700;color:var(--gold);
+      margin-bottom:22px;
+      box-shadow:0 0 24px rgba(248,196,80,0.15);
+    }
+    .perfil-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radio-xl);overflow:hidden;max-width:520px;
+    }
+    .perfil-fila{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 20px;border-bottom:1px solid var(--border);
+    }
     .perfil-fila:last-child{border-bottom:none;}
-    .perfil-label{font-size:12px;color:var(--gris-suave);}
-    .perfil-valor{font-size:14px;font-weight:500;color:var(--azul-oscuro);}
+    .perfil-label{font-size:12px;color:var(--text-3);}
+    .perfil-valor{font-size:13px;font-weight:500;color:var(--text-1);}
 
-    /* SPINNER INLINE */
-    .cargando{text-align:center;padding:32px;color:var(--gris-suave);font-size:13px;}
+    /* ── SPINNER INLINE ── */
+    .cargando{
+      text-align:center;padding:40px;
+      color:var(--text-3);font-size:13px;
+    }
 
-    /* RESPONSIVE */
+    /* ── RESPONSIVE ── */
     @media(max-width:768px){
       .sidebar{transform:translateX(-100%);}
-      .sidebar.drawer-abierto{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,0.3);}
+      .sidebar.drawer-abierto{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,0.7);}
       .sidebar-close{display:flex;align-items:center;justify-content:center;}
       .main{margin-left:0;}
       .topbar{padding:0 16px;}
@@ -155,11 +515,219 @@
       .nivel-badge{min-width:unset;padding:12px 16px;}
       .metricas-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
       .clases-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
-      .bienvenida-card{padding:14px 16px;margin-bottom:14px;}
+      .bienvenida-card{padding:16px 18px;margin-bottom:16px;}
     }
     @media(max-width:380px){
       .clases-grid{grid-template-columns:1fr;}
       .metricas-grid{grid-template-columns:1fr;}
+    }
+
+    /* ═══ SECCIÓN MI PROGRESO ═══ */
+    .nivel-progress-header {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+      border: 1px solid var(--border-lit);
+      border-radius: var(--radio-xl);
+      padding: 24px 28px;
+      color: var(--text-1);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .nivel-progress-header::before {
+      content:'';position:absolute;
+      top:-60px;right:-60px;
+      width:220px;height:220px;
+      background:radial-gradient(circle, rgba(248,196,80,0.07), transparent 65%);
+      pointer-events:none;
+    }
+    .nph-nivel-circle {
+      width: 68px; height: 68px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 2px solid var(--border-lit);
+      display: flex; align-items: center; justify-content: center;
+      font-family:'Sora',sans-serif;
+      font-size: 20px; font-weight: 700; color: var(--gold);
+      flex-shrink: 0;
+      box-shadow:0 0 20px rgba(248,196,80,0.15);
+    }
+    .nph-info { flex: 1; }
+    .nph-titulo {
+      font-family:'Sora',sans-serif;
+      font-size: 18px; font-weight: 600; margin-bottom: 5px;
+    }
+    .nph-sub { font-size: 12px; color: var(--text-3); margin-bottom: 14px; }
+    .nph-barra-wrap {
+      height: 5px; background: var(--surface-3);
+      border-radius: 99px; overflow: hidden; margin-bottom: 6px;
+    }
+    .nph-barra-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), #FBBF24);
+      border-radius: 99px;
+      transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 0 8px rgba(248,196,80,0.4);
+    }
+    .nph-progreso-texto { font-size: 11px; color: var(--text-3); }
+    .nph-stats { display: flex; flex-direction: column; gap: 8px; text-align: center; flex-shrink: 0; }
+    .nph-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radio-md);
+      padding: 10px 18px;
+    }
+    .nph-stat-val {
+      font-family:'Sora',sans-serif;
+      font-size: 22px; font-weight: 700; color: var(--text-1);
+    }
+    .nph-stat-lbl { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .curriculo-semana-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-3);
+      margin: 22px 0 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .curriculo-semana-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .curriculo-clase-row {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radio-lg);
+      padding: 13px 18px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.2s;
+    }
+    .curriculo-clase-row.disponible { cursor: pointer; }
+    .curriculo-clase-row.disponible:hover {
+      border-color: rgba(56,189,248,0.25);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .curriculo-clase-row.bloqueada { opacity: 0.35; cursor: not-allowed; }
+    .curriculo-clase-row.completada { border-left: 2px solid var(--green); }
+    .curriculo-clase-row.actual {
+      border-color: rgba(248,196,80,0.3);
+      background: var(--gold-dim);
+    }
+
+    .ccr-numero {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600;
+      flex-shrink: 0;
+      font-family:'Sora',sans-serif;
+    }
+    .ccr-num-completada { background: rgba(52,211,153,0.1); color: var(--green); }
+    .ccr-num-actual     { background: var(--gold-dim); color: var(--gold); border:1px solid var(--border-lit); }
+    .ccr-num-bloqueada  { background: var(--surface-3); color: var(--text-3); }
+
+    .ccr-info { flex: 1; }
+    .ccr-titulo { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 2px; }
+    .ccr-meta   { font-size: 11px; color: var(--text-3); }
+    .ccr-acciones { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+
+    /* ── QUIZ MODAL ── */
+    .quiz-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none; align-items: center; justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(6px);
+    }
+    .quiz-modal-overlay.abierto { display: flex; }
+    .quiz-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 560px; max-width: 95vw;
+      max-height: 90vh; overflow-y: auto;
+      padding: 28px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      animation: fadeUp 0.25s ease both;
+    }
+    .quiz-modal-titulo {
+      font-family:'Sora',sans-serif;
+      font-size: 17px; font-weight: 600; color: var(--text-1); margin-bottom: 4px;
+    }
+    .quiz-modal-sub { font-size: 13px; color: var(--text-3); margin-bottom: 22px; }
+
+    .quiz-pregunta-bloque { margin-bottom: 20px; }
+    .quiz-p-num  {
+      font-size: 10px; font-weight: 600; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+    }
+    .quiz-p-text { font-size: 14px; font-weight: 500; color: var(--text-1); margin-bottom: 12px; }
+    .quiz-opcion-btn {
+      width: 100%; text-align: left;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: var(--radio-md);
+      padding: 10px 14px;
+      font-size: 13px; font-family: 'Inter Tight', sans-serif;
+      color: var(--text-2); cursor: pointer;
+      margin-bottom: 6px; transition: all 0.15s;
+    }
+    .quiz-opcion-btn:hover:not(:disabled) {
+      border-color: rgba(56,189,248,0.3);
+      color: var(--text-1);
+      background: var(--sky-dim);
+    }
+    .quiz-opcion-btn.seleccionada {
+      border-color: rgba(56,189,248,0.4);
+      background: var(--sky-dim); color: var(--sky);
+    }
+    .quiz-opcion-btn.correcta {
+      border-color: rgba(52,211,153,0.4);
+      background: rgba(52,211,153,0.08); color: var(--green);
+    }
+    .quiz-opcion-btn.incorrecta {
+      border-color: rgba(248,113,113,0.4);
+      background: rgba(248,113,113,0.08); color: var(--red);
+    }
+    .quiz-input-completar {
+      width: 100%; height: 42px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: var(--radio-md);
+      padding: 0 14px; font-size: 13px;
+      color: var(--text-1);
+      font-family: 'Inter Tight', sans-serif;
+      transition: border-color 0.15s;
+    }
+    .quiz-input-completar:focus {
+      outline: none;
+      border-color: rgba(56,189,248,0.4);
+    }
+    .quiz-resultado-banner {
+      border-radius: var(--radio-lg); padding: 20px;
+      text-align: center; margin-bottom: 18px;
+    }
+    .quiz-resultado-banner.aprobado {
+      background: rgba(52,211,153,0.08);
+      border: 1px solid rgba(52,211,153,0.2);
+    }
+    .quiz-resultado-banner.repaso {
+      background: var(--gold-dim);
+      border: 1px solid var(--border-lit);
+    }
+    .quiz-resultado-score {
+      font-family:'Sora',sans-serif;
+      font-size: 32px; font-weight: 700; color: var(--text-1);
+    }
+    .quiz-resultado-texto { font-size: 13px; color: var(--text-2); margin-top: 6px; }
+
+    @media(max-width:768px){
+      .nivel-progress-header { flex-direction: column; align-items: stretch; gap: 14px; }
+      .nph-stats { flex-direction: row; justify-content: center; }
     }
   </style>
 </head>
@@ -178,43 +746,55 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icono">
-          <svg viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="5" width="18" height="14" rx="2" fill="#B22234"/>
-            <path d="M3 7h18M3 9h18M3 11h18M3 13h18M3 15h18M3 17h18" stroke="white" stroke-width="1"/>
-            <rect x="3" y="5" width="8" height="6" fill="#3C3B6E"/>
-          </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="5" width="18" height="14" rx="2" fill="#1a1a2e"/>
+          <path d="M3 7h18M3 9h18M3 11h18M3 13h18M3 15h18M3 17h18" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
+          <rect x="3" y="5" width="8" height="6" fill="#1a1a2e"/>
+          <circle cx="7" cy="8" r="1.5" fill="#F8C450"/>
+        </svg>
       </div>
       <div><div class="logo-nombre">FrankyEnglish</div><div class="logo-sub">Learning Portal</div></div>
       <button class="sidebar-close" id="sidebar-close">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
     </div>
     <div class="nav-seccion">
       <div class="nav-grupo-label">Principal</div>
       <button class="nav-item activo" id="nav-dashboard" onclick="navegarA('dashboard',this)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="rgba(255,255,255,0.8)"/></svg>
-        Dashboard
+        <div class="nav-item-bg"></div>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.7"/></svg>
+        <span>Dashboard</span>
       </button>
       <button class="nav-item" id="nav-clases" onclick="navegarA('clases',this)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/><path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="rgba(255,255,255,0.5)"/></svg>
-        Mis clases
+        <div class="nav-item-bg"></div>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="currentColor"/></svg>
+        <span>Mis clases</span>
+      </button>
+      <button class="nav-item" id="nav-progreso" onclick="navegarA('progreso',this)">
+        <div class="nav-item-bg"></div>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12L6 7l3 3 5-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Mi progreso</span>
       </button>
       <button class="nav-item" id="nav-calendario" onclick="navegarA('calendario',this)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/><path d="M5 1.5v3M11 1.5v3M2 7h12" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Calendario
+        <div class="nav-item-bg"></div>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 1.5v3M11 1.5v3M2 7h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span>Calendario</span>
       </button>
       <button class="nav-item" id="nav-materiales" onclick="navegarA('materiales',this)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/><path d="M5 5.5h6M5 8.5h4" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Materiales
+        <div class="nav-item-bg"></div>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.4"/><path d="M5 5.5h6M5 8.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span>Materiales</span>
       </button>
       <div class="nav-grupo-label" style="margin-top:16px;">Mi cuenta</div>
       <button class="nav-item" id="nav-perfil" onclick="navegarA('perfil',this)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/><path d="M2.5 14c0-3.038 2.462-4.5 5.5-4.5s5.5 1.462 5.5 4.5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Mi perfil
+        <div class="nav-item-bg"></div>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 14c0-3.038 2.462-4.5 5.5-4.5s5.5 1.462 5.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span>Mi perfil</span>
       </button>
       <button class="nav-item" id="nav-tareas" onclick="navegarA('tareas',this)">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.4"/><path d="M2.5 5.5h11M5.5 8.5h5" stroke="rgba(255,255,255,0.5)" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Tareas
+        <div class="nav-item-bg"></div>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 5.5h11M5.5 8.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span>Tareas</span>
         <span class="nav-badge" id="tareas-badge">0</span>
       </button>
     </div>
@@ -271,19 +851,19 @@
           </div>
         </div>
         <div class="metricas-grid">
-          <div class="metrica-tarjeta">
+          <div class="metrica-tarjeta" style="animation-delay:0.1s;">
             <div class="metrica-label">Clases completadas</div>
             <div class="metrica-valor" id="clases-completadas">0</div>
             <div class="metrica-sub">de tu plan actual</div>
           </div>
-          <div class="metrica-tarjeta">
+          <div class="metrica-tarjeta" style="animation-delay:0.2s;">
             <div class="metrica-label">Horas de estudio</div>
             <div class="metrica-valor" id="horas-estudio">0h</div>
             <div class="metrica-sub">en total</div>
           </div>
-          <div class="metrica-tarjeta">
+          <div class="metrica-tarjeta" style="animation-delay:0.3s;">
             <div class="metrica-label">Tareas pendientes</div>
-            <div class="metrica-valor" id="tareas-pendientes" style="color:var(--coral);">0</div>
+            <div class="metrica-valor" id="tareas-pendientes" style="color:var(--gold);">0</div>
             <div class="metrica-sub">para esta semana</div>
           </div>
         </div>
@@ -333,8 +913,68 @@
         <div id="lista-tareas"><div class="cargando">Cargando...</div></div>
       </div>
 
+      <!-- MI PROGRESO (CURRÍCULO) -->
+      <div class="seccion" id="sec-progreso">
+
+        <!-- Header de nivel -->
+        <div class="nivel-progress-header">
+          <div class="nph-nivel-circle" id="nph-nivel">A1</div>
+          <div class="nph-info">
+            <div class="nph-titulo" id="nph-titulo">Nivel A1 — Principiante</div>
+            <div class="nph-sub" id="nph-sub">3 clases semanales · 8 semanas · 24 clases totales</div>
+            <div class="nph-barra-wrap"><div class="nph-barra-fill" id="nph-barra" style="width:0%"></div></div>
+            <div class="nph-progreso-texto" id="nph-texto">0 de 24 clases completadas</div>
+          </div>
+          <div class="nph-stats">
+            <div class="nph-stat">
+              <div class="nph-stat-val" id="nph-completadas">0</div>
+              <div class="nph-stat-lbl">Completadas</div>
+            </div>
+            <div class="nph-stat">
+              <div class="nph-stat-val" id="nph-quizzes">0</div>
+              <div class="nph-stat-lbl">Quizzes ✓</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de clases por semana -->
+        <div id="progreso-lista">
+          <div class="cargando">Cargando tu progreso...</div>
+        </div>
+
+      </div>
+
     </div>
   </main>
+</div>
+
+<!-- MODAL QUIZ ESTUDIANTE -->
+<div class="quiz-modal-overlay" id="quiz-modal-overlay">
+  <div class="quiz-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div class="quiz-modal-titulo" id="qm-titulo">Quiz</div>
+      <button style="background:none;border:none;color:var(--gris-suave);cursor:pointer;font-size:18px;" onclick="cerrarQuizModal()">✕</button>
+    </div>
+    <div class="quiz-modal-sub" id="qm-sub">Responde todas las preguntas</div>
+
+    <div id="qm-contenido"></div>
+
+    <div id="qm-resultado" style="display:none;">
+      <div class="quiz-resultado-banner" id="qm-resultado-banner">
+        <div class="quiz-resultado-score" id="qm-score">0/5</div>
+        <div class="quiz-resultado-texto" id="qm-resultado-texto"></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button class="btn-accion" onclick="cerrarQuizModal()">Cerrar</button>
+        <button class="btn-accion" style="background:var(--azul-claro);color:#fff;border-color:var(--azul-claro);" onclick="intentarQuizDeNuevo()">Intentar de nuevo</button>
+      </div>
+    </div>
+
+    <div id="qm-acciones" style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn-accion" onclick="cerrarQuizModal()">Cancelar</button>
+      <button class="btn-accion" style="background:var(--azul-claro);color:#fff;border-color:var(--azul-claro);" onclick="enviarQuiz()">Enviar respuestas</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -370,7 +1010,8 @@
   var TITULOS = {
     dashboard:'Dashboard', clases:'Mis clases',
     calendario:'Calendario', materiales:'Materiales',
-    perfil:'Mi perfil', tareas:'Tareas'
+    perfil:'Mi perfil', tareas:'Tareas',
+    progreso:'Mi progreso'
   };
 
   /* ══════════════════════════════════════
@@ -405,6 +1046,7 @@
     if(seccion === 'calendario') activarListenerCalendario();
     if(seccion === 'materiales') activarListenerMateriales();
     if(seccion === 'tareas')     activarListenerTareas();
+    if(seccion === 'progreso')   cargarProgresoCurriculo();
     if(seccion === 'perfil')     renderPerfil();
   }
 
@@ -664,6 +1306,299 @@
     if(unsubMateriales) unsubMateriales();
     if(unsubTareas)     unsubTareas();
     auth.signOut().then(function(){ window.location.href='login.html'; });
+  }
+
+  /* ══════════════════════════════════════════════
+     MI PROGRESO — Currículo con clases desbloqueadas
+  ══════════════════════════════════════════════ */
+
+  var progresoData = {};       // { claseId: { completada, quizPuntaje, quizCompletado } }
+  var clasesNivelData = [];    // array de clases del currículo del nivel actual
+  var quizActivoData = null;   // preguntas del quiz abierto
+  var quizActivoClaseId = null;
+  var quizRespuestas = {};
+  var unsubProgreso = null;
+
+  var NIVEL_NOMBRES = {
+    A1:'Principiante', A2:'Básico', B1:'Intermedio',
+    B2:'Avanzado', C1:'Avanzado Superior', C2:'Maestría'
+  };
+
+  /* ─── Cargar progreso del currículo ─── */
+  function cargarProgresoCurriculo() {
+    if(!uidActual || !perfilGlobal) return;
+    var nivel = perfilGlobal.nivel || 'A1';
+
+    /* Actualizar header */
+    document.getElementById('nph-nivel').textContent = nivel;
+    document.getElementById('nph-titulo').textContent = 'Nivel ' + nivel + ' — ' + (NIVEL_NOMBRES[nivel]||'');
+    document.getElementById('nph-sub').textContent = '3 clases semanales · 8 semanas · 24 clases totales';
+
+    /* Listener en tiempo real del progreso del estudiante */
+    if(unsubProgreso) unsubProgreso();
+    unsubProgreso = db.collection('estudiantes').doc(uidActual)
+      .collection('progresoCurriculo').doc(nivel)
+      .onSnapshot(function(snap){
+        progresoData = snap.exists ? (snap.data() || {}) : {};
+        if(clasesNivelData.length) renderProgresoLista(nivel);
+      });
+
+    /* Cargar clases del currículo publicadas */
+    db.collection('curriculo').doc(nivel).collection('clases')
+      .where('estado','==','publicada')
+      .orderBy('numero')
+      .get().then(function(snap){
+        clasesNivelData = [];
+        snap.forEach(function(doc){
+          clasesNivelData.push(Object.assign({ id: doc.id }, doc.data()));
+        });
+        renderProgresoLista(nivel);
+      }).catch(function(){
+        /* Si no hay currículo publicado, mostrar clases asignadas manualmente */
+        cargarClasesAsignadasProgreso(nivel);
+      });
+  }
+
+  /* Fallback: usar clasesAsignadas si no hay currículo publicado */
+  function cargarClasesAsignadasProgreso(nivel) {
+    db.collection('estudiantes').doc(uidActual)
+      .collection('clasesAsignadas').orderBy('orden').get()
+      .then(function(snap){
+        clasesNivelData = [];
+        snap.forEach(function(doc){
+          var d = doc.data();
+          clasesNivelData.push({ id: doc.id, numero: d.orden||1, titulo: d.titulo, descripcion: d.unidad||'', videoSugerido: d.videoUrl||d.url||'', nivel: nivel });
+        });
+        renderProgresoLista(nivel);
+      });
+  }
+
+  /* ─── Renderizar lista de progreso por semanas ─── */
+  function renderProgresoLista(nivel) {
+    var lista = document.getElementById('progreso-lista');
+    if(!clasesNivelData.length){
+      lista.innerHTML = '<div class="lista-vacia" style="padding:48px 20px;text-align:center;color:var(--gris-suave);">Aún no tienes clases de currículo disponibles.<br><span style="font-size:12px;">Pídele a tu profesor que publique las clases del nivel ' + nivel + '.</span></div>';
+      actualizarHeaderProgreso(0, 0);
+      return;
+    }
+
+    /* Calcular qué clases están desbloqueadas */
+    var completadas = 0;
+    var quizzesOk = 0;
+    var html = '';
+    var semana = 0;
+
+    clasesNivelData.forEach(function(clase, idx){
+      var p = progresoData[clase.id] || {};
+      var estaCompleta = !!p.completada;
+      var quizOk = !!p.quizCompletado;
+      var esActual = !estaCompleta && (idx === 0 || !!(progresoData[clasesNivelData[idx-1] && clasesNivelData[idx-1].id] && progresoData[clasesNivelData[idx-1].id].completada));
+      var estaBloqueada = !estaCompleta && !esActual;
+
+      if(estaCompleta) completadas++;
+      if(quizOk) quizzesOk++;
+
+      /* Etiqueta de semana cada 3 clases */
+      if(idx % 3 === 0){
+        semana++;
+        html += '<div class="curriculo-semana-label">Semana ' + semana + '</div>';
+      }
+
+      var estadoClase = estaCompleta ? 'completada' : esActual ? 'actual' : 'bloqueada';
+      var numClass = estaCompleta ? 'ccr-num-completada' : esActual ? 'ccr-num-actual' : 'ccr-num-bloqueada';
+      var numIcono = estaCompleta
+        ? '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-7" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : estaBloqueada
+          ? '<svg width="12" height="14" viewBox="0 0 12 14" fill="none"><rect x="1" y="5" width="10" height="8" rx="2" stroke="#94A3B8" stroke-width="1.3"/><path d="M3 5V3.5a3 3 0 016 0V5" stroke="#94A3B8" stroke-width="1.3"/></svg>'
+          : (idx + 1);
+
+      var acciones = '';
+      if(!estaBloqueada){
+        if(clase.videoSugerido){
+          acciones += '<a class="btn-accion" href="' + clase.videoSugerido + '" target="_blank" style="font-size:11px;height:26px;padding:0 10px;">▶ Ver clase</a>';
+        }
+        if(!estaCompleta){
+          acciones += '<button class="btn-accion" style="font-size:11px;height:26px;padding:0 10px;background:#F0FDF4;border-color:#BBF7D0;color:#15803D;" onclick="marcarClaseCompletada(\'' + clase.id + '\',\'' + nivel + '\')">✓ Completar</button>';
+        }
+        /* Quiz */
+        acciones += '<button class="btn-accion" style="font-size:11px;height:26px;padding:0 10px;background:' + (quizOk ? '#FFFBEB' : 'var(--azul-suave)') + ';border-color:' + (quizOk ? '#FCD34D' : '#BFDBFE') + ';color:' + (quizOk ? '#B45309' : 'var(--azul-medio)') + ';" onclick="abrirQuizClase(\'' + clase.id + '\',\'' + nivel + '\',\'' + (clase.titulo||'').replace(/'/g,"\\'") + '\')">'
+          + (quizOk ? '⭐ Quiz (' + (p.quizPuntaje||0) + '/' + (p.quizTotal||5) + ')' : '📝 Quiz')
+          + '</button>';
+      }
+
+      html += '<div class="curriculo-clase-row ' + estadoClase + '">'
+        + '<div class="ccr-numero ' + numClass + '">' + numIcono + '</div>'
+        + '<div class="ccr-info">'
+          + '<div class="ccr-titulo">' + (clase.titulo || 'Clase ' + clase.numero) + '</div>'
+          + '<div class="ccr-meta">'
+            + (clase.gramatica ? clase.gramatica : '')
+            + (clase.vocabulario && clase.vocabulario.length ? (clase.gramatica ? ' · ' : '') + clase.vocabulario.slice(0,3).join(', ') : '')
+          + '</div>'
+        + '</div>'
+        + '<div class="ccr-acciones">' + acciones + '</div>'
+        + '</div>';
+    });
+
+    lista.innerHTML = html;
+    actualizarHeaderProgreso(completadas, quizzesOk);
+  }
+
+  function actualizarHeaderProgreso(completadas, quizzesOk) {
+    var total = clasesNivelData.length || 24;
+    var pct = total > 0 ? Math.round(completadas / total * 100) : 0;
+    document.getElementById('nph-barra').style.width = pct + '%';
+    document.getElementById('nph-texto').textContent = completadas + ' de ' + total + ' clases completadas (' + pct + '%)';
+    document.getElementById('nph-completadas').textContent = completadas;
+    document.getElementById('nph-quizzes').textContent = quizzesOk;
+  }
+
+  /* ─── Marcar clase como completada ─── */
+  function marcarClaseCompletada(claseId, nivel) {
+    if(!uidActual) return;
+    var ref = db.collection('estudiantes').doc(uidActual)
+      .collection('progresoCurriculo').doc(nivel);
+    var update = {};
+    update[claseId] = Object.assign({}, progresoData[claseId]||{}, { completada: true, fechaCompletada: new Date().toISOString() });
+    ref.set(update, { merge: true }).then(function(){
+      /* Actualizar progreso general del estudiante */
+      var completadas = Object.values(Object.assign({}, progresoData, update)).filter(function(v){ return v.completada; }).length;
+      var pct = Math.round(completadas / 24 * 100);
+      db.collection('estudiantes').doc(uidActual).update({
+        unidadesCompletadas: completadas,
+        progreso: pct
+      });
+    });
+  }
+
+  /* ─── Quiz ─── */
+  function abrirQuizClase(claseId, nivel, tituloClase) {
+    quizActivoClaseId = claseId;
+    quizRespuestas = {};
+    document.getElementById('qm-titulo').textContent = 'Quiz · ' + tituloClase;
+    document.getElementById('qm-sub').textContent = 'Responde todas las preguntas para completar la clase';
+    document.getElementById('qm-resultado').style.display = 'none';
+    document.getElementById('qm-acciones').style.display = 'flex';
+    document.getElementById('qm-contenido').innerHTML = '<div class="cargando">Cargando quiz...</div>';
+    document.getElementById('quiz-modal-overlay').classList.add('abierto');
+
+    /* Buscar quiz en el currículo */
+    db.collection('curriculo').doc(nivel).collection('clases').doc(claseId)
+      .collection('quiz').doc('preguntas').get()
+      .then(function(doc){
+        if(!doc.exists || !doc.data().preguntas || !doc.data().preguntas.length){
+          document.getElementById('qm-contenido').innerHTML = '<div class="lista-vacia" style="padding:32px 0;text-align:center;">No hay quiz disponible para esta clase todavía.</div>';
+          document.getElementById('qm-acciones').style.display = 'none';
+          return;
+        }
+        quizActivoData = doc.data().preguntas;
+        renderQuizPreguntas(quizActivoData);
+      });
+  }
+
+  function renderQuizPreguntas(preguntas) {
+    var html = '';
+    preguntas.forEach(function(p, i){
+      html += '<div class="quiz-pregunta-bloque">'
+        + '<div class="quiz-p-num">Pregunta ' + (i+1) + ' de ' + preguntas.length + '</div>'
+        + '<div class="quiz-p-text">' + p.pregunta + '</div>';
+
+      if(p.tipo === 'multiple' && p.opciones && p.opciones.length){
+        p.opciones.forEach(function(op){
+          html += '<button class="quiz-opcion-btn" onclick="seleccionarOpcion(' + i + ',\'' + op.replace(/'/g,"\\'") + '\',this)">' + op + '</button>';
+        });
+      } else if(p.tipo === 'verdadero_falso'){
+        html += '<button class="quiz-opcion-btn" onclick="seleccionarOpcion(' + i + ',\'Verdadero\',this)">✓ Verdadero</button>';
+        html += '<button class="quiz-opcion-btn" onclick="seleccionarOpcion(' + i + ',\'Falso\',this)">✗ Falso</button>';
+      } else {
+        html += '<input class="quiz-input-completar" id="quiz-input-' + i + '" placeholder="Escribe tu respuesta..." oninput="quizRespuestas[' + i + ']=this.value" />';
+      }
+      html += '</div>';
+    });
+    document.getElementById('qm-contenido').innerHTML = html;
+  }
+
+  function seleccionarOpcion(idx, valor, btn) {
+    quizRespuestas[idx] = valor;
+    /* Deseleccionar otros botones del mismo bloque */
+    var bloque = btn.closest('.quiz-pregunta-bloque');
+    bloque.querySelectorAll('.quiz-opcion-btn').forEach(function(b){ b.classList.remove('seleccionada'); });
+    btn.classList.add('seleccionada');
+  }
+
+  function enviarQuiz() {
+    if(!quizActivoData) return;
+    var correctas = 0;
+    var total = quizActivoData.length;
+
+    /* Corregir respuestas */
+    quizActivoData.forEach(function(p, i){
+      var resp = quizRespuestas[i] || '';
+      var esCorrecta = resp.trim().toLowerCase() === (p.respuesta||'').trim().toLowerCase();
+      if(esCorrecta) correctas++;
+
+      /* Colorear respuestas */
+      if(p.tipo === 'multiple' || p.tipo === 'verdadero_falso'){
+        var bloque = document.querySelectorAll('.quiz-pregunta-bloque')[i];
+        if(bloque) bloque.querySelectorAll('.quiz-opcion-btn').forEach(function(btn){
+          btn.disabled = true;
+          if(btn.textContent.trim() === p.respuesta) btn.classList.add('correcta');
+          else if(btn.classList.contains('seleccionada')) btn.classList.add('incorrecta');
+        });
+      } else {
+        var input = document.getElementById('quiz-input-' + i);
+        if(input){
+          input.disabled = true;
+          input.style.borderColor = esCorrecta ? '#16A34A' : '#DC2626';
+          if(!esCorrecta){
+            input.insertAdjacentHTML('afterend', '<div style="font-size:12px;color:#16A34A;margin-top:4px;">✓ Respuesta correcta: ' + p.respuesta + '</div>');
+          }
+        }
+      }
+    });
+
+    /* Mostrar resultado */
+    var pct = Math.round(correctas / total * 100);
+    var aprobado = pct >= 60;
+    var banner = document.getElementById('qm-resultado-banner');
+    banner.className = 'quiz-resultado-banner ' + (aprobado ? 'aprobado' : 'repaso');
+    document.getElementById('qm-score').textContent = correctas + '/' + total + ' · ' + pct + '%';
+    document.getElementById('qm-resultado-texto').textContent = aprobado
+      ? '¡Excelente! Has aprobado este quiz.'
+      : 'Sigue practicando. Necesitas 60% para aprobar.';
+
+    document.getElementById('qm-acciones').style.display = 'none';
+    document.getElementById('qm-resultado').style.display = 'block';
+
+    /* Guardar resultado en Firestore */
+    if(uidActual && quizActivoClaseId){
+      var nivel = perfilGlobal.nivel || 'A1';
+      var ref = db.collection('estudiantes').doc(uidActual)
+        .collection('progresoCurriculo').doc(nivel);
+      var update = {};
+      update[quizActivoClaseId] = Object.assign({}, progresoData[quizActivoClaseId]||{}, {
+        quizCompletado: true,
+        quizPuntaje: correctas,
+        quizTotal: total,
+        quizPct: pct,
+        quizFecha: new Date().toISOString()
+      });
+      if(aprobado) update[quizActivoClaseId].completada = true;
+      ref.set(update, { merge: true });
+    }
+  }
+
+  function intentarQuizDeNuevo() {
+    quizRespuestas = {};
+    document.getElementById('qm-resultado').style.display = 'none';
+    document.getElementById('qm-acciones').style.display = 'flex';
+    if(quizActivoData) renderQuizPreguntas(quizActivoData);
+  }
+
+  function cerrarQuizModal() {
+    document.getElementById('quiz-modal-overlay').classList.remove('abierto');
+    quizActivoData = null;
+    quizActivoClaseId = null;
+    quizRespuestas = {};
   }
 </script>
 </body>
