@@ -624,11 +624,14 @@
         <div class="modal-titulo" id="modal-clase-titulo" style="border:none;margin:0;padding:0;">Clase</div>
         <button class="btn btn-ghost btn-sm" onclick="cerrarModalCurriculo()">✕ Cerrar</button>
       </div>
-      <div style="font-size:12px;color:var(--gris-suave);margin-bottom:14px;" id="modal-clase-subtitulo"></div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:14px;" id="modal-clase-subtitulo"></div>
 
       <!-- Tabs del modal -->
       <div class="modal-tabs">
-        <button class="modal-tab activo" onclick="cambiarModalTab('info',this)">📋 Información</button>
+        <button class="modal-tab activo" onclick="cambiarModalTab('info',this)">📋 Clase</button>
+        <button class="modal-tab" onclick="cambiarModalTab('video',this)">▶ Video</button>
+        <button class="modal-tab" onclick="cambiarModalTab('material',this)">📎 Material</button>
+        <button class="modal-tab" onclick="cambiarModalTab('tarea',this)">📝 Tarea</button>
         <button class="modal-tab" onclick="cambiarModalTab('quiz',this)">❓ Quiz</button>
         <button class="modal-tab" onclick="cambiarModalTab('asignar',this)">👤 Asignar</button>
       </div>
@@ -648,10 +651,7 @@
           <div class="campo"><label>Pronunciación</label><input type="text" id="mc-pronunciacion" placeholder="ej: Intonation in questions" /></div>
           <div class="campo"><label>Habilidades (skills)</label><input type="text" id="mc-habilidades" placeholder="ej: Speaking, Listening" /></div>
         </div>
-        <div class="fila-2">
-          <div class="campo"><label>Cultura</label><input type="text" id="mc-cultura" placeholder="ej: British vs American greetings" /></div>
-          <div class="campo"><label>Video sugerido (YouTube URL)</label><input type="url" id="mc-video" placeholder="https://www.youtube.com/watch?v=..." /></div>
-        </div>
+        <div class="campo"><label>Cultura</label><input type="text" id="mc-cultura" placeholder="ej: British vs American greetings" /></div>
         <div class="campo">
           <label>Estado</label>
           <select id="mc-estado">
@@ -665,24 +665,138 @@
         </div>
       </div>
 
+      <!-- PANEL VIDEO -->
+      <div class="modal-panel" id="mpanel-video">
+        <div style="background:var(--sky-dim);border:1px solid rgba(56,189,248,0.2);border-radius:var(--radio-md);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--sky);">
+          ▶ Pega la URL de YouTube después de subir el video desde HeyGen.
+        </div>
+        <div class="campo">
+          <label>URL del video (YouTube)</label>
+          <input type="url" id="mc-video" placeholder="https://www.youtube.com/watch?v=..." />
+        </div>
+        <div id="mc-video-preview" style="display:none;margin-top:12px;">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">Vista previa</div>
+          <div style="background:var(--surface-3);border-radius:var(--radio-md);padding:10px 14px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:20px;">▶</span>
+            <div>
+              <div id="mc-video-url-display" style="font-size:12px;color:var(--sky);word-break:break-all;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button class="btn btn-primario" onclick="guardarVideo()">Guardar video</button>
+          <button class="btn btn-ghost" id="btn-abrir-video" onclick="abrirVideo()" style="display:none;">Abrir en YouTube ↗</button>
+        </div>
+      </div>
+
+      <!-- PANEL MATERIAL -->
+      <div class="modal-panel" id="mpanel-material">
+        <div style="background:var(--gold-dim);border:1px solid var(--border-lit);border-radius:var(--radio-md);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--gold);">
+          📎 Sube el PDF a Google Drive, copia el link compartible y pégalo aquí.
+        </div>
+        <div class="campo">
+          <label>Nombre del material</label>
+          <input type="text" id="mc-mat-titulo" placeholder="ej: Worksheet - Daily Routines A1" />
+        </div>
+        <div class="fila-2">
+          <div class="campo">
+            <label>Tipo</label>
+            <select id="mc-mat-tipo">
+              <option value="PDF">PDF Worksheet</option>
+              <option value="Ejercicio">Ejercicio</option>
+              <option value="Vocabulario">Vocabulario</option>
+              <option value="Gramática">Gramática</option>
+              <option value="Lectura">Lectura</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Asignar a</label>
+            <select id="mc-mat-est">
+              <option value="todos">Todos los estudiantes del nivel</option>
+              <option value="individual">Estudiante específico</option>
+            </select>
+          </div>
+        </div>
+        <div class="campo" id="mc-mat-est-individual" style="display:none;">
+          <label>Seleccionar estudiante</label>
+          <select id="mc-mat-est-uid">
+            <option value="">— Elegir estudiante —</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>URL del archivo (Google Drive)</label>
+          <input type="url" id="mc-mat-url" placeholder="https://drive.google.com/file/d/..." />
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn btn-primario" onclick="guardarMaterialClase()">Guardar y asignar material</button>
+        </div>
+        <div id="mc-mat-resultado" style="margin-top:10px;font-size:13px;"></div>
+
+        <!-- Lista de materiales ya asignados -->
+        <div style="margin-top:20px;">
+          <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;">Materiales asignados a esta clase</div>
+          <div id="mc-mat-lista"><div class="vacio" style="padding:20px;">No hay materiales asignados.</div></div>
+        </div>
+      </div>
+
+      <!-- PANEL TAREA -->
+      <div class="modal-panel" id="mpanel-tarea">
+        <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:var(--radio-md);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--green);">
+          📝 Crea una tarea vinculada a esta clase. Se asignará automáticamente.
+        </div>
+        <div class="campo">
+          <label>Título de la tarea</label>
+          <input type="text" id="mc-tar-titulo" placeholder="ej: Practice Daily Routines - Write 5 sentences" />
+        </div>
+        <div class="campo">
+          <label>Instrucciones</label>
+          <textarea id="mc-tar-desc" rows="3" placeholder="Describe qué deben hacer los estudiantes..."></textarea>
+        </div>
+        <div class="fila-2">
+          <div class="campo">
+            <label>Fecha límite</label>
+            <input type="date" id="mc-tar-fecha" />
+          </div>
+          <div class="campo">
+            <label>Asignar a</label>
+            <select id="mc-tar-est">
+              <option value="todos">Todos los estudiantes del nivel</option>
+              <option value="individual">Estudiante específico</option>
+            </select>
+          </div>
+        </div>
+        <div class="campo" id="mc-tar-est-individual" style="display:none;">
+          <label>Seleccionar estudiante</label>
+          <select id="mc-tar-est-uid">
+            <option value="">— Elegir estudiante —</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>URL de referencia (opcional)</label>
+          <input type="url" id="mc-tar-url" placeholder="https://..." />
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn btn-verde" onclick="guardarTareaClase()">Enviar tarea</button>
+          <button class="btn btn-ghost" onclick="generarTareaIA()">✨ Generar con IA</button>
+        </div>
+        <div id="mc-tar-resultado" style="margin-top:10px;font-size:13px;"></div>
+      </div>
+
       <!-- PANEL QUIZ -->
       <div class="modal-panel" id="mpanel-quiz">
         <div class="ia-estado" id="ia-estado">
           <span class="ia-spinner"></span>
           <span id="ia-estado-texto">Generando quiz con IA...</span>
         </div>
-
         <div id="quiz-acciones" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
           <button class="btn btn-primario" onclick="generarQuizIA()">✨ Generar con IA (borrador)</button>
           <button class="btn btn-ghost" onclick="toggleQuizEditor()">✏️ Editar manualmente</button>
           <button class="btn btn-verde" id="btn-publicar-quiz" onclick="publicarQuiz()" style="display:none;">✓ Publicar quiz</button>
         </div>
-
         <div id="quiz-preview">
           <div class="vacio" id="quiz-vacio">No hay quiz creado para esta clase. Genera uno con IA o créalo manualmente.</div>
           <div id="quiz-preguntas-lista"></div>
         </div>
-
         <div id="quiz-editor" style="display:none;">
           <div id="quiz-editor-preguntas"></div>
           <button class="btn btn-ghost btn-sm" onclick="agregarPreguntaManual()" style="margin-bottom:14px;">+ Agregar pregunta</button>
@@ -695,7 +809,7 @@
 
       <!-- PANEL ASIGNAR -->
       <div class="modal-panel" id="mpanel-asignar">
-        <p style="font-size:13px;color:var(--gris-suave);margin-bottom:16px;">Asigna esta clase individualmente a un estudiante. También puedes asignar el nivel completo desde la vista principal.</p>
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;">Asigna esta clase individualmente a un estudiante. También puedes asignar el nivel completo desde la vista principal.</p>
         <div class="campo">
           <label>Seleccionar estudiante</label>
           <select id="mc-asignar-est" style="height:38px;font-size:13px;">
@@ -1120,7 +1234,10 @@
             <button class="curriculo-tab" onclick="cambiarNivel('B2',this)">B2 · Avanzado</button>
             <button class="curriculo-tab" onclick="cambiarNivel('C1',this)">C1 · Avanzado Superior</button>
             <button class="curriculo-tab" onclick="cambiarNivel('C2',this)">C2 · Maestría</button>
-            <button class="btn btn-primario btn-sm" style="margin-left:auto;" onclick="generarNivelCompleto()">✨ Generar nivel con IA</button>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="publicarTodasClases()">✓ Publicar todas</button>
+              <button class="btn btn-primario btn-sm" onclick="generarNivelCompleto()">✨ Generar con IA</button>
+            </div>
           </div>
 
           <!-- Grid de clases -->
@@ -1321,6 +1438,7 @@
     function renderizarTodosSelectores() {
       ['clases', 'materiales', 'calendario', 'tareas'].forEach(function (s) { renderizarSelector(s, todosEstudiantes); });
       actualizarSelectorEstNivel();
+      actualizarSelectoresModal();
     }
 
     function filtrarSelector(seccion) {
@@ -1557,6 +1675,248 @@
         .catch(function (err) { toast('Error: ' + err.message, 'error'); });
     }
 
+    /* ─── Guardar video ─── */
+    function guardarVideo() {
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var url = document.getElementById('mc-video').value.trim();
+      if(!url){ toast('Ingresa la URL del video', 'error'); return; }
+      if(!claseActualId){ toast('Guarda la clase primero en el tab Clase', 'error'); return; }
+      db.collection('curriculo').doc(nivel).collection('clases').doc(claseActualId)
+        .update({ videoSugerido: url, actualizadoEn: firebase.firestore.FieldValue.serverTimestamp() })
+        .then(function(){
+          toast('✓ Video guardado', 'ok');
+          document.getElementById('mc-video-preview').style.display = 'block';
+          document.getElementById('mc-video-url-display').textContent = url;
+          document.getElementById('btn-abrir-video').style.display = 'inline-flex';
+        }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    function abrirVideo() {
+      var url = document.getElementById('mc-video').value.trim();
+      if(url) window.open(url, '_blank');
+    }
+
+    /* Mostrar/ocultar selector individual en material y tarea */
+    document.addEventListener('change', function(e){
+      if(e.target.id === 'mc-mat-est'){
+        document.getElementById('mc-mat-est-individual').style.display =
+          e.target.value === 'individual' ? 'block' : 'none';
+      }
+      if(e.target.id === 'mc-tar-est'){
+        document.getElementById('mc-tar-est-individual').style.display =
+          e.target.value === 'individual' ? 'block' : 'none';
+      }
+      if(e.target.id === 'mc-video'){
+        var url = e.target.value.trim();
+        if(url){
+          document.getElementById('mc-video-preview').style.display = 'block';
+          document.getElementById('mc-video-url-display').textContent = url;
+          document.getElementById('btn-abrir-video').style.display = 'inline-flex';
+        }
+      }
+    });
+
+    /* ─── Guardar material desde clase ─── */
+    function guardarMaterialClase() {
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var titulo = document.getElementById('mc-mat-titulo').value.trim();
+      var tipo  = document.getElementById('mc-mat-tipo').value;
+      var url   = document.getElementById('mc-mat-url').value.trim();
+      var asignarA = document.getElementById('mc-mat-est').value;
+
+      if(!titulo || !url){ toast('Completa el nombre y la URL', 'error'); return; }
+
+      var datos = {
+        titulo: titulo, tipo: tipo, url: url,
+        nivel: nivel,
+        unidad: 'Nivel ' + nivel + (claseActualData ? ' · Clase ' + claseActualData.numero : ''),
+        claseId: claseActualId || null,
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      /* Determinar a quién asignar */
+      var uids = [];
+      if(asignarA === 'todos'){
+        uids = todosEstudiantes
+          .filter(function(e){ return e.nivel === nivel; })
+          .map(function(e){ return e.uid; });
+      } else {
+        var uid = document.getElementById('mc-mat-est-uid').value;
+        if(!uid){ toast('Selecciona un estudiante', 'error'); return; }
+        uids = [uid];
+      }
+
+      if(!uids.length){ toast('No hay estudiantes en nivel ' + nivel, 'error'); return; }
+
+      var batch = db.batch();
+      uids.forEach(function(uid){
+        var ref = db.collection('estudiantes').doc(uid).collection('materiales').doc();
+        batch.set(ref, datos);
+      });
+
+      batch.commit().then(function(){
+        toast('✓ Material asignado a ' + uids.length + ' estudiante(s)', 'ok');
+        document.getElementById('mc-mat-resultado').innerHTML =
+          '<span style="color:var(--green);">✓ Asignado a ' + uids.length + ' estudiante(s)</span>';
+        document.getElementById('mc-mat-titulo').value = '';
+        document.getElementById('mc-mat-url').value = '';
+        cargarMaterialesClase(nivel, claseActualId);
+      }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Cargar materiales de esta clase ─── */
+    function cargarMaterialesClase(nivel, claseId) {
+      if(!claseId) return;
+      var lista = document.getElementById('mc-mat-lista');
+      lista.innerHTML = '<div class="vacio" style="padding:16px;">Cargando...</div>';
+      /* Busca materiales de todos los estudiantes que tienen esta clase */
+      var encontrados = [];
+      var promesas = todosEstudiantes.map(function(e){
+        return db.collection('estudiantes').doc(e.uid).collection('materiales')
+          .where('claseId', '==', claseId).get()
+          .then(function(snap){
+            snap.forEach(function(doc){
+              encontrados.push({ estudiante: e.nombre || e.email, ...doc.data() });
+            });
+          });
+      });
+      Promise.all(promesas).then(function(){
+        if(!encontrados.length){
+          lista.innerHTML = '<div class="vacio" style="padding:16px;">No hay materiales asignados aún.</div>';
+          return;
+        }
+        lista.innerHTML = encontrados.map(function(m){
+          return '<div class="item-lista">'
+            + '<div class="item-icono" style="background:var(--gold-dim);font-size:14px;">📎</div>'
+            + '<div><div class="item-nombre">' + m.titulo + '</div>'
+            + '<div class="item-meta">' + m.tipo + ' · ' + m.estudiante + '</div></div>'
+            + (m.url ? '<a href="' + m.url + '" target="_blank" class="btn btn-ghost btn-sm">Ver</a>' : '')
+            + '</div>';
+        }).join('');
+      });
+    }
+
+    /* ─── Guardar tarea desde clase ─── */
+    function guardarTareaClase() {
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var titulo = document.getElementById('mc-tar-titulo').value.trim();
+      var desc  = document.getElementById('mc-tar-desc').value.trim();
+      var fecha = document.getElementById('mc-tar-fecha').value;
+      var asignarA = document.getElementById('mc-tar-est').value;
+
+      if(!titulo || !fecha){ toast('Completa el título y la fecha', 'error'); return; }
+
+      var datos = {
+        titulo: titulo, descripcion: desc,
+        fechaLimite: fecha,
+        url: document.getElementById('mc-tar-url').value.trim(),
+        claseId: claseActualId || null,
+        nivel: nivel,
+        completada: false,
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      var uids = [];
+      if(asignarA === 'todos'){
+        uids = todosEstudiantes
+          .filter(function(e){ return e.nivel === nivel; })
+          .map(function(e){ return e.uid; });
+      } else {
+        var uid = document.getElementById('mc-tar-est-uid').value;
+        if(!uid){ toast('Selecciona un estudiante', 'error'); return; }
+        uids = [uid];
+      }
+
+      if(!uids.length){ toast('No hay estudiantes en nivel ' + nivel, 'error'); return; }
+
+      var batch = db.batch();
+      uids.forEach(function(uid){
+        var ref = db.collection('estudiantes').doc(uid).collection('tareas').doc();
+        batch.set(ref, datos);
+        var estRef = db.collection('estudiantes').doc(uid);
+        batch.update(estRef, { tareasPendientes: firebase.firestore.FieldValue.increment(1) });
+      });
+
+      batch.commit().then(function(){
+        toast('✓ Tarea enviada a ' + uids.length + ' estudiante(s)', 'ok');
+        document.getElementById('mc-tar-resultado').innerHTML =
+          '<span style="color:var(--green);">✓ Tarea enviada a ' + uids.length + ' estudiante(s)</span>';
+        ['mc-tar-titulo','mc-tar-desc','mc-tar-fecha','mc-tar-url'].forEach(function(id){
+          document.getElementById(id).value = '';
+        });
+      }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Generar tarea con IA ─── */
+    async function generarTareaIA() {
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var titulo = document.getElementById('mc-titulo').value || (claseActualData && claseActualData.titulo) || 'clase de inglés';
+      var gramatica = document.getElementById('mc-gramatica').value || '';
+
+      var prompt = 'Genera una tarea de inglés para estudiantes nivel ' + nivel + ' sobre: "' + titulo + '". '
+        + (gramatica ? 'Gramática: ' + gramatica + '. ' : '')
+        + 'Responde SOLO con JSON: { "titulo": string (max 10 palabras en inglés), "descripcion": string (instrucciones claras en español, 3-4 oraciones) }. Sin markdown.';
+
+      try {
+        var btn = event.target;
+        btn.textContent = '⏳ Generando...';
+        btn.disabled = true;
+
+        var response = await fetch(PROXY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 300,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        var data = await response.json();
+        var texto = data.content[0].text.trim().replace(/```json|```/g, '').trim();
+        var tarea = JSON.parse(texto);
+
+        document.getElementById('mc-tar-titulo').value = tarea.titulo || '';
+        document.getElementById('mc-tar-desc').value = tarea.descripcion || '';
+
+        btn.textContent = '✨ Generar con IA';
+        btn.disabled = false;
+        toast('✓ Tarea generada', 'ok');
+      } catch(err) {
+        event.target.textContent = '✨ Generar con IA';
+        event.target.disabled = false;
+        toast('Error: ' + err.message, 'error');
+      }
+    }
+
+    /* ─── Actualizar selectores de estudiantes en modal ─── */
+    function actualizarSelectoresModal() {
+      ['mc-mat-est-uid', 'mc-tar-est-uid'].forEach(function(id){
+        var sel = document.getElementById(id);
+        if(!sel) return;
+        sel.innerHTML = '<option value="">— Elegir estudiante —</option>';
+        todosEstudiantes.forEach(function(e){
+          sel.innerHTML += '<option value="' + e.uid + '">' + (e.nombre||e.email) + ' (' + (e.nivel||'A1') + ')</option>';
+        });
+      });
+    }
+
+    /* ─── Publicar todas las clases del nivel actual ─── */
+    function publicarTodasClases() {
+      if(!confirm('¿Publicar todas las clases de ' + nivelActual + '? Los estudiantes podrán verlas.')) return;
+      db.collection('curriculo').doc(nivelActual).collection('clases')
+        .where('estado', '==', 'borrador')
+        .get().then(function(snap){
+          if(snap.empty){ toast('No hay borradores en ' + nivelActual, 'error'); return; }
+          var batch = db.batch();
+          snap.forEach(function(doc){
+            batch.update(doc.ref, { estado: 'publicada' });
+          });
+          return batch.commit().then(function(){
+            toast('✓ ' + snap.size + ' clases publicadas en ' + nivelActual, 'ok');
+          });
+        }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
     /* ── Cerrar sesión ── */
     function cerrarSesion() { auth.signOut().then(function () { window.location.href = 'login.html'; }); }
 
@@ -1684,6 +2044,16 @@
           document.getElementById('mc-video').value = d.videoSugerido || '';
           document.getElementById('mc-estado').value = d.estado || 'borrador';
 
+          /* Mostrar preview del video si existe */
+          if(d.videoSugerido){
+            document.getElementById('mc-video-preview').style.display = 'block';
+            document.getElementById('mc-video-url-display').textContent = d.videoSugerido;
+            document.getElementById('btn-abrir-video').style.display = 'inline-flex';
+          }
+
+          /* Cargar materiales de esta clase */
+          cargarMaterialesClase(nivel, id);
+
           /* Cargar quiz si existe */
           db.collection('curriculo').doc(nivel).collection('clases').doc(id)
             .collection('quiz').doc('preguntas').get().then(function(qDoc){
@@ -1697,6 +2067,7 @@
       }
 
       cambiarModalTab('info', document.querySelector('.modal-tab'));
+      actualizarSelectoresModal();
       document.getElementById('modal-curriculo-overlay').classList.add('abierto');
     }
 
