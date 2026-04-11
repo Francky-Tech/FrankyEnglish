@@ -303,6 +303,16 @@ body {
     <label class="form-label" for="password">Contraseña</label>
     <input id="password" class="form-input" type="password" placeholder="Mínimo 6 caracteres" />
 
+    <label class="form-label" for="nivel">Tu nivel de inglés</label>
+    <select id="nivel" class="form-input" style="cursor:pointer;">
+      <option value="A1">A1 — Principiante (nunca estudié inglés)</option>
+      <option value="A2">A2 — Básico (conozco palabras sueltas)</option>
+      <option value="B1">B1 — Intermedio (me defiendo en conversaciones simples)</option>
+      <option value="B2">B2 — Avanzado (puedo hablar con fluidez)</option>
+      <option value="C1">C1 — Avanzado Superior</option>
+      <option value="C2">C2 — Maestría</option>
+    </select>
+
     <button class="btn-register" onclick="register()">Crear mi cuenta</button>
 
     <div class="divider">
@@ -332,6 +342,8 @@ body {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- EMAILJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -348,35 +360,108 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
+/* ── EmailJS config ──
+   1. Crea cuenta en emailjs.com (gratis)
+   2. Add Service → Gmail → copia el Service ID
+   3. Email Templates → crea plantilla → copia Template ID
+   4. Account → API Keys → copia Public Key
+   Reemplaza los valores de abajo con los tuyos
+*/
+const EMAILJS_SERVICE_ID  = 'service_rlsjjkg';
+const EMAILJS_TEMPLATE_ID = 'template_6iplqqc';
+const EMAILJS_PUBLIC_KEY  = 'zq46lG2dWrSr260Pl';
+
+var NIVEL_NOMBRES = {
+  A1: 'Principiante', A2: 'Básico',
+  B1: 'Intermedio',   B2: 'Avanzado',
+  C1: 'Avanzado Superior', C2: 'Maestría'
+};
+var NIVEL_SIGUIENTE = {
+  A1:'A2', A2:'B1', B1:'B2', B2:'C1', C1:'C2', C2:'C2'
+};
+
 function mostrarError(msg) {
   var el = document.getElementById("error-msg");
   el.textContent = msg;
   el.style.display = "block";
 }
 
-// Crear perfil inicial en Firestore al registrarse
+/* ── Crear perfil en Firestore ── */
 async function crearPerfil(usuario) {
+  var nivel = document.getElementById('nivel') ?
+    document.getElementById('nivel').value : 'A1';
   var ref  = db.collection("estudiantes").doc(usuario.uid);
   var snap = await ref.get();
   if (!snap.exists) {
     await ref.set({
       nombre:              usuario.displayName || usuario.email.split("@")[0],
       email:               usuario.email,
-      nivel:               "A1",
-      nivelNombre:         "Principiante",
-      nivelSiguiente:      "A2",
+      nivel:               nivel,
+      nivelNombre:         NIVEL_NOMBRES[nivel],
+      nivelSiguiente:      NIVEL_SIGUIENTE[nivel],
       progreso:            0,
       unidadesCompletadas: 0,
-      unidadesTotal:       10,
+      unidadesTotal:       24,
       horasEstudio:        0,
       racha:               0,
       tareasPendientes:    0,
       creadoEn:            firebase.firestore.FieldValue.serverTimestamp()
     });
   }
+  return nivel;
 }
 
-/* REGISTRO EMAIL */
+/* ── Auto-asignar clases del nivel al registrarse ── */
+async function autoAsignarClases(uid, nivel) {
+  try {
+    var snap = await db.collection('curriculo').doc(nivel)
+      .collection('clases')
+      .where('estado', '==', 'publicada')
+      .orderBy('numero')
+      .get();
+    if (snap.empty) return; // No hay clases publicadas aún, está bien
+    var batch = db.batch();
+    snap.forEach(function(doc) {
+      var c = doc.data();
+      var ref = db.collection('estudiantes').doc(uid)
+        .collection('clasesAsignadas').doc();
+      batch.set(ref, {
+        titulo:         c.titulo || 'Clase ' + c.numero,
+        unidad:         'Nivel ' + nivel + ' · Clase ' + c.numero,
+        nivel:          nivel,
+        duracion:       45,
+        orden:          c.numero,
+        videoUrl:       c.videoSugerido || '',
+        claseId:        doc.id,
+        nivelCurriculo: nivel,
+        creadoEn:       firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    await batch.commit();
+  } catch(e) {
+    console.log('Auto-asignación omitida:', e.message);
+    // No bloquear el registro si falla la auto-asignación
+  }
+}
+
+/* ── Enviar email de bienvenida con EmailJS ── */
+async function enviarBienvenida(nombre, email, nivel) {
+  if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'TU_PUBLIC_KEY') return;
+  try {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_name:    nombre,
+      to_email:   email,
+      nivel:      nivel + ' — ' + NIVEL_NOMBRES[nivel],
+      portal_url: 'https://frankyenglish.com/dashboard.html'
+    });
+  } catch(e) {
+    console.log('Email de bienvenida omitido:', e.message);
+    // No bloquear el registro si falla el email
+  }
+}
+
+/* ── REGISTRO EMAIL ── */
 function register() {
   var email    = document.getElementById("email").value.trim();
   var password = document.getElementById("password").value;
@@ -385,20 +470,26 @@ function register() {
     mostrarError("Por favor completa todos los campos.");
     return;
   }
-
   if (password.length < 6) {
     mostrarError("La contraseña debe tener al menos 6 caracteres.");
     return;
   }
 
+  var btnReg = document.querySelector('.btn-register');
+  btnReg.textContent = 'Creando cuenta...';
+  btnReg.disabled = true;
+
   auth.createUserWithEmailAndPassword(email, password)
-    .then(function(result) {
-      return crearPerfil(result.user);
-    })
-    .then(function() {
+    .then(async function(result) {
+      var nivel = await crearPerfil(result.user);
+      var nombre = result.user.email.split('@')[0];
+      await autoAsignarClases(result.user.uid, nivel);
+      await enviarBienvenida(nombre, email, nivel);
       window.location.href = "dashboard.html";
     })
     .catch(function(err) {
+      btnReg.textContent = 'Crear mi cuenta';
+      btnReg.disabled = false;
       var mensajes = {
         "auth/email-already-in-use": "Este correo ya tiene una cuenta. ¿Quieres iniciar sesión?",
         "auth/invalid-email":        "El correo no es válido.",
@@ -408,14 +499,15 @@ function register() {
     });
 }
 
-/* REGISTRO GOOGLE */
+/* ── REGISTRO GOOGLE ── */
 function googleRegister() {
   var provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
-    .then(function(result) {
-      return crearPerfil(result.user);
-    })
-    .then(function() {
+    .then(async function(result) {
+      var nivel = await crearPerfil(result.user);
+      var nombre = result.user.displayName || result.user.email.split('@')[0];
+      await autoAsignarClases(result.user.uid, nivel);
+      await enviarBienvenida(nombre, result.user.email, nivel);
       window.location.href = "dashboard.html";
     })
     .catch(function(err) {
