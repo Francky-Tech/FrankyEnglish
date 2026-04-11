@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — FrankyEnglish</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+
+  <style>
+    :root {
+      /* Academy Noir — Admin */
+      --bg:          #080D1A;
+      --surface:     #0F1629;
+      --surface-2:   #161E35;
+      --surface-3:   #1C2640;
+      --border:      rgba(255,255,255,0.07);
+      --border-lit:  rgba(248,196,80,0.28);
+
+      --gold:        #F8C450;
+      --gold-dim:    rgba(248,196,80,0.1);
+      --gold-glow:   rgba(248,196,80,0.22);
+      --sky:         #38BDF8;
+      --sky-dim:     rgba(56,189,248,0.1);
+      --green:       #34D399;
+      --green-dim:   rgba(52,211,153,0.1);
+      --red:         #F87171;
+      --red-dim:     rgba(248,113,113,0.1);
+      --amber:       #FBBF24;
+      --amber-dim:   rgba(251,191,36,0.1);
+
+      --text-1:      #F0F4FF;
+      --text-2:      #8B98B8;
+      --text-3:      #3D4A66;
+
+      /* Legacy aliases */
+      --azul-oscuro: #080D1A;
+      --azul-medio:  #1C2640;
+      --azul-claro:  #38BDF8;
+      --azul-suave:  rgba(56,189,248,0.1);
+      --verde:       #34D399;
+      --verde-suave: rgba(52,211,153,0.08);
+      --coral:       #F87171;
+      --coral-suave: rgba(248,113,113,0.08);
+      --amber-suave: rgba(251,191,36,0.1);
+      --gris-texto:  #F0F4FF;
+      --gris-suave:  #8B98B8;
+      --gris-fondo:  #0F1629;
+      --blanco:      #161E35;
+      --borde:       rgba(255,255,255,0.07);
+      --radio-md:    8px;
+      --radio-lg:    12px;
+      --radio-xl:    16px;
+    }
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Inter Tight',system-ui,sans-serif;
+      background:var(--bg);
+      color:var(--text-1);
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* CARGA */
+    #pantalla-carga{
+      position:fixed;inset:0;
+      background:var(--bg);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:999;
+    }
+    .spinner{
+      width:36px;height:36px;
+      border:2px solid rgba(248,196,80,0.1);
+      border-top-color:var(--gold);
+      border-radius:50%;animation:spin 0.9s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #pantalla-carga p{font-size:12px;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;}
+
+    /* LAYOUT */
+    #contenido{display:none;}
+    .shell{display:flex;min-height:100vh;}
+
+    /* OVERLAY */
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:49;backdrop-filter:blur(4px);}
+    .sidebar-overlay.visible{display:block;}
+
+    /* SIDEBAR */
+    .sidebar{
+      width:220px;min-width:220px;
+      background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);
+      border-right:1px solid var(--border);
+      position:fixed;height:100vh;top:0;left:0;
+      display:flex;flex-direction:column;
+      z-index:50;transition:transform 0.3s ease;
+      overflow:hidden;
+    }
+    .sidebar::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 180px 300px at 50% 0%, rgba(248,196,80,0.04) 0%, transparent 65%);
+      pointer-events:none;
+    }
+    .sidebar-logo{
+      padding:20px 18px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:flex-start;justify-content:space-between;
+      position:relative;
+    }
+    .logo-nombre{
+      font-family:'Sora',sans-serif;
+      font-size:14px;font-weight:600;color:var(--text-1);letter-spacing:-0.02em;
+    }
+    .logo-sub{font-size:11px;color:var(--text-3);margin-top:2px;}
+    .admin-badge{
+      display:inline-block;margin-top:6px;
+      background:rgba(248,113,113,0.12);
+      border:1px solid rgba(248,113,113,0.25);
+      color:var(--red);font-size:9px;font-weight:700;
+      border-radius:99px;padding:2px 8px;letter-spacing:0.06em;
+    }
+    .sidebar-close{
+      display:none;background:none;border:none;
+      color:var(--text-3);cursor:pointer;
+      padding:4px;border-radius:4px;flex-shrink:0;margin-top:2px;
+      transition:color 0.15s;
+    }
+    .sidebar-close:hover{color:var(--text-1);}
+
+    .nav{flex:1;padding:14px 0;overflow-y:auto;}
+    .nav::-webkit-scrollbar{width:0;}
+    .nav-label{
+      font-size:9px;font-weight:700;letter-spacing:0.12em;
+      text-transform:uppercase;color:var(--text-3);
+      padding:0 18px;margin-bottom:4px;margin-top:14px;
+    }
+    .nav-btn{
+      display:flex;align-items:center;gap:9px;
+      width:100%;padding:9px 18px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;font-weight:500;
+      color:var(--text-2);background:none;border:none;
+      cursor:pointer;text-align:left;
+      position:relative;
+      transition:color 0.2s;
+    }
+    .nav-btn::before{
+      content:'';position:absolute;left:0;top:5px;bottom:5px;
+      width:2px;border-radius:0 2px 2px 0;
+      background:var(--gold);transform:scaleY(0);
+      transition:transform 0.2s ease;
+    }
+    .nav-btn.activo{color:var(--text-1);}
+    .nav-btn.activo::before{transform:scaleY(1);}
+    .nav-btn:hover:not(.activo){color:var(--text-1);background:rgba(255,255,255,0.03);}
+    .nav-btn svg{flex-shrink:0;opacity:0.55;transition:opacity 0.2s;}
+    .nav-btn.activo svg,.nav-btn:hover svg{opacity:1;}
+
+    .sidebar-footer{
+      padding:14px 18px;border-top:1px solid var(--border);
+      font-size:11px;color:var(--text-3);
+    }
+
+    /* MAIN */
+    .main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+    .topbar{
+      background:rgba(8,13,26,0.85);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      padding:0 28px;height:56px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:40;
+    }
+    .topbar-izq{display:flex;align-items:center;gap:10px;}
+    .topbar-hamburguesa{
+      display:none;background:none;border:none;cursor:pointer;
+      padding:6px;border-radius:var(--radio-md);flex-direction:column;gap:4px;
+    }
+    .topbar-hamburguesa span{display:block;width:18px;height:1.5px;background:var(--text-2);border-radius:1px;}
+    .topbar-titulo{
+      font-family:'Sora',sans-serif;
+      font-size:15px;font-weight:600;color:var(--text-1);letter-spacing:-0.02em;
+    }
+    .topbar-sub{font-size:12px;color:var(--text-3);margin-top:1px;}
+
+    /* TOAST */
+    #toast{
+      position:fixed;bottom:24px;right:24px;
+      background:var(--surface-2);
+      border:1px solid var(--border);
+      color:var(--text-1);
+      font-size:13px;font-family:'Inter Tight',sans-serif;
+      padding:10px 18px;border-radius:var(--radio-lg);
+      opacity:0;transform:translateY(8px);
+      transition:all 0.25s;z-index:999;pointer-events:none;
+      box-shadow:0 8px 24px rgba(0,0,0,0.4);
+    }
+    #toast.visible{opacity:1;transform:translateY(0);}
+    #toast.ok{background:#0F2A1A;border-color:rgba(52,211,153,0.3);color:var(--green);}
+    #toast.error{background:#2A0F0F;border-color:rgba(248,113,113,0.3);color:var(--red);}
+
+    /* SECCIONES */
+    .seccion{display:none;padding:24px 28px;}
+    .seccion.activa{display:block;animation:fadeUp 0.3s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+    /* BANNER ESTUDIANTE */
+    .estudiante-banner{
+      display:none;
+      background:linear-gradient(135deg,var(--surface),var(--surface-2));
+      border:1px solid var(--border-lit);
+      border-radius:var(--radio-xl);
+      padding:16px 20px;margin-bottom:20px;
+      align-items:center;gap:14px;
+    }
+    .estudiante-banner.visible{display:flex;}
+    .est-avatar{
+      width:40px;height:40px;border-radius:50%;
+      background:var(--gold-dim);border:1.5px solid var(--border-lit);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Sora',sans-serif;
+      font-size:13px;font-weight:700;color:var(--gold);flex-shrink:0;
+    }
+    .est-info{flex:1;}
+    .est-nombre{font-size:14px;font-weight:600;color:var(--text-1);}
+    .est-email{font-size:12px;color:var(--text-3);margin-top:2px;}
+    .est-nivel{
+      font-size:10px;font-weight:600;
+      background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);
+      color:var(--sky);border-radius:99px;padding:2px 8px;
+      margin-top:4px;display:inline-block;letter-spacing:0.04em;
+    }
+    .btn-cambiar{
+      height:30px;padding:0 14px;
+      background:rgba(255,255,255,0.06);border:1px solid var(--border);
+      border-radius:var(--radio-md);color:var(--text-2);
+      font-size:12px;cursor:pointer;white-space:nowrap;
+      font-family:'Inter Tight',sans-serif;font-weight:500;
+      transition:all 0.15s;
+    }
+    .btn-cambiar:hover{background:rgba(255,255,255,0.1);color:var(--text-1);}
+
+    /* SELECTOR */
+    .selector-card{
+      background:var(--surface);border:1.5px dashed var(--border);
+      border-radius:var(--radio-xl);padding:32px 24px;
+      text-align:center;margin-bottom:20px;
+    }
+    .selector-card p{font-size:13px;color:var(--text-2);margin-bottom:16px;}
+    .selector-busqueda{display:flex;gap:10px;margin-bottom:12px;}
+    .selector-busqueda input{
+      flex:1;height:38px;
+      background:var(--surface-2);border:1px solid var(--border);
+      border-radius:var(--radio-md);padding:0 12px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;
+      color:var(--text-1);
+      transition:border-color 0.15s;
+    }
+    .selector-busqueda input::placeholder{color:var(--text-3);}
+    .selector-busqueda input:focus{outline:none;border-color:rgba(56,189,248,0.4);}
+    .selector-lista{
+      max-height:260px;overflow-y:auto;
+      border:1px solid var(--border);border-radius:var(--radio-lg);
+      background:var(--surface-2);
+    }
+    .selector-item{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 14px;border-bottom:1px solid var(--border);
+      cursor:pointer;transition:background 0.1s;
+    }
+    .selector-item:last-child{border-bottom:none;}
+    .selector-item:hover{background:rgba(255,255,255,0.04);}
+    .sel-avatar{
+      width:32px;height:32px;border-radius:50%;
+      background:var(--sky-dim);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Sora',sans-serif;
+      font-size:11px;font-weight:700;color:var(--sky);flex-shrink:0;
+    }
+    .sel-nombre{font-size:13px;font-weight:500;color:var(--text-1);}
+    .sel-email{font-size:11px;color:var(--text-3);}
+    .sel-nivel{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:99px;}
+
+    /* CARDS */
+    .card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radio-xl);padding:20px 24px;margin-bottom:16px;
+    }
+    .card:hover{border-color:rgba(255,255,255,0.1);}
+    .card-titulo{
+      font-size:13px;font-weight:600;color:var(--text-1);
+      margin-bottom:16px;padding-bottom:12px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:8px;
+    }
+
+    /* FORMULARIOS */
+    .campo{margin-bottom:14px;}
+    .campo label{
+      display:block;font-size:11px;font-weight:600;
+      color:var(--text-3);margin-bottom:5px;letter-spacing:0.04em;
+    }
+    .campo input,.campo select,.campo textarea{
+      width:100%;height:38px;
+      background:var(--surface-2);border:1px solid var(--border);
+      border-radius:var(--radio-md);padding:0 12px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;
+      color:var(--text-1);
+      transition:border-color 0.15s,box-shadow 0.15s;
+    }
+    .campo input::placeholder,.campo textarea::placeholder{color:var(--text-3);}
+    .campo input:focus,.campo select:focus,.campo textarea:focus{
+      outline:none;border-color:rgba(56,189,248,0.4);
+      box-shadow:0 0 0 3px rgba(56,189,248,0.06);
+    }
+    .campo select{appearance:none;cursor:pointer;}
+    .campo textarea{height:auto;padding:10px 12px;resize:vertical;}
+    .fila-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .fila-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+    /* BOTONES */
+    .btn{
+      height:36px;padding:0 18px;border:none;
+      border-radius:var(--radio-md);
+      font-size:13px;font-weight:600;
+      font-family:'Inter Tight',sans-serif;
+      cursor:pointer;transition:all 0.15s;
+    }
+    .btn-primario{background:var(--sky);color:#080D1A;}
+    .btn-primario:hover{background:#60CEFF;box-shadow:0 4px 12px rgba(56,189,248,0.3);}
+    .btn-verde{background:var(--green);color:#080D1A;}
+    .btn-verde:hover{background:#6EE7C7;box-shadow:0 4px 12px rgba(52,211,153,0.3);}
+    .btn-rojo{background:var(--red);color:#080D1A;}
+    .btn-rojo:hover{background:#FCA5A5;}
+    .btn-ghost{
+      background:var(--surface-2);color:var(--text-2);
+      border:1px solid var(--border);
+    }
+    .btn-ghost:hover{background:var(--surface-3);color:var(--text-1);}
+    .btn-sm{height:28px;padding:0 12px;font-size:12px;}
+
+    /* TABLA */
+    .tabla-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    thead th{
+      text-align:left;padding:10px 14px;
+      font-size:10px;font-weight:700;color:var(--text-3);
+      letter-spacing:0.08em;text-transform:uppercase;
+      border-bottom:1px solid var(--border);
+      background:var(--surface-2);
+    }
+    tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:rgba(255,255,255,0.02);}
+    tbody td{padding:12px 14px;color:var(--text-1);vertical-align:middle;}
+
+    .nivel-chip{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:0.04em;}
+    .nivel-A1{background:rgba(56,189,248,0.1);color:var(--sky);}
+    .nivel-A2{background:rgba(52,211,153,0.1);color:var(--green);}
+    .nivel-B1{background:rgba(248,196,80,0.1);color:var(--gold);}
+    .nivel-B2{background:rgba(248,113,113,0.1);color:var(--red);}
+    .nivel-C1{background:rgba(167,139,250,0.1);color:#A78BFA;}
+    .nivel-C2{background:rgba(251,146,60,0.1);color:#FB923C;}
+
+    .progreso-mini{display:flex;align-items:center;gap:8px;}
+    .barra-mini-wrap{flex:1;height:4px;background:var(--surface-3);border-radius:99px;overflow:hidden;}
+    .barra-mini-fill{height:100%;background:var(--sky);border-radius:99px;}
+    .progreso-num{font-size:11px;color:var(--text-3);min-width:28px;}
+
+    /* BUSCADOR */
+    .buscador-wrap{display:flex;gap:10px;margin-bottom:16px;align-items:center;}
+    .buscador{
+      flex:1;height:36px;
+      background:var(--surface-2);border:1px solid var(--border);
+      border-radius:var(--radio-md);padding:0 12px;
+      font-size:13px;font-family:'Inter Tight',sans-serif;
+      color:var(--text-1);transition:border-color 0.15s;
+    }
+    .buscador::placeholder{color:var(--text-3);}
+    .buscador:focus{outline:none;border-color:rgba(56,189,248,0.4);}
+
+    /* MODAL */
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,0.75);
+      display:none;align-items:center;justify-content:center;
+      z-index:200;backdrop-filter:blur(6px);
+    }
+    .modal-overlay.abierto{display:flex;}
+    .modal{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:20px;padding:24px;
+      width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;
+      box-shadow:0 24px 64px rgba(0,0,0,0.6);
+      animation:fadeUp 0.25s ease both;
+    }
+    .modal-titulo{
+      font-family:'Sora',sans-serif;
+      font-size:15px;font-weight:600;color:var(--text-1);
+      margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);
+    }
+    .modal-acciones{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
+
+    /* LISTAS */
+    .item-lista{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 14px;border-bottom:1px solid var(--border);
+      transition:background 0.1s;
+    }
+    .item-lista:last-child{border-bottom:none;}
+    .item-lista:hover{background:rgba(255,255,255,0.02);}
+    .item-icono{
+      width:34px;height:34px;border-radius:var(--radio-md);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .item-nombre{font-size:13px;font-weight:500;color:var(--text-1);}
+    .item-meta{font-size:11px;color:var(--text-3);margin-top:1px;}
+    .item-acciones{margin-left:auto;display:flex;gap:6px;}
+
+    /* STATS */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+    .stat-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radio-xl);padding:16px 18px;
+      transition:border-color 0.2s,transform 0.2s;
+    }
+    .stat-card:hover{border-color:rgba(248,196,80,0.2);transform:translateY(-1px);}
+    .stat-label{font-size:10px;font-weight:600;color:var(--text-3);margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase;}
+    .stat-valor{
+      font-family:'Sora',sans-serif;
+      font-size:26px;font-weight:700;color:var(--text-1);
+    }
+
+    .vacio{text-align:center;padding:40px 20px;color:var(--text-3);font-size:13px;}
+
+    /* RESPONSIVE */
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%);}
+      .sidebar.drawer-abierto{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,0.7);}
+      .sidebar-close{display:flex;align-items:center;justify-content:center;}
+      .main{margin-left:0;}
+      .topbar{padding:0 16px;}
+      .topbar-hamburguesa{display:flex;}
+      .seccion{padding:16px;}
+      .fila-2,.fila-3{grid-template-columns:1fr;}
+      .stats-row{grid-template-columns:repeat(2,1fr);}
+      .topbar-sub{display:none;}
+    }
+    @media(max-width:420px){.stats-row{grid-template-columns:1fr;}}
+
+    /* ══ CURRÍCULO ══ */
+    .curriculo-tabs {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .curriculo-tab {
+      height: 32px; padding: 0 16px; border-radius: 99px;
+      border: 1px solid var(--border); background: var(--surface-2);
+      font-size: 12px; font-weight: 600; color: var(--text-2);
+      cursor: pointer; font-family: 'Inter Tight', sans-serif;
+      transition: all 0.15s;
+    }
+    .curriculo-tab:hover { border-color: rgba(56,189,248,0.3); color: var(--sky); }
+    .curriculo-tab.activo { background: var(--sky); border-color: var(--sky); color: #080D1A; }
+
+    .clase-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;
+    }
+    .clase-card {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radio-lg); padding: 14px 16px;
+      cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .clase-card:hover {
+      border-color: rgba(56,189,248,0.25);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transform: translateY(-1px);
+    }
+    .clase-card.publicada { border-left: 2px solid var(--green); }
+    .clase-card.borrador  { border-left: 2px solid var(--gold); }
+
+    .clase-num {
+      font-size: 10px; font-weight: 700; color: var(--text-3);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px;
+    }
+    .clase-titulo-card { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 4px; line-height: 1.4; }
+    .clase-desc-card {
+      font-size: 11px; color: var(--text-2); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .clase-estado-badge {
+      position: absolute; top: 10px; right: 10px;
+      font-size: 9px; font-weight: 700; padding: 2px 7px;
+      border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-publicada { background: rgba(52,211,153,0.1); color: var(--green); }
+    .badge-borrador  { background: rgba(248,196,80,0.1); color: var(--gold); }
+    .badge-vacio     { background: var(--surface-3); color: var(--text-3); }
+
+    /* Modal currículo */
+    .modal-curriculo { width: 680px; }
+    .modal-tabs {
+      display: flex; gap: 4px; margin-bottom: 20px;
+      border-bottom: 1px solid var(--border); padding-bottom: 0;
+    }
+    .modal-tab {
+      height: 34px; padding: 0 14px; border: none; background: none;
+      font-size: 13px; color: var(--text-3); cursor: pointer;
+      font-family: 'Inter Tight', sans-serif; font-weight: 500;
+      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+    }
+    .modal-tab:hover { color: var(--sky); }
+    .modal-tab.activo { color: var(--sky); border-bottom-color: var(--sky); }
+    .modal-panel { display: none; }
+    .modal-panel.activo { display: block; }
+
+    .quiz-pregunta-item {
+      background: var(--surface-3); border: 1px solid var(--border);
+      border-radius: var(--radio-md); padding: 12px 14px; margin-bottom: 10px;
+    }
+    .quiz-pregunta-num { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .quiz-pregunta-texto { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 6px; }
+    .quiz-opciones { display: flex; flex-direction: column; gap: 3px; }
+    .quiz-opcion { font-size: 12px; color: var(--text-2); padding: 2px 0; }
+    .quiz-opcion.correcta { color: var(--green); font-weight: 600; }
+    .quiz-opcion.correcta::before { content: "✓ "; }
+
+    .ia-estado {
+      background: var(--sky-dim); border: 1px solid rgba(56,189,248,0.2);
+      border-radius: var(--radio-md); padding: 12px 14px;
+      font-size: 13px; color: var(--sky); margin-bottom: 14px; display: none;
+    }
+    .ia-estado.visible { display: block; }
+    .ia-spinner {
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid rgba(56,189,248,0.15); border-top-color: var(--sky);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+      margin-right: 8px; vertical-align: middle;
+    }
+
+    .asignar-nivel-card {
+      background: var(--gold-dim); border: 1px solid var(--border-lit);
+      border-radius: var(--radio-xl); padding: 20px 24px; margin-bottom: 20px;
+    }
+    .asignar-nivel-titulo { font-family:'Sora',sans-serif; font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+    .asignar-nivel-desc { font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
+    .asignar-nivel-fila { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+    .nivel-selector-wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nivel-btn-sel {
+      height: 30px; padding: 0 14px; border: 1px solid var(--border);
+      border-radius: 99px; background: var(--surface-2);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: 'Inter Tight', sans-serif; transition: all 0.15s; color: var(--text-2);
+    }
+    .nivel-btn-sel:hover, .nivel-btn-sel.activo {
+      background: var(--gold); border-color: var(--gold); color: #080D1A;
+    }
+
+    @media(max-width:768px) {
+      .clase-grid { grid-template-columns: 1fr 1fr; }
+      .modal-curriculo { width: 95vw; }
+    }
+    @media(max-width:480px) { .clase-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+
+  <div id="pantalla-carga">
+    <div class="spinner"></div>
+    <p>Verificando acceso...</p>
+  </div>
+  <div id="toast"></div>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- MODAL EDITAR ESTUDIANTE -->
+  <div class="modal-overlay" id="modal-estudiante">
+    <div class="modal">
+      <div class="modal-titulo" id="modal-nombre-titulo">Editar estudiante</div>
+      <input type="hidden" id="modal-uid" />
+      <div class="fila-2">
+        <div class="campo"><label>Nombre</label><input type="text" id="modal-nombre" placeholder="Nombre completo" />
+        </div>
+        <div class="campo"><label>Email</label><input type="text" id="modal-email" disabled
+            style="background:var(--gris-fondo);" /></div>
+      </div>
+      <div class="fila-3">
+        <div class="campo">
+          <label>Nivel actual</label>
+          <select id="modal-nivel">
+            <option value="A1">A1 — Principiante</option>
+            <option value="A2">A2 — Básico</option>
+            <option value="B1">B1 — Intermedio</option>
+            <option value="B2">B2 — Avanzado</option>
+            <option value="C1">C1 — Avanzado Superior</option>
+            <option value="C2">C2 — Maestría</option>
+          </select>
+        </div>
+        <div class="campo"><label>Progreso (%)</label><input type="number" id="modal-progreso" min="0" max="100"
+            placeholder="0" /></div>
+        <div class="campo"><label>Unidades completadas</label><input type="number" id="modal-unidades" min="0"
+            placeholder="0" /></div>
+      </div>
+      <div class="fila-2">
+        <div class="campo"><label>Horas de estudio</label><input type="number" id="modal-horas" min="0"
+            placeholder="0" /></div>
+        <div class="campo"><label>Racha (días)</label><input type="number" id="modal-racha" min="0" placeholder="0" />
+        </div>
+      </div>
+      <div class="campo"><label>Tareas pendientes</label><input type="number" id="modal-tareas" min="0"
+          placeholder="0" /></div>
+      <div class="modal-acciones">
+        <button class="btn btn-ghost" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primario" onclick="guardarEstudiante()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CURRÍCULO -->
+  <div class="modal-overlay" id="modal-curriculo-overlay">
+    <div class="modal modal-curriculo">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div class="modal-titulo" id="modal-clase-titulo" style="border:none;margin:0;padding:0;">Clase</div>
+        <button class="btn btn-ghost btn-sm" onclick="cerrarModalCurriculo()">✕ Cerrar</button>
+      </div>
+      <div style="font-size:12px;color:var(--gris-suave);margin-bottom:14px;" id="modal-clase-subtitulo"></div>
+
+      <!-- Tabs del modal -->
+      <div class="modal-tabs">
+        <button class="modal-tab activo" onclick="cambiarModalTab('info',this)">📋 Información</button>
+        <button class="modal-tab" onclick="cambiarModalTab('quiz',this)">❓ Quiz</button>
+        <button class="modal-tab" onclick="cambiarModalTab('asignar',this)">👤 Asignar</button>
+      </div>
+
+      <!-- PANEL INFO -->
+      <div class="modal-panel activo" id="mpanel-info">
+        <div class="fila-2">
+          <div class="campo"><label>Título de la clase</label><input type="text" id="mc-titulo" placeholder="ej: Greetings and Introductions" /></div>
+          <div class="campo"><label>Número de clase (1-24)</label><input type="number" id="mc-numero" min="1" max="24" placeholder="1" /></div>
+        </div>
+        <div class="campo"><label>Descripción</label><textarea id="mc-descripcion" rows="2" placeholder="Descripción breve de la clase..."></textarea></div>
+        <div class="fila-2">
+          <div class="campo"><label>Vocabulario (temas)</label><input type="text" id="mc-vocabulario" placeholder="ej: greetings, farewells, titles" /></div>
+          <div class="campo"><label>Gramática</label><input type="text" id="mc-gramatica" placeholder="ej: Subject pronouns, verb to be" /></div>
+        </div>
+        <div class="fila-2">
+          <div class="campo"><label>Pronunciación</label><input type="text" id="mc-pronunciacion" placeholder="ej: Intonation in questions" /></div>
+          <div class="campo"><label>Habilidades (skills)</label><input type="text" id="mc-habilidades" placeholder="ej: Speaking, Listening" /></div>
+        </div>
+        <div class="fila-2">
+          <div class="campo"><label>Cultura</label><input type="text" id="mc-cultura" placeholder="ej: British vs American greetings" /></div>
+          <div class="campo"><label>Video sugerido (YouTube URL)</label><input type="url" id="mc-video" placeholder="https://www.youtube.com/watch?v=..." /></div>
+        </div>
+        <div class="campo">
+          <label>Estado</label>
+          <select id="mc-estado">
+            <option value="borrador">Borrador (no visible para estudiantes)</option>
+            <option value="publicada">Publicada (visible)</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn btn-primario" onclick="guardarClase()">Guardar clase</button>
+          <button class="btn btn-ghost" onclick="cerrarModalCurriculo()">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- PANEL QUIZ -->
+      <div class="modal-panel" id="mpanel-quiz">
+        <div class="ia-estado" id="ia-estado">
+          <span class="ia-spinner"></span>
+          <span id="ia-estado-texto">Generando quiz con IA...</span>
+        </div>
+
+        <div id="quiz-acciones" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="btn btn-primario" onclick="generarQuizIA()">✨ Generar con IA (borrador)</button>
+          <button class="btn btn-ghost" onclick="toggleQuizEditor()">✏️ Editar manualmente</button>
+          <button class="btn btn-verde" id="btn-publicar-quiz" onclick="publicarQuiz()" style="display:none;">✓ Publicar quiz</button>
+        </div>
+
+        <div id="quiz-preview">
+          <div class="vacio" id="quiz-vacio">No hay quiz creado para esta clase. Genera uno con IA o créalo manualmente.</div>
+          <div id="quiz-preguntas-lista"></div>
+        </div>
+
+        <div id="quiz-editor" style="display:none;">
+          <div id="quiz-editor-preguntas"></div>
+          <button class="btn btn-ghost btn-sm" onclick="agregarPreguntaManual()" style="margin-bottom:14px;">+ Agregar pregunta</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primario" onclick="guardarQuizManual()">Guardar quiz</button>
+            <button class="btn btn-ghost" onclick="toggleQuizEditor()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL ASIGNAR -->
+      <div class="modal-panel" id="mpanel-asignar">
+        <p style="font-size:13px;color:var(--gris-suave);margin-bottom:16px;">Asigna esta clase individualmente a un estudiante. También puedes asignar el nivel completo desde la vista principal.</p>
+        <div class="campo">
+          <label>Seleccionar estudiante</label>
+          <select id="mc-asignar-est" style="height:38px;font-size:13px;">
+            <option value="">— Elegir estudiante —</option>
+          </select>
+        </div>
+        <button class="btn btn-verde" onclick="asignarClaseIndividual()">Asignar esta clase</button>
+        <div id="mc-asignar-resultado" style="margin-top:12px;font-size:13px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="contenido">
+    <div class="shell">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <div>
+            <div class="logo-nombre">FrankyEnglish</div>
+            <div class="logo-sub">Panel de administración</div>
+            <span class="admin-badge">ADMIN</span>
+          </div>
+          <button class="sidebar-close" id="sidebar-close">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="nav">
+          <div class="nav-label">Gestión</div>
+          <button class="nav-btn activo" onclick="irA('estudiantes',this)">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3" />
+              <path d="M2 13c0-3.038 2.462-4 5.5-4s5.5.962 5.5 4" stroke="currentColor" stroke-width="1.3"
+                stroke-linecap="round" />
+            </svg>
+            Estudiantes
+          </button>
+          <button class="nav-btn" onclick="irA('clases',this)">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <rect x="1" y="2" width="13" height="11" rx="2" stroke="currentColor" stroke-width="1.3" />
+              <path d="M6 5.5l4 2.5-4 2.5V5.5Z" fill="currentColor" />
+            </svg>
+            Clases (videos)
+          </button>
+          <button class="nav-btn" onclick="irA('materiales',this)">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M3 1.5h9a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1v-10a1 1 0 011-1z" stroke="currentColor"
+                stroke-width="1.3" />
+              <path d="M5 5h5M5 7.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            Materiales (PDFs)
+          </button>
+          <button class="nav-btn" onclick="irA('calendario',this)">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <rect x="1.5" y="2.5" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3" />
+              <path d="M5 1v3M10 1v3M1.5 6.5h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            Clases en vivo
+          </button>
+          <button class="nav-btn" onclick="irA('tareas',this)">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <rect x="1" y="1.5" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.3" />
+              <path d="M4 5.5h7M4 8h5M4 10.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            Tareas
+          </button>
+          <div class="nav-label" style="margin-top:16px;">Contenido</div>
+          <button class="nav-btn" onclick="irA('curriculo',this)">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M2 2h11v11H2z" stroke="currentColor" stroke-width="1.3" rx="1"/>
+              <path d="M5 5h5M5 7.5h3M5 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="11.5" cy="11.5" r="2.5" fill="#3B82F6" stroke="none"/>
+              <path d="M10.5 11.5l.8.8 1.4-1.4" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Currículo
+          </button>
+        </div>
+
+        <div class="sidebar-footer" id="admin-email">—</div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main">
+        <div class="topbar">
+          <div class="topbar-izq">
+            <button class="topbar-hamburguesa" id="topbar-hamburguesa"><span></span><span></span><span></span></button>
+            <div>
+              <div class="topbar-titulo" id="topbar-titulo">Estudiantes</div>
+              <div class="topbar-sub" id="topbar-sub">Gestiona el progreso de tus estudiantes</div>
+            </div>
+          </div>
+          <button class="btn btn-rojo btn-sm" onclick="cerrarSesion()">Cerrar sesión</button>
+        </div>
+
+        <!-- ══════ ESTUDIANTES ══════ -->
+        <div class="seccion activa" id="sec-estudiantes">
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-label">Total estudiantes</div>
+              <div class="stat-valor" id="stat-total">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Nivel A1 / A2</div>
+              <div class="stat-valor" id="stat-basico">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Nivel B1 / B2</div>
+              <div class="stat-valor" id="stat-avanzado">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Promedio progreso</div>
+              <div class="stat-valor" id="stat-progreso">—</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="buscador-wrap">
+              <input class="buscador" id="buscador" placeholder="Buscar por nombre o email..."
+                oninput="filtrarEstudiantes()" />
+              <select class="buscador" style="flex:0 0 140px;" id="filtro-nivel" onchange="filtrarEstudiantes()">
+                <option value="">Todos los niveles</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+              </select>
+            </div>
+            <div class="tabla-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Estudiante</th>
+                    <th>Nivel</th>
+                    <th>Progreso</th>
+                    <th>Horas</th>
+                    <th>Tareas</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-estudiantes">
+                  <tr>
+                    <td colspan="6" class="vacio">Cargando estudiantes...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════ CLASES ══════ -->
+        <div class="seccion" id="sec-clases">
+          <!-- Banner estudiante seleccionado -->
+          <div class="estudiante-banner" id="banner-clases">
+            <div class="est-avatar" id="banner-clases-av">--</div>
+            <div class="est-info">
+              <div class="est-nombre" id="banner-clases-nombre">—</div>
+              <div class="est-email" id="banner-clases-email">—</div>
+              <span class="est-nivel" id="banner-clases-nivel">—</span>
+            </div>
+            <button class="btn-cambiar" onclick="irA('estudiantes', document.querySelector('.nav-btn.activo'))">
+              Cambiar estudiante
+            </button>
+          </div>
+          <!-- Selector si no hay estudiante -->
+          <div id="selector-clases">
+            <div class="selector-card">
+              <p>Selecciona un estudiante para asignarle clases</p>
+              <div class="selector-busqueda"><input id="busq-clases" placeholder="Buscar estudiante..."
+                  oninput="filtrarSelector('clases')" /></div>
+              <div class="selector-lista" id="lista-sel-clases"></div>
+            </div>
+          </div>
+          <!-- Formulario (oculto hasta que haya estudiante) -->
+          <div id="form-clases" style="display:none;">
+            <div class="card">
+              <div class="card-titulo">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="2" width="14" height="12" rx="2" stroke="#3B82F6" stroke-width="1.3" />
+                  <path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="#3B82F6" />
+                </svg>
+                Asignar clase grabada
+              </div>
+              <div class="fila-2">
+                <div class="campo"><label>Título de la clase</label><input type="text" id="clase-titulo"
+                    placeholder="ej: Business Emails" /></div>
+                <div class="campo"><label>Unidad</label><input type="text" id="clase-unidad"
+                    placeholder="ej: Unidad 7" /></div>
+              </div>
+              <div class="fila-3">
+                <div class="campo"><label>Nivel</label><select id="clase-nivel">
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                  </select></div>
+                <div class="campo"><label>Duración (min)</label><input type="number" id="clase-duracion"
+                    placeholder="20" min="1" /></div>
+                <div class="campo"><label>Orden</label><input type="number" id="clase-orden" placeholder="1" min="1" />
+                </div>
+              </div>
+              <div class="campo"><label>URL del video (YouTube)</label><input type="url" id="clase-url"
+                  placeholder="https://www.youtube.com/watch?v=..." /></div>
+              <button class="btn btn-primario" onclick="agregarClase()">Guardar clase</button>
+            </div>
+            <div class="card">
+              <div class="card-titulo">Clases asignadas</div>
+              <div id="lista-clases">
+                <div class="vacio">No hay clases asignadas.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════ MATERIALES ══════ -->
+        <div class="seccion" id="sec-materiales">
+          <div class="estudiante-banner" id="banner-materiales">
+            <div class="est-avatar" id="banner-mat-av">--</div>
+            <div class="est-info">
+              <div class="est-nombre" id="banner-mat-nombre">—</div>
+              <div class="est-email" id="banner-mat-email">—</div><span class="est-nivel" id="banner-mat-nivel">—</span>
+            </div>
+            <button class="btn-cambiar" onclick="irA('estudiantes', document.querySelector('.nav-btn.activo'))">
+              Cambiar estudiante
+            </button>
+          </div>
+          <div id="selector-materiales">
+            <div class="selector-card">
+              <p>Selecciona un estudiante para asignarle materiales</p>
+              <div class="selector-busqueda"><input id="busq-materiales" placeholder="Buscar estudiante..."
+                  oninput="filtrarSelector('materiales')" /></div>
+              <div class="selector-lista" id="lista-sel-materiales"></div>
+            </div>
+          </div>
+          <div id="form-materiales" style="display:none;">
+            <div class="card">
+              <div class="card-titulo">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 1.5h10a1 1 0 011 1v11a1 1 0 01-1 1H3a1 1 0 01-1-1v-11a1 1 0 011-1z" stroke="#DC2626"
+                    stroke-width="1.3" />
+                  <path d="M5 5h6M5 7.5h4" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round" />
+                </svg>
+                Asignar material
+              </div>
+              <div class="fila-2">
+                <div class="campo"><label>Nombre del material</label><input type="text" id="mat-titulo"
+                    placeholder="ej: Vocabulario Unidad 7" /></div>
+                <div class="campo"><label>Unidad / tema</label><input type="text" id="mat-unidad"
+                    placeholder="ej: Unidad 7" /></div>
+              </div>
+              <div class="fila-2">
+                <div class="campo"><label>Nivel</label><select id="mat-nivel">
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                  </select></div>
+                <div class="campo"><label>Tipo</label><select id="mat-tipo">
+                    <option value="PDF">PDF</option>
+                    <option value="Ejercicio">Ejercicio</option>
+                    <option value="Vocabulario">Vocabulario</option>
+                    <option value="Gramática">Gramática</option>
+                  </select></div>
+              </div>
+              <div class="campo"><label>URL del archivo</label><input type="url" id="mat-url"
+                  placeholder="https://drive.google.com/..." /></div>
+              <button class="btn btn-rojo" onclick="agregarMaterial()">Guardar material</button>
+            </div>
+            <div class="card">
+              <div class="card-titulo">Materiales asignados</div>
+              <div id="lista-materiales">
+                <div class="vacio">No hay materiales asignados.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════ CALENDARIO ══════ -->
+        <div class="seccion" id="sec-calendario">
+          <div class="estudiante-banner" id="banner-calendario">
+            <div class="est-avatar" id="banner-cal-av">--</div>
+            <div class="est-info">
+              <div class="est-nombre" id="banner-cal-nombre">—</div>
+              <div class="est-email" id="banner-cal-email">—</div><span class="est-nivel" id="banner-cal-nivel">—</span>
+            </div>
+            <button class="btn-cambiar" onclick="irA('estudiantes', document.querySelector('.nav-btn.activo'))">
+              Cambiar estudiante
+            </button>
+          </div>
+          <div id="selector-calendario">
+            <div class="selector-card">
+              <p>Selecciona un estudiante para asignarle clases en vivo</p>
+              <div class="selector-busqueda"><input id="busq-calendario" placeholder="Buscar estudiante..."
+                  oninput="filtrarSelector('calendario')" /></div>
+              <div class="selector-lista" id="lista-sel-calendario"></div>
+            </div>
+          </div>
+          <div id="form-calendario" style="display:none;">
+            <div class="card">
+              <div class="card-titulo">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="#16A34A" stroke-width="1.3" />
+                  <path d="M5 1.5v3M11 1.5v3M1.5 6.5h13" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round" />
+                </svg>
+                Asignar clase en vivo
+              </div>
+              <div class="fila-2">
+                <div class="campo"><label>Título</label><input type="text" id="vivo-titulo"
+                    placeholder="ej: Speaking Practice B1" /></div>
+                <div class="campo"><label>Nivel</label><select id="vivo-nivel">
+                    <option value="Todos">Todos</option>
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                  </select></div>
+              </div>
+              <div class="fila-3">
+                <div class="campo"><label>Fecha</label><input type="date" id="vivo-fecha" /></div>
+                <div class="campo"><label>Hora</label><input type="time" id="vivo-hora" /></div>
+                <div class="campo"><label>Duración (min)</label><input type="number" id="vivo-duracion"
+                    placeholder="60" /></div>
+              </div>
+              <div class="campo"><label>Link de Google Meet</label><input type="url" id="vivo-url"
+                  placeholder="https://meet.google.com/..." /></div>
+              <button class="btn btn-verde" onclick="agregarClaseVivo()">Guardar clase en vivo</button>
+            </div>
+            <div class="card">
+              <div class="card-titulo">Clases en vivo asignadas</div>
+              <div id="lista-vivo">
+                <div class="vacio">No hay clases asignadas.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════ TAREAS ══════ -->
+        <div class="seccion" id="sec-tareas">
+          <div class="estudiante-banner" id="banner-tareas">
+            <div class="est-avatar" id="banner-tar-av">--</div>
+            <div class="est-info">
+              <div class="est-nombre" id="banner-tar-nombre">—</div>
+              <div class="est-email" id="banner-tar-email">—</div><span class="est-nivel" id="banner-tar-nivel">—</span>
+            </div>
+            <button class="btn-cambiar" onclick="irA('estudiantes', document.querySelector('.nav-btn.activo'))">
+              Cambiar estudiante
+            </button>
+          </div>
+          <div id="selector-tareas">
+            <div class="selector-card">
+              <p>Selecciona un estudiante para enviarle una tarea</p>
+              <div class="selector-busqueda"><input id="busq-tareas" placeholder="Buscar estudiante..."
+                  oninput="filtrarSelector('tareas')" /></div>
+              <div class="selector-lista" id="lista-sel-tareas"></div>
+            </div>
+          </div>
+          <div id="form-tareas" style="display:none;">
+            <div class="card">
+              <div class="card-titulo">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="1.5" width="14" height="13" rx="2" stroke="#D97706" stroke-width="1.3" />
+                  <path d="M4 6h8M4 8.5h5M4 11h7" stroke="#D97706" stroke-width="1.3" stroke-linecap="round" />
+                </svg>
+                Enviar tarea
+              </div>
+              <div class="fila-2">
+                <div class="campo"><label>Título de la tarea</label><input type="text" id="tarea-titulo"
+                    placeholder="ej: Ejercicio gramática" /></div>
+                <div class="campo"><label>Fecha límite</label><input type="date" id="tarea-fecha" /></div>
+              </div>
+              <div class="campo"><label>Descripción / instrucciones</label><textarea id="tarea-desc" rows="3"
+                  placeholder="Qué deben hacer..."></textarea></div>
+              <div class="campo"><label>URL de referencia (opcional)</label><input type="url" id="tarea-url"
+                  placeholder="https://..." /></div>
+              <button class="btn" style="background:var(--amber-suave);color:var(--amber);border:1px solid #FCD34D;"
+                onclick="enviarTarea()">Enviar tarea</button>
+            </div>
+            <div class="card">
+              <div class="card-titulo">Tareas enviadas</div>
+              <div id="lista-tareas-admin">
+                <div class="vacio">No hay tareas enviadas.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════ CURRÍCULO ══════ -->
+        <div class="seccion" id="sec-curriculo">
+
+          <!-- Asignación rápida por nivel -->
+          <div class="asignar-nivel-card">
+            <div class="asignar-nivel-titulo">📚 Asignar nivel completo a estudiante</div>
+            <div class="asignar-nivel-desc">Asigna todas las clases publicadas de un nivel a un estudiante de un solo clic.</div>
+            <div class="asignar-nivel-fila">
+              <div>
+                <div style="font-size:11px;color:var(--gris-suave);margin-bottom:6px;">Seleccionar nivel</div>
+                <div class="nivel-selector-wrap" id="nivel-asignar-btns">
+                  <button class="nivel-btn-sel activo" onclick="selNivelAsignar('A1',this)">A1</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('A2',this)">A2</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('B1',this)">B1</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('B2',this)">B2</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('C1',this)">C1</button>
+                  <button class="nivel-btn-sel" onclick="selNivelAsignar('C2',this)">C2</button>
+                </div>
+              </div>
+              <div style="flex:1;min-width:200px;">
+                <div style="font-size:11px;color:var(--gris-suave);margin-bottom:6px;">Seleccionar estudiante</div>
+                <select id="sel-est-nivel" class="campo" style="height:32px;font-size:12px;margin:0;border:1px solid var(--borde);border-radius:var(--radio-md);padding:0 10px;font-family:'DM Sans',system-ui,sans-serif;width:100%;">
+                  <option value="">— Elegir estudiante —</option>
+                </select>
+              </div>
+              <button class="btn btn-verde" style="white-space:nowrap;flex-shrink:0;" onclick="asignarNivelCompleto()">Asignar nivel</button>
+            </div>
+          </div>
+
+          <!-- Tabs por nivel -->
+          <div class="curriculo-tabs" id="curriculo-tabs">
+            <button class="curriculo-tab activo" onclick="cambiarNivel('A1',this)">A1 · Principiante</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('A2',this)">A2 · Básico</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('B1',this)">B1 · Intermedio</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('B2',this)">B2 · Avanzado</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('C1',this)">C1 · Avanzado Superior</button>
+            <button class="curriculo-tab" onclick="cambiarNivel('C2',this)">C2 · Maestría</button>
+            <button class="btn btn-primario btn-sm" style="margin-left:auto;" onclick="generarNivelCompleto()">✨ Generar nivel con IA</button>
+          </div>
+
+          <!-- Grid de clases -->
+          <div class="card" style="padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div id="curriculo-nivel-titulo" style="font-size:14px;font-weight:500;color:var(--azul-oscuro);">A1 — Principiante · 24 clases</div>
+              <div style="font-size:12px;color:var(--gris-suave);" id="curriculo-conteo">0 publicadas</div>
+            </div>
+            <div class="clase-grid" id="clase-grid">
+              <div class="vacio">Cargando clases...</div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyBYnI8vDNGkzCxEwAX93HbbxeC7Nq0UkW0",
+      authDomain: "portal-de-ingles.firebaseapp.com",
+      projectId: "portal-de-ingles",
+      storageBucket: "portal-de-ingles.firebasestorage.app",
+      messagingSenderId: "555874735361",
+      appId: "1:555874735361:web:2dc6e4b51a9b5c5548f700",
+      measurementId: "G-488275BW4C"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+
+    var ADMIN_EMAIL = "francovich2808@gmail.com";
+
+    /* UID del estudiante actualmente seleccionado para cada sección */
+    var uidSeleccionado = { clases: null, materiales: null, calendario: null, tareas: null };
+    var todosEstudiantes = [];
+
+    /* ══════════════════════════════════
+       DRAWER MÓVIL
+    ══════════════════════════════════ */
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebar-overlay');
+    var hamburger = document.getElementById('topbar-hamburguesa');
+    var closeBtn = document.getElementById('sidebar-close');
+
+    function abrirDrawer() { sidebar.classList.add('drawer-abierto'); overlay.classList.add('visible'); document.body.style.overflow = 'hidden'; }
+    function cerrarDrawer() { sidebar.classList.remove('drawer-abierto'); overlay.classList.remove('visible'); document.body.style.overflow = ''; }
+
+    hamburger.addEventListener('click', abrirDrawer);
+    closeBtn.addEventListener('click', cerrarDrawer);
+    overlay.addEventListener('click', cerrarDrawer);
+    window.addEventListener('resize', function () { if (window.innerWidth > 768) cerrarDrawer(); });
+
+    /* ══════════════════════════════════
+       SESIÓN
+    ══════════════════════════════════ */
+    auth.onAuthStateChanged(function (usuario) {
+      if (!usuario) { window.location.href = 'login.html'; return; }
+      if (usuario.email !== ADMIN_EMAIL) {
+        alert("No tienes acceso al panel de administración.");
+        auth.signOut(); window.location.href = 'login.html'; return;
+      }
+      document.getElementById('admin-email').textContent = usuario.email;
+      document.getElementById('pantalla-carga').style.display = 'none';
+      document.getElementById('contenido').style.display = 'block';
+      cargarEstudiantes();
+    });
+
+    /* ══════════════════════════════════
+       NAVEGACIÓN
+    ══════════════════════════════════ */
+    var TITULOS = {
+      estudiantes: ["Estudiantes", "Gestiona el progreso de tus estudiantes"],
+      clases: ["Clases (videos)", "Asigna clases grabadas a un estudiante"],
+      materiales: ["Materiales", "Asigna PDFs y recursos a un estudiante"],
+      calendario: ["Clases en vivo", "Programa clases en vivo para un estudiante"],
+      tareas: ["Tareas", "Envía tareas a un estudiante"],
+      curriculo: ["Currículo", "Gestiona las 144 clases del currículo anual"]
+    };
+
+    function irA(seccion, btn) {
+      document.querySelectorAll('.seccion').forEach(function (s) { s.classList.remove('activa'); });
+      document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('activo'); });
+      document.getElementById('sec-' + seccion).classList.add('activa');
+      if (btn) btn.classList.add('activo');
+      document.getElementById('topbar-titulo').textContent = TITULOS[seccion][0];
+      document.getElementById('topbar-sub').textContent = TITULOS[seccion][1];
+      cerrarDrawer();
+      if(seccion === 'curriculo'){
+        cargarClasesNivel(nivelActual);
+        actualizarSelectorEstNivel();
+      }
+    }
+
+    /* ══════════════════════════════════
+       TOAST
+    ══════════════════════════════════ */
+    function toast(msg, tipo) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'visible ' + (tipo || 'ok');
+      setTimeout(function () { t.className = ''; }, 3000);
+    }
+
+    /* ══════════════════════════════════
+       ESTUDIANTES — listener tiempo real
+    ══════════════════════════════════ */
+    function cargarEstudiantes() {
+      db.collection('estudiantes').onSnapshot(function (snap) {
+        todosEstudiantes = [];
+        snap.forEach(function (doc) { todosEstudiantes.push(Object.assign({ uid: doc.id }, doc.data())); });
+        actualizarStats();
+        renderizarTabla(todosEstudiantes);
+        renderizarTodosSelectores();
+      });
+    }
+
+    function actualizarStats() {
+      var total = todosEstudiantes.length;
+      var basico = todosEstudiantes.filter(function (e) { return e.nivel === 'A1' || e.nivel === 'A2'; }).length;
+      var avanzado = todosEstudiantes.filter(function (e) { return e.nivel === 'B1' || e.nivel === 'B2'; }).length;
+      var prom = total > 0 ? Math.round(todosEstudiantes.reduce(function (s, e) { return s + (e.progreso || 0); }, 0) / total) : 0;
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-basico').textContent = basico;
+      document.getElementById('stat-avanzado').textContent = avanzado;
+      document.getElementById('stat-progreso').textContent = prom + '%';
+    }
+
+    function filtrarEstudiantes() {
+      var q = document.getElementById('buscador').value.toLowerCase();
+      var nv = document.getElementById('filtro-nivel').value;
+      renderizarTabla(todosEstudiantes.filter(function (e) {
+        return (!q || (e.nombre || '').toLowerCase().includes(q) || (e.email || '').toLowerCase().includes(q)) && (!nv || e.nivel === nv);
+      }));
+    }
+
+    function renderizarTabla(lista) {
+      var tbody = document.getElementById('tabla-estudiantes');
+      if (!lista.length) { tbody.innerHTML = '<tr><td colspan="6" class="vacio">No se encontraron estudiantes.</td></tr>'; return; }
+      tbody.innerHTML = lista.map(function (e) {
+        var p = e.progreso || 0;
+        return '<tr>'
+          + '<td><strong style="font-size:13px;">' + (e.nombre || 'Sin nombre') + '</strong><br><span style="font-size:11px;color:var(--gris-suave);">' + (e.email || '') + '</span></td>'
+          + '<td><span class="nivel-chip nivel-' + (e.nivel || 'A1') + '">' + (e.nivel || 'A1') + '</span></td>'
+          + '<td><div class="progreso-mini"><div class="barra-mini-wrap"><div class="barra-mini-fill" style="width:' + p + '%"></div></div><span class="progreso-num">' + p + '%</span></div></td>'
+          + '<td>' + (e.horasEstudio || 0) + 'h</td>'
+          + '<td>' + (e.tareasPendientes || 0) + '</td>'
+          + '<td><button class="btn btn-ghost btn-sm" onclick="abrirModal(\'' + e.uid + '\')">Editar</button></td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    /* ── MODAL ── */
+    function abrirModal(uid) {
+      var e = todosEstudiantes.find(function (x) { return x.uid === uid; });
+      if (!e) return;
+      document.getElementById('modal-uid').value = uid;
+      document.getElementById('modal-nombre-titulo').textContent = 'Editar: ' + (e.nombre || e.email);
+      document.getElementById('modal-nombre').value = e.nombre || '';
+      document.getElementById('modal-email').value = e.email || '';
+      document.getElementById('modal-nivel').value = e.nivel || 'A1';
+      document.getElementById('modal-progreso').value = e.progreso || 0;
+      document.getElementById('modal-unidades').value = e.unidadesCompletadas || 0;
+      document.getElementById('modal-horas').value = e.horasEstudio || 0;
+      document.getElementById('modal-racha').value = e.racha || 0;
+      document.getElementById('modal-tareas').value = e.tareasPendientes || 0;
+      document.getElementById('modal-estudiante').classList.add('abierto');
+    }
+
+    function cerrarModal() { document.getElementById('modal-estudiante').classList.remove('abierto'); }
+
+    function guardarEstudiante() {
+      var uid = document.getElementById('modal-uid').value;
+      var nivel = document.getElementById('modal-nivel').value;
+      var sig = { A1: 'A2', A2: 'B1', B1: 'B2', B2: 'C1' };
+      var nom = { A1: 'Principiante', A2: 'Básico', B1: 'Intermedio', B2: 'Avanzado' };
+      db.collection('estudiantes').doc(uid).update({
+        nombre: document.getElementById('modal-nombre').value.trim(),
+        nivel: nivel, nivelNombre: nom[nivel], nivelSiguiente: sig[nivel],
+        progreso: parseInt(document.getElementById('modal-progreso').value) || 0,
+        unidadesCompletadas: parseInt(document.getElementById('modal-unidades').value) || 0,
+        horasEstudio: parseInt(document.getElementById('modal-horas').value) || 0,
+        racha: parseInt(document.getElementById('modal-racha').value) || 0,
+        tareasPendientes: parseInt(document.getElementById('modal-tareas').value) || 0
+      })
+        .then(function () { cerrarModal(); toast('Estudiante actualizado', 'ok'); })
+        .catch(function (err) { toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ══════════════════════════════════
+       SELECTORES DE ESTUDIANTE
+       Cada sección de contenido tiene su propio selector
+    ══════════════════════════════════ */
+    function renderizarTodosSelectores() {
+      ['clases', 'materiales', 'calendario', 'tareas'].forEach(function (s) { renderizarSelector(s, todosEstudiantes); });
+      actualizarSelectorEstNivel();
+    }
+
+    function filtrarSelector(seccion) {
+      var q = document.getElementById('busq-' + seccion).value.toLowerCase();
+      renderizarSelector(seccion, todosEstudiantes.filter(function (e) {
+        return !q || (e.nombre || '').toLowerCase().includes(q) || (e.email || '').toLowerCase().includes(q);
+      }));
+    }
+
+    function renderizarSelector(seccion, lista) {
+      var cont = document.getElementById('lista-sel-' + seccion);
+      if (!cont) return;
+      if (!lista.length) { cont.innerHTML = '<div class="vacio">No hay estudiantes.</div>'; return; }
+      cont.innerHTML = lista.map(function (e) {
+        var ini = (e.nombre || e.email || '?').slice(0, 2).toUpperCase();
+        return '<div class="selector-item" onclick="seleccionarEstudiante(\'' + seccion + '\',\'' + e.uid + '\')">'
+          + '<div class="sel-avatar">' + ini + '</div>'
+          + '<div><div class="sel-nombre">' + (e.nombre || 'Sin nombre') + '</div><div class="sel-email">' + (e.email || '') + '</div></div>'
+          + '<span class="sel-nivel nivel-chip nivel-' + (e.nivel || 'A1') + '">' + (e.nivel || 'A1') + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    /* Seleccionar un estudiante para una sección */
+    function seleccionarEstudiante(seccion, uid) {
+      var e = todosEstudiantes.find(function (x) { return x.uid === uid; });
+      if (!e) return;
+      uidSeleccionado[seccion] = uid;
+
+      var ini = (e.nombre || '?').split(' ').map(function (n) { return n[0]; }).join('').slice(0, 2).toUpperCase();
+
+      /* Mostrar banner */
+      var prefijos = { clases: 'clases', materiales: 'mat', calendario: 'cal', tareas: 'tar' };
+      var p = prefijos[seccion];
+      document.getElementById('banner-' + p + '-av').textContent = ini;
+      document.getElementById('banner-' + p + '-nombre').textContent = e.nombre || 'Sin nombre';
+      document.getElementById('banner-' + p + '-email').textContent = e.email || '';
+      document.getElementById('banner-' + p + '-nivel').textContent = (e.nivel || 'A1') + ' — ' + (e.nivelNombre || '');
+      document.getElementById('banner-' + seccion).classList.add('visible');
+
+      /* Ocultar selector, mostrar formulario */
+      document.getElementById('selector-' + seccion).style.display = 'none';
+      document.getElementById('form-' + seccion).style.display = 'block';
+
+      /* Cargar contenido existente del estudiante */
+      if (seccion === 'clases') cargarClasesEstudiante(uid);
+      if (seccion === 'materiales') cargarMaterialesEstudiante(uid);
+      if (seccion === 'calendario') cargarCalendarioEstudiante(uid);
+      if (seccion === 'tareas') cargarTareasEstudiante(uid);
+    }
+
+    /* ══════════════════════════════════
+       CLASES — subcollection del estudiante
+    ══════════════════════════════════ */
+    function agregarClase() {
+      var uid = uidSeleccionado['clases'];
+      if (!uid) { toast('Selecciona un estudiante primero', 'error'); return; }
+      var datos = {
+        titulo: document.getElementById('clase-titulo').value.trim(),
+        unidad: document.getElementById('clase-unidad').value.trim(),
+        nivel: document.getElementById('clase-nivel').value,
+        duracion: parseInt(document.getElementById('clase-duracion').value) || 0,
+        orden: parseInt(document.getElementById('clase-orden').value) || 1,
+        videoUrl: document.getElementById('clase-url').value.trim(),
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (!datos.titulo || !datos.videoUrl) { toast('Completa el título y la URL', 'error'); return; }
+      db.collection('estudiantes').doc(uid).collection('clasesAsignadas').add(datos)
+        .then(function () {
+          toast('Clase asignada', 'ok');
+          ['clase-titulo', 'clase-unidad', 'clase-duracion', 'clase-orden', 'clase-url'].forEach(function (id) { document.getElementById(id).value = ''; });
+        })
+        .catch(function (err) { toast('Error: ' + err.message, 'error'); });
+    }
+
+    function cargarClasesEstudiante(uid) {
+      db.collection('estudiantes').doc(uid).collection('clasesAsignadas').orderBy('orden')
+        .onSnapshot(function (snap) {
+          var lista = document.getElementById('lista-clases');
+          if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay clases asignadas.</div>'; return; }
+          lista.innerHTML = '';
+          snap.forEach(function (doc) {
+            var d = doc.data();
+            var div = document.createElement('div'); div.className = 'item-lista';
+            div.innerHTML = '<div class="item-icono" style="background:#EFF6FF;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="#3B82F6" stroke-width="1.3"/><path d="M6 5.5l5 2.5-5 2.5V5.5Z" fill="#3B82F6"/></svg></div>'
+              + '<div><div class="item-nombre">' + d.titulo + '</div><div class="item-meta">' + (d.unidad || '') + ' · Nivel ' + d.nivel + ' · ' + (d.duracion || 0) + ' min</div></div>'
+              + '<div class="item-acciones"><button class="btn btn-rojo btn-sm" onclick="eliminarSubDoc(\'estudiantes\',\'' + uid + '\',\'clasesAsignadas\',\'' + doc.id + '\',this)">Eliminar</button></div>';
+            lista.appendChild(div);
+          });
+        });
+    }
+
+    /* ══════════════════════════════════
+       MATERIALES — subcollection
+    ══════════════════════════════════ */
+    function agregarMaterial() {
+      var uid = uidSeleccionado['materiales'];
+      if (!uid) { toast('Selecciona un estudiante primero', 'error'); return; }
+      var datos = {
+        titulo: document.getElementById('mat-titulo').value.trim(),
+        unidad: document.getElementById('mat-unidad').value.trim(),
+        nivel: document.getElementById('mat-nivel').value,
+        tipo: document.getElementById('mat-tipo').value,
+        url: document.getElementById('mat-url').value.trim(),
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (!datos.titulo || !datos.url) { toast('Completa el nombre y la URL', 'error'); return; }
+      db.collection('estudiantes').doc(uid).collection('materiales').add(datos)
+        .then(function () {
+          toast('Material asignado', 'ok');
+          ['mat-titulo', 'mat-unidad', 'mat-url'].forEach(function (id) { document.getElementById(id).value = ''; });
+        })
+        .catch(function (err) { toast('Error: ' + err.message, 'error'); });
+    }
+
+    function cargarMaterialesEstudiante(uid) {
+      db.collection('estudiantes').doc(uid).collection('materiales')
+        .onSnapshot(function (snap) {
+          var lista = document.getElementById('lista-materiales');
+          if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay materiales asignados.</div>'; return; }
+          lista.innerHTML = '';
+          snap.forEach(function (doc) {
+            var d = doc.data();
+            var div = document.createElement('div'); div.className = 'item-lista';
+            div.innerHTML = '<div class="item-icono" style="background:#FEF2F2;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 1.5h10a1 1 0 011 1v11a1 1 0 01-1 1H3a1 1 0 01-1-1v-11a1 1 0 011-1z" stroke="#DC2626" stroke-width="1.3"/><path d="M5 5h6M5 7.5h4" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/></svg></div>'
+              + '<div><div class="item-nombre">' + d.titulo + '</div><div class="item-meta">' + (d.tipo || 'PDF') + ' · ' + (d.unidad || '') + ' · Nivel ' + d.nivel + '</div></div>'
+              + '<div class="item-acciones">'
+              + (d.url ? '<a href="' + d.url + '" target="_blank" class="btn btn-ghost btn-sm">Ver</a>' : '')
+              + '<button class="btn btn-rojo btn-sm" onclick="eliminarSubDoc(\'estudiantes\',\'' + uid + '\',\'materiales\',\'' + doc.id + '\',this)">Eliminar</button>'
+              + '</div>';
+            lista.appendChild(div);
+          });
+        });
+    }
+
+    /* ══════════════════════════════════
+       CALENDARIO — subcollection
+    ══════════════════════════════════ */
+    function agregarClaseVivo() {
+      var uid = uidSeleccionado['calendario'];
+      if (!uid) { toast('Selecciona un estudiante primero', 'error'); return; }
+      var datos = {
+        titulo: document.getElementById('vivo-titulo').value.trim(),
+        nivel: document.getElementById('vivo-nivel').value,
+        fecha: document.getElementById('vivo-fecha').value,
+        hora: document.getElementById('vivo-hora').value,
+        duracion: parseInt(document.getElementById('vivo-duracion').value) || 60,
+        meetUrl: document.getElementById('vivo-url').value.trim(),
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (!datos.titulo || !datos.fecha || !datos.meetUrl) { toast('Completa título, fecha y link de Meet', 'error'); return; }
+      db.collection('estudiantes').doc(uid).collection('clasesVivo').add(datos)
+        .then(function () {
+          toast('Clase en vivo asignada', 'ok');
+          ['vivo-titulo', 'vivo-fecha', 'vivo-hora', 'vivo-duracion', 'vivo-url'].forEach(function (id) { document.getElementById(id).value = ''; });
+        })
+        .catch(function (err) { toast('Error: ' + err.message, 'error'); });
+    }
+
+    function cargarCalendarioEstudiante(uid) {
+      db.collection('estudiantes').doc(uid).collection('clasesVivo')
+        .onSnapshot(function (snap) {
+          var lista = document.getElementById('lista-vivo');
+          if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay clases en vivo asignadas.</div>'; return; }
+          lista.innerHTML = '';
+          var docs = snap.docs.slice().sort(function (a, b) { return ((a.data().fecha || '') + (a.data().hora || '')) > ((b.data().fecha || '') + (b.data().hora || '')) ? 1 : -1; });
+          docs.forEach(function (doc) {
+            var d = doc.data();
+            var div = document.createElement('div'); div.className = 'item-lista';
+            div.innerHTML = '<div class="item-icono" style="background:#F0FDF4;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="#16A34A" stroke-width="1.3"/><path d="M5 1.5v3M11 1.5v3M1.5 6.5h13" stroke="#16A34A" stroke-width="1.3" stroke-linecap="round"/></svg></div>'
+              + '<div><div class="item-nombre">' + d.titulo + '</div><div class="item-meta">' + (d.fecha || '') + ' · ' + (d.hora || '') + ' · ' + (d.duracion || 60) + ' min</div></div>'
+              + '<div class="item-acciones">'
+              + (d.meetUrl ? '<a href="' + d.meetUrl + '" target="_blank" class="btn btn-ghost btn-sm">Meet</a>' : '')
+              + '<button class="btn btn-rojo btn-sm" onclick="eliminarSubDoc(\'estudiantes\',\'' + uid + '\',\'clasesVivo\',\'' + doc.id + '\',this)">Eliminar</button>'
+              + '</div>';
+            lista.appendChild(div);
+          });
+        });
+    }
+
+    /* ══════════════════════════════════
+       TAREAS — subcollection
+    ══════════════════════════════════ */
+    function enviarTarea() {
+      var uid = uidSeleccionado['tareas'];
+      if (!uid) { toast('Selecciona un estudiante primero', 'error'); return; }
+      var titulo = document.getElementById('tarea-titulo').value.trim();
+      var fecha = document.getElementById('tarea-fecha').value;
+      if (!titulo || !fecha) { toast('Completa el título y la fecha', 'error'); return; }
+      var datos = {
+        titulo: titulo, descripcion: document.getElementById('tarea-desc').value.trim(),
+        fechaLimite: fecha, url: document.getElementById('tarea-url').value.trim(),
+        completada: false, creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      var batch = db.batch();
+      batch.set(db.collection('estudiantes').doc(uid).collection('tareas').doc(), datos);
+      batch.update(db.collection('estudiantes').doc(uid), { tareasPendientes: firebase.firestore.FieldValue.increment(1) });
+      batch.commit()
+        .then(function () {
+          toast('Tarea enviada', 'ok');
+          ['tarea-titulo', 'tarea-fecha', 'tarea-desc', 'tarea-url'].forEach(function (id) { document.getElementById(id).value = ''; });
+        })
+        .catch(function (err) { toast('Error: ' + err.message, 'error'); });
+    }
+
+    function cargarTareasEstudiante(uid) {
+      db.collection('estudiantes').doc(uid).collection('tareas').orderBy('creadoEn', 'desc')
+        .onSnapshot(function (snap) {
+          var lista = document.getElementById('lista-tareas-admin');
+          if (snap.empty) { lista.innerHTML = '<div class="vacio">No hay tareas enviadas.</div>'; return; }
+          lista.innerHTML = '';
+          snap.forEach(function (doc) {
+            var d = doc.data();
+            var div = document.createElement('div'); div.className = 'item-lista';
+            div.innerHTML = '<div class="item-icono" style="background:' + (d.completada ? '#F0FDF4' : '#FFFBEB') + '">'
+              + (d.completada ? '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-7" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+                : '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="10" rx="2" stroke="#D97706" stroke-width="1.3"/></svg>')
+              + '</div>'
+              + '<div><div class="item-nombre" style="' + (d.completada ? 'text-decoration:line-through;color:var(--gris-suave);' : '') + '">' + d.titulo + '</div>'
+              + '<div class="item-meta">' + (d.completada ? 'Completada' : 'Pendiente') + (d.fechaLimite ? ' · Vence: ' + d.fechaLimite : '') + '</div></div>'
+              + '<div class="item-acciones"><button class="btn btn-rojo btn-sm" onclick="eliminarSubDoc(\'estudiantes\',\'' + uid + '\',\'tareas\',\'' + doc.id + '\',this)">Eliminar</button></div>';
+            lista.appendChild(div);
+          });
+        });
+    }
+
+    /* ══════════════════════════════════
+       ELIMINAR DOCUMENTO DE SUBCOLLECTION
+    ══════════════════════════════════ */
+    function eliminarSubDoc(col, uid, sub, id, btn) {
+      if (!confirm('¿Eliminar este elemento?')) return;
+      db.collection(col).doc(uid).collection(sub).doc(id).delete()
+        .then(function () { btn.closest('.item-lista').remove(); toast('Eliminado correctamente', 'ok'); })
+        .catch(function (err) { toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ── Cerrar sesión ── */
+    function cerrarSesion() { auth.signOut().then(function () { window.location.href = 'login.html'; }); }
+
+    /* ══════════════════════════════════════════════════════
+       CURRÍCULO — Sistema completo
+    ══════════════════════════════════════════════════════ */
+
+    var NIVELES_INFO = {
+      A1: { nombre: 'Principiante',       clases: 24 },
+      A2: { nombre: 'Básico',             clases: 24 },
+      B1: { nombre: 'Intermedio',         clases: 24 },
+      B2: { nombre: 'Avanzado',           clases: 24 },
+      C1: { nombre: 'Avanzado Superior',  clases: 24 },
+      C2: { nombre: 'Maestría',           clases: 24 }
+    };
+
+    var nivelActual = 'A1';
+    var nivelAsignar = 'A1';
+    var claseActualId = null;
+    var claseActualData = null;
+    var quizActual = null;
+    var unsub_curriculo = null;
+
+    /* ─── Navegación de nivel ─── */
+    function cambiarNivel(nivel, btn) {
+      nivelActual = nivel;
+      document.querySelectorAll('.curriculo-tab').forEach(function(b){ b.classList.remove('activo'); });
+      if(btn) btn.classList.add('activo');
+      var info = NIVELES_INFO[nivel];
+      document.getElementById('curriculo-nivel-titulo').textContent = nivel + ' — ' + info.nombre + ' · ' + info.clases + ' clases';
+      cargarClasesNivel(nivel);
+    }
+
+    /* ─── Cargar clases de un nivel ─── */
+    function cargarClasesNivel(nivel) {
+      if(unsub_curriculo) unsub_curriculo();
+      document.getElementById('clase-grid').innerHTML = '<div class="vacio">Cargando...</div>';
+      unsub_curriculo = db.collection('curriculo').doc(nivel).collection('clases')
+        .orderBy('numero')
+        .onSnapshot(function(snap){
+          var mapa = {};
+          snap.forEach(function(doc){ mapa[doc.data().numero] = Object.assign({ id: doc.id }, doc.data()); });
+          renderizarGrid(nivel, mapa);
+        });
+    }
+
+    function renderizarGrid(nivel, mapa) {
+      var grid = document.getElementById('clase-grid');
+      var publicadas = 0;
+      var html = '';
+      for(var i = 1; i <= 24; i++){
+        var c = mapa[i];
+        if(c){
+          var estado = c.estado || 'borrador';
+          if(estado === 'publicada') publicadas++;
+          html += '<div class="clase-card ' + estado + '" onclick="abrirModalClase(\'' + nivel + '\',' + i + ',\'' + c.id + '\')">'
+            + '<span class="clase-estado-badge badge-' + estado + '">' + (estado === 'publicada' ? 'Publicada' : 'Borrador') + '</span>'
+            + '<div class="clase-num">Clase ' + i + ' de 24</div>'
+            + '<div class="clase-titulo-card">' + (c.titulo || 'Sin título') + '</div>'
+            + '<div class="clase-desc-card">' + (c.descripcion || '') + '</div>'
+            + '</div>';
+        } else {
+          html += '<div class="clase-card" onclick="abrirModalClase(\'' + nivel + '\',' + i + ',null)" style="opacity:0.55;">'
+            + '<span class="clase-estado-badge badge-vacio">Vacía</span>'
+            + '<div class="clase-num">Clase ' + i + ' de 24</div>'
+            + '<div class="clase-titulo-card" style="color:var(--gris-suave);">Sin contenido</div>'
+            + '<div class="clase-desc-card">Haz clic para crear esta clase</div>'
+            + '</div>';
+        }
+      }
+      grid.innerHTML = html;
+      document.getElementById('curriculo-conteo').textContent = publicadas + ' publicadas de 24';
+    }
+
+    /* ─── Abrir modal de clase ─── */
+    function abrirModalClase(nivel, numero, id) {
+      claseActualId = id;
+      claseActualData = null;
+      quizActual = null;
+
+      document.getElementById('modal-clase-titulo').textContent = nivel + ' · Clase ' + numero;
+      document.getElementById('modal-clase-subtitulo').textContent = NIVELES_INFO[nivel].nombre + ' — Clase ' + numero + ' de 24';
+
+      /* Reset campos */
+      ['mc-titulo','mc-numero','mc-descripcion','mc-vocabulario','mc-gramatica',
+       'mc-pronunciacion','mc-habilidades','mc-cultura','mc-video'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.value = '';
+      });
+      document.getElementById('mc-numero').value = numero;
+      document.getElementById('mc-estado').value = 'borrador';
+
+      /* Guardar nivel+numero en dataset */
+      document.getElementById('modal-clase-titulo').dataset.nivel = nivel;
+      document.getElementById('modal-clase-titulo').dataset.numero = numero;
+
+      /* Llenar selector estudiantes */
+      var sel = document.getElementById('mc-asignar-est');
+      sel.innerHTML = '<option value="">— Elegir estudiante —</option>';
+      todosEstudiantes.forEach(function(e){
+        sel.innerHTML += '<option value="' + e.uid + '">' + (e.nombre||e.email) + ' (' + (e.nivel||'A1') + ')</option>';
+      });
+      document.getElementById('mc-asignar-resultado').textContent = '';
+
+      /* Reset quiz */
+      document.getElementById('ia-estado').classList.remove('visible');
+      document.getElementById('quiz-vacio').style.display = 'block';
+      document.getElementById('quiz-preguntas-lista').innerHTML = '';
+      document.getElementById('btn-publicar-quiz').style.display = 'none';
+      document.getElementById('quiz-editor').style.display = 'none';
+
+      /* Cargar datos si existe */
+      if(id){
+        db.collection('curriculo').doc(nivel).collection('clases').doc(id).get().then(function(doc){
+          if(!doc.exists) return;
+          var d = doc.data();
+          claseActualData = d;
+          document.getElementById('mc-titulo').value = d.titulo || '';
+          document.getElementById('mc-descripcion').value = d.descripcion || '';
+          document.getElementById('mc-vocabulario').value = (d.vocabulario||[]).join(', ');
+          document.getElementById('mc-gramatica').value = d.gramatica || '';
+          document.getElementById('mc-pronunciacion').value = d.pronunciacion || '';
+          document.getElementById('mc-habilidades').value = (d.habilidades||[]).join(', ');
+          document.getElementById('mc-cultura').value = d.cultura || '';
+          document.getElementById('mc-video').value = d.videoSugerido || '';
+          document.getElementById('mc-estado').value = d.estado || 'borrador';
+
+          /* Cargar quiz si existe */
+          db.collection('curriculo').doc(nivel).collection('clases').doc(id)
+            .collection('quiz').doc('preguntas').get().then(function(qDoc){
+              if(qDoc.exists){
+                quizActual = qDoc.data().preguntas || [];
+                renderizarQuizPreview(quizActual);
+                document.getElementById('btn-publicar-quiz').style.display = quizActual.length ? 'block' : 'none';
+              }
+            });
+        });
+      }
+
+      cambiarModalTab('info', document.querySelector('.modal-tab'));
+      document.getElementById('modal-curriculo-overlay').classList.add('abierto');
+    }
+
+    function cerrarModalCurriculo() {
+      document.getElementById('modal-curriculo-overlay').classList.remove('abierto');
+    }
+
+    function cambiarModalTab(tab, btn) {
+      document.querySelectorAll('.modal-panel').forEach(function(p){ p.classList.remove('activo'); });
+      document.querySelectorAll('.modal-tab').forEach(function(b){ b.classList.remove('activo'); });
+      document.getElementById('mpanel-' + tab).classList.add('activo');
+      if(btn) btn.classList.add('activo');
+    }
+
+    /* ─── Guardar clase ─── */
+    function guardarClase() {
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var numero = parseInt(document.getElementById('modal-clase-titulo').dataset.numero);
+      var datos = {
+        numero:       numero,
+        nivel:        nivel,
+        titulo:       document.getElementById('mc-titulo').value.trim(),
+        descripcion:  document.getElementById('mc-descripcion').value.trim(),
+        vocabulario:  document.getElementById('mc-vocabulario').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean),
+        gramatica:    document.getElementById('mc-gramatica').value.trim(),
+        pronunciacion:document.getElementById('mc-pronunciacion').value.trim(),
+        habilidades:  document.getElementById('mc-habilidades').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean),
+        cultura:      document.getElementById('mc-cultura').value.trim(),
+        videoSugerido:document.getElementById('mc-video').value.trim(),
+        estado:       document.getElementById('mc-estado').value,
+        actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if(!datos.titulo){ toast('El título es obligatorio', 'error'); return; }
+
+      var ref = db.collection('curriculo').doc(nivel).collection('clases');
+      var promise = claseActualId
+        ? ref.doc(claseActualId).update(datos)
+        : ref.add(Object.assign({ creadoEn: firebase.firestore.FieldValue.serverTimestamp() }, datos));
+
+      promise.then(function(docRef){
+        if(!claseActualId && docRef) claseActualId = docRef.id;
+        toast('Clase guardada correctamente', 'ok');
+        cerrarModalCurriculo();
+      }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Generar nivel completo con IA ─── */
+    function generarNivelCompleto() {
+      var info = NIVELES_INFO[nivelActual];
+      if(!confirm('¿Generar las 24 clases del nivel ' + nivelActual + ' con IA? Esto tomará unos segundos y creará todas las clases como borradores.')) return;
+      toast('Generando curriculum ' + nivelActual + '...', 'ok');
+      generarCurriculoNivel(nivelActual, info.nombre);
+    }
+
+    // ── URL del proxy (Cloudflare Worker) ──
+    // Cambia esta URL por la de tu worker después de desplegarlo
+    var PROXY_URL = 'https://franky-ai.TU_USUARIO.workers.dev';
+
+    async function generarCurriculoNivel(nivel, nombreNivel) {
+      var prompt = 'Genera el currículo completo de 24 clases de inglés para el nivel ' + nivel + ' (' + nombreNivel + ') del Marco Europeo de Referencia. '
+        + 'Son 3 clases semanales durante 8 semanas. '
+        + 'Responde SOLO con un array JSON válido de 24 objetos. Cada objeto debe tener exactamente estas propiedades: '
+        + 'numero (1-24), titulo (en inglés, max 6 palabras), descripcion (1 oración en español), '
+        + 'vocabulario (array de 3-5 strings en inglés), gramatica (string), pronunciacion (string), '
+        + 'habilidades (array: speaking/listening/reading/writing), cultura (string breve), videoSugerido (string con tema del video sugerido). '
+        + 'No incluyas markdown, backticks ni texto adicional. Solo el array JSON puro.';
+
+      try {
+        var response = await fetch(PROXY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        var data = await response.json();
+        var texto = data.content[0].text.trim();
+        texto = texto.replace(/```json|```/g, '').trim();
+        var clases = JSON.parse(texto);
+
+        var batch = db.batch();
+        clases.forEach(function(clase) {
+          var ref = db.collection('curriculo').doc(nivel).collection('clases').doc();
+          batch.set(ref, Object.assign({
+            nivel: nivel,
+            estado: 'borrador',
+            creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+          }, clase));
+        });
+        await batch.commit();
+        toast('✓ ' + clases.length + ' clases generadas para ' + nivel, 'ok');
+      } catch(err) {
+        toast('Error generando: ' + err.message, 'error');
+        console.error(err);
+      }
+    }
+
+    /* ─── Generar quiz con IA ─── */
+    async function generarQuizIA() {
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var titulo = document.getElementById('mc-titulo').value || claseActualData && claseActualData.titulo || 'Clase de inglés';
+      var gramatica = document.getElementById('mc-gramatica').value || '';
+      var vocabulario = document.getElementById('mc-vocabulario').value || '';
+
+      document.getElementById('ia-estado').classList.add('visible');
+      document.getElementById('ia-estado-texto').textContent = 'Generando quiz con IA...';
+
+      var prompt = 'Genera un quiz de 5 preguntas para una clase de inglés nivel ' + nivel + ' sobre el tema: "' + titulo + '". '
+        + (gramatica ? 'Gramática cubierta: ' + gramatica + '. ' : '')
+        + (vocabulario ? 'Vocabulario: ' + vocabulario + '. ' : '')
+        + 'Incluye 3 preguntas de selección múltiple, 1 de completar espacio y 1 de verdadero/falso. '
+        + 'Responde SOLO con un array JSON de 5 objetos con propiedades: '
+        + 'tipo ("multiple"|"completar"|"verdadero_falso"), pregunta (string), '
+        + 'opciones (array de strings, null si no aplica), respuesta (string con la respuesta correcta). '
+        + 'No incluyas markdown ni texto adicional.';
+
+      try {
+        var response = await fetch(PROXY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        var data = await response.json();
+        var texto = data.content[0].text.trim().replace(/```json|```/g, '').trim();
+        quizActual = JSON.parse(texto);
+
+        document.getElementById('ia-estado-texto').textContent = '✓ Quiz generado. Revísalo antes de publicar.';
+        renderizarQuizPreview(quizActual);
+        document.getElementById('btn-publicar-quiz').style.display = 'block';
+        document.getElementById('quiz-vacio').style.display = 'none';
+      } catch(err) {
+        document.getElementById('ia-estado-texto').textContent = 'Error: ' + err.message;
+        toast('Error generando quiz: ' + err.message, 'error');
+      }
+    }
+
+    function renderizarQuizPreview(preguntas) {
+      var lista = document.getElementById('quiz-preguntas-lista');
+      if(!preguntas || !preguntas.length){ lista.innerHTML = ''; return; }
+      document.getElementById('quiz-vacio').style.display = 'none';
+      lista.innerHTML = preguntas.map(function(p, i){
+        var tipo = p.tipo === 'multiple' ? 'Selección múltiple' : p.tipo === 'completar' ? 'Completar' : 'V / F';
+        var opcsHtml = '';
+        if(p.opciones && p.opciones.length){
+          opcsHtml = '<div class="quiz-opciones">' + p.opciones.map(function(o){
+            return '<div class="quiz-opcion' + (o === p.respuesta ? ' correcta' : '') + '">' + o + '</div>';
+          }).join('') + '</div>';
+        } else {
+          opcsHtml = '<div class="quiz-opcion correcta">→ ' + (p.respuesta||'') + '</div>';
+        }
+        return '<div class="quiz-pregunta-item">'
+          + '<div class="quiz-pregunta-num">Pregunta ' + (i+1) + ' · ' + tipo + '</div>'
+          + '<div class="quiz-pregunta-texto">' + p.pregunta + '</div>'
+          + opcsHtml
+          + '</div>';
+      }).join('');
+    }
+
+    function publicarQuiz() {
+      if(!quizActual || !quizActual.length){ toast('No hay quiz para publicar', 'error'); return; }
+      if(!claseActualId){ toast('Guarda la clase primero', 'error'); return; }
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      db.collection('curriculo').doc(nivel).collection('clases').doc(claseActualId)
+        .collection('quiz').doc('preguntas').set({
+          preguntas: quizActual,
+          publicado: true,
+          actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function(){
+          toast('Quiz publicado correctamente', 'ok');
+          document.getElementById('ia-estado-texto').textContent = '✓ Quiz publicado y visible para los estudiantes.';
+        }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Editor manual de quiz ─── */
+    function toggleQuizEditor() {
+      var ed = document.getElementById('quiz-editor');
+      if(ed.style.display === 'none'){
+        ed.style.display = 'block';
+        if(!quizActual || !quizActual.length){
+          document.getElementById('quiz-editor-preguntas').innerHTML = '';
+          agregarPreguntaManual();
+        } else {
+          renderizarQuizEditor(quizActual);
+        }
+      } else {
+        ed.style.display = 'none';
+      }
+    }
+
+    function renderizarQuizEditor(preguntas) {
+      var cont = document.getElementById('quiz-editor-preguntas');
+      cont.innerHTML = preguntas.map(function(p, i){
+        return '<div class="quiz-pregunta-item" data-idx="' + i + '">'
+          + '<div style="display:flex;justify-content:space-between;margin-bottom:8px;">'
+          + '<div class="quiz-pregunta-num">Pregunta ' + (i+1) + '</div>'
+          + '<button class="btn btn-ghost btn-sm" onclick="eliminarPreguntaEditor(' + i + ')">Eliminar</button>'
+          + '</div>'
+          + '<div class="campo" style="margin-bottom:8px;"><label>Pregunta</label><input type="text" value="' + (p.pregunta||'').replace(/"/g,'&quot;') + '" onchange="actualizarPreguntaEditor(' + i + ',\'pregunta\',this.value)" /></div>'
+          + '<div class="campo" style="margin-bottom:8px;"><label>Respuesta correcta</label><input type="text" value="' + (p.respuesta||'').replace(/"/g,'&quot;') + '" onchange="actualizarPreguntaEditor(' + i + ',\'respuesta\',this.value)" /></div>'
+          + '</div>';
+      }).join('');
+    }
+
+    var quizEditorData = [];
+    function agregarPreguntaManual() {
+      quizEditorData.push({ tipo: 'multiple', pregunta: '', opciones: ['','','',''], respuesta: '' });
+      renderizarQuizEditor(quizEditorData);
+    }
+    function eliminarPreguntaEditor(idx) {
+      quizEditorData.splice(idx, 1);
+      renderizarQuizEditor(quizEditorData);
+    }
+    function actualizarPreguntaEditor(idx, campo, valor) {
+      if(!quizEditorData[idx]) quizEditorData[idx] = {};
+      quizEditorData[idx][campo] = valor;
+    }
+    function guardarQuizManual() {
+      quizActual = quizEditorData.filter(function(p){ return p.pregunta; });
+      renderizarQuizPreview(quizActual);
+      document.getElementById('quiz-editor').style.display = 'none';
+      document.getElementById('btn-publicar-quiz').style.display = quizActual.length ? 'block' : 'none';
+      toast('Quiz actualizado. Publícalo cuando esté listo.', 'ok');
+    }
+
+    /* ─── Asignar nivel completo ─── */
+    function selNivelAsignar(nivel, btn) {
+      nivelAsignar = nivel;
+      document.querySelectorAll('.nivel-btn-sel').forEach(function(b){ b.classList.remove('activo'); });
+      if(btn) btn.classList.add('activo');
+    }
+
+    function asignarNivelCompleto() {
+      var uid = document.getElementById('sel-est-nivel').value;
+      if(!uid){ toast('Selecciona un estudiante', 'error'); return; }
+      var estudiante = todosEstudiantes.find(function(e){ return e.uid === uid; });
+      if(!uid || !estudiante){ toast('Estudiante no encontrado', 'error'); return; }
+
+      db.collection('curriculo').doc(nivelAsignar).collection('clases')
+        .where('estado','==','publicada')
+        .orderBy('numero')
+        .get().then(function(snap){
+          if(snap.empty){ toast('No hay clases publicadas en nivel ' + nivelAsignar, 'error'); return; }
+          var batch = db.batch();
+          snap.forEach(function(doc){
+            var c = doc.data();
+            var ref = db.collection('estudiantes').doc(uid).collection('clasesAsignadas').doc();
+            batch.set(ref, {
+              titulo:       c.titulo || 'Clase ' + c.numero,
+              unidad:       'Nivel ' + nivelAsignar + ' · Clase ' + c.numero,
+              nivel:        nivelAsignar,
+              duracion:     45,
+              orden:        c.numero,
+              videoUrl:     c.videoSugerido || '',
+              claseId:      doc.id,
+              nivelCurriculo: nivelAsignar,
+              creadoEn:     firebase.firestore.FieldValue.serverTimestamp()
+            });
+          });
+          return batch.commit().then(function(){
+            toast('✓ ' + snap.size + ' clases de ' + nivelAsignar + ' asignadas a ' + (estudiante.nombre||estudiante.email), 'ok');
+          });
+        }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Asignar clase individual desde modal ─── */
+    function asignarClaseIndividual() {
+      var uid = document.getElementById('mc-asignar-est').value;
+      if(!uid){ toast('Selecciona un estudiante', 'error'); return; }
+      if(!claseActualId){ toast('Guarda la clase primero', 'error'); return; }
+      var nivel = document.getElementById('modal-clase-titulo').dataset.nivel;
+      var numero = parseInt(document.getElementById('modal-clase-titulo').dataset.numero);
+      var titulo = document.getElementById('mc-titulo').value || 'Clase ' + numero;
+      var video = document.getElementById('mc-video').value || '';
+      var est = todosEstudiantes.find(function(e){ return e.uid === uid; });
+
+      db.collection('estudiantes').doc(uid).collection('clasesAsignadas').add({
+        titulo: titulo,
+        unidad: 'Nivel ' + nivel + ' · Clase ' + numero,
+        nivel: nivel,
+        duracion: 45,
+        orden: numero,
+        videoUrl: video,
+        claseId: claseActualId,
+        nivelCurriculo: nivel,
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        document.getElementById('mc-asignar-resultado').innerHTML = '<span style="color:var(--verde);">✓ Clase asignada a ' + (est ? est.nombre||est.email : uid) + '</span>';
+        toast('Clase asignada correctamente', 'ok');
+      }).catch(function(err){ toast('Error: ' + err.message, 'error'); });
+    }
+
+    /* ─── Actualizar selector de estudiantes para currículo ─── */
+    function actualizarSelectorEstNivel() {
+      var sel = document.getElementById('sel-est-nivel');
+      if(!sel) return;
+      sel.innerHTML = '<option value="">— Elegir estudiante —</option>';
+      todosEstudiantes.forEach(function(e){
+        sel.innerHTML += '<option value="' + e.uid + '">' + (e.nombre||e.email) + ' (' + (e.nivel||'A1') + ')</option>';
+      });
+    }
+  </script>
+</body>
+
+</html>
