@@ -1751,6 +1751,10 @@
       generarCurriculoNivel(nivelActual, info.nombre);
     }
 
+    // ── URL del proxy (Cloudflare Worker) ──
+    // Cambia esta URL por la de tu worker después de desplegarlo
+    var PROXY_URL = 'https://franky-ai.francovich2808.workers.dev';
+
     async function generarCurriculoNivel(nivel, nombreNivel) {
       var prompt = 'Genera el currículo completo de 24 clases de inglés para el nivel ' + nivel + ' (' + nombreNivel + ') del Marco Europeo de Referencia. '
         + 'Son 3 clases semanales durante 8 semanas. '
@@ -1761,7 +1765,7 @@
         + 'No incluyas markdown, backticks ni texto adicional. Solo el array JSON puro.';
 
       try {
-        var response = await fetch('https://api.anthropic.com/v1/messages', {
+        var response = await fetch(PROXY_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1812,7 +1816,7 @@
         + 'No incluyas markdown ni texto adicional.';
 
       try {
-        var response = await fetch('https://api.anthropic.com/v1/messages', {
+        var response = await fetch(PROXY_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
