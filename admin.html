@@ -971,7 +971,7 @@
               <div class="est-email" id="banner-clases-email">—</div>
               <span class="est-nivel" id="banner-clases-nivel">—</span>
             </div>
-            <button class="btn-cambiar" onclick="irA('estudiantes', document.querySelector('.nav-btn.activo'))">
+            <button class="btn-cambiar" onclick="resetearSelector(this.closest('.seccion').id.replace('sec-',''))">
               Cambiar estudiante
             </button>
           </div>
@@ -1033,7 +1033,7 @@
               <div class="est-nombre" id="banner-mat-nombre">—</div>
               <div class="est-email" id="banner-mat-email">—</div><span class="est-nivel" id="banner-mat-nivel">—</span>
             </div>
-            <button class="btn-cambiar" onclick="irA('estudiantes', document.querySelector('.nav-btn.activo'))">
+            <button class="btn-cambiar" onclick="resetearSelector(this.closest('.seccion').id.replace('sec-',''))">
               Cambiar estudiante
             </button>
           </div>
@@ -1096,7 +1096,7 @@
               <div class="est-nombre" id="banner-cal-nombre">—</div>
               <div class="est-email" id="banner-cal-email">—</div><span class="est-nivel" id="banner-cal-nivel">—</span>
             </div>
-            <button class="btn-cambiar" onclick="irA('estudiantes', document.querySelector('.nav-btn.activo'))">
+            <button class="btn-cambiar" onclick="resetearSelector(this.closest('.seccion').id.replace('sec-',''))">
               Cambiar estudiante
             </button>
           </div>
@@ -1155,7 +1155,7 @@
               <div class="est-nombre" id="banner-tar-nombre">—</div>
               <div class="est-email" id="banner-tar-email">—</div><span class="est-nivel" id="banner-tar-nivel">—</span>
             </div>
-            <button class="btn-cambiar" onclick="irA('estudiantes', document.querySelector('.nav-btn.activo'))">
+            <button class="btn-cambiar" onclick="resetearSelector(this.closest('.seccion').id.replace('sec-',''))">
               Cambiar estudiante
             </button>
           </div>
@@ -1488,6 +1488,18 @@
       if (seccion === 'materiales') cargarMaterialesEstudiante(uid);
       if (seccion === 'calendario') cargarCalendarioEstudiante(uid);
       if (seccion === 'tareas') cargarTareasEstudiante(uid);
+    }
+
+    /* ─── Volver al selector de estudiante ─── */
+    function resetearSelector(seccion) {
+      uidSeleccionado[seccion] = null;
+      document.getElementById('banner-' + seccion).classList.remove('visible');
+      document.getElementById('selector-' + seccion).style.display = 'block';
+      document.getElementById('form-' + seccion).style.display = 'none';
+      /* Limpiar búsqueda */
+      var busq = document.getElementById('busq-' + seccion);
+      if(busq) busq.value = '';
+      filtrarSelector(seccion);
     }
 
     /* ══════════════════════════════════
